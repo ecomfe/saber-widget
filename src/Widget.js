@@ -1,5 +1,5 @@
 /**
- * Saber UI
+ * Saber Widget
  * Copyright 2014 Baidu Inc. All rights reserved.
  *
  * @file 基类
@@ -9,15 +9,30 @@
 define(function ( require ) {
 
     var Emitter = require( 'saber-emitter' );
+    var widget = require( './main' );
 
-    var Control = function ( options ) {
+    /**
+     * 控件基类
+     * 禁止实例化，只能继承
+     *
+     * @constructor
+     * @exports Widget
+     * @class
+     * @mixes Emitter
+     * @requires saber-emitter
+     * @param {Object=} options 初始化配置参数
+     * @param {string=} options.id 控件标识
+     * @param {HTMLElement=} options.main 控件主元素
+     * @param {*=} options.* 其余初始化参数由各控件自身决定
+     */
+    var Widget = function ( options ) {
         this.init( options );
     };
 
-    Base.prototype = {
+    Widget.prototype = {
 
         // 修复构造器引用
-        constructor: Base,
+        constructor: Widget,
 
         /**
          * 组件类型标识
@@ -25,15 +40,19 @@ define(function ( require ) {
          * @private
          * @type {string}
          */
-        type: 'Base',
+        type: 'Widget',
 
-        init: function ( options ) {},
+        init: function ( options ) {
+            widget.add( this );
+        },
 
         render: function () {},
 
         repaint: function () {},
 
-        destroy: function () {},
+        dispose: function () {
+            widget.remove( this );
+        },
 
 
 
@@ -47,7 +66,7 @@ define(function ( require ) {
 
 
     // 混入 `Emitter` 支持
-    Emitter.mixin( Base.prototype );
+    Emitter.mixin( Widget.prototype );
 
 
     /**
@@ -70,7 +89,7 @@ define(function ( require ) {
      * b.set( 'content', 'foo' );
      * @return {Emitter}
      */
-    Base.prototype.emit = function ( type ) {
+    Widget.prototype.emit = function ( type ) {
         // 构造事件参数对象
         var ev = { type: type, target: this };
 
@@ -91,6 +110,6 @@ define(function ( require ) {
 
 
 
-    return Base;
+    return Widget;
 
 });
