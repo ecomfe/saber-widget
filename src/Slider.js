@@ -248,8 +248,18 @@ define( function ( require, exports, module ) {
             //     }
             // }
 
-            // 父类方法最后调用处理
             Widget.prototype.repaint.call( this, changes );
+        },
+
+        /**
+         * 销毁控件
+         *
+         * @override
+         */
+        dispose: function () {
+            this.inactive();
+
+            Widget.prototype.dispose.call( this );
         },
 
         /**
