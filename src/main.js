@@ -8,30 +8,99 @@
 
 define(function ( require ) {
 
-    var extend = require( 'saber-lang/extend' );
-
     /**
      * 主模块
-     * 提供组件全局注册、管理等
+     * 提供组件全局配置、注册、管理等
      *
      * @exports widget
      * @singleton
-     * @requires saber-lang/extend
+     * @requires saber-lang
      */
     var main = {};
+
+
+
+
+
+
+    /**
+     * 控件库默认配置
+     *
+     * @inner
+     * @type {Object}
+     */
+    var config = {
+
+        // 控件配置信息所在的DOM属性名
+        configAttr: 's-ui',
+
+        // 控件实例的标识属性
+        instanceAttr: 's-id',
+
+        // 控件的默认class前缀
+        uiClassPrefix: 'ui'
+
+    };
+
+    /**
+     * 配置控件库全局配置
+     *
+     * @public
+     * @param {Object} info 控件库配置信息对象
+     */
+    main.config = function ( info ) {
+        require( 'saber-lang' ).extend( config, info );
+    };
+
+    /**
+     * 获取配置项
+     *
+     * @public
+     * @param {string} name 配置项名称
+     * @return {string} 配置项值
+     */
+    main.getConfig = function ( name ) {
+        return config[ name ];
+    };
+
+
+
+
+
+
+    /**
+     * GUID生成基数
+     *
+     * @inner
+     * @type {number}
+     */
+    var guid = 0x861005;
+
+    /**
+     * 生成全局唯一id
+     *
+     * @param {string=} prefix 前缀
+     * @return {string} 新唯一id字符串
+     */
+    main.getGUID = function ( prefix ) {
+        prefix = prefix || 's';
+        return prefix + guid++;
+    };
+
+
 
 
 
     /**
      * 清理已初始化的控件实例
      *
-     * @param {(string|Widget)=} widget 空或控件id或实例
+     * @param {(string|Widget)=} widget 销毁指定`id`或`实例`的控件，不传则销毁全部
      */
     main.dispose = function ( widget ) {
         // 不传时，清理释放所有控件实例
         if ( !widget ) {
             for ( var w in widgets ) {
-                w.dispose();
+                widgets[ w ].dispose();
             }
         }
         // 传入字符串时，清理释放控件id与之匹配的实例
@@ -46,6 +115,9 @@ define(function ( require ) {
             widget.dispose();
         }
     };
+
+
+
 
 
 
@@ -95,6 +167,37 @@ define(function ( require ) {
      */
     main.get = function ( id ) {
         return widgets[ id ];
+    };
+
+
+
+
+
+
+    /**
+     * 已注册控件类集合
+     *
+     * @inner
+     * @type {Object}
+     */
+    var components = {};
+
+    /**
+     * 注册控件类
+     * 通过类的`prototype.type`识别控件类型信息
+     *
+     * @public
+     * @param {Function} component 控件类
+     */
+    main.register = function ( component ) {
+        if ( 'function' === typeof component ) {
+            var type = component.prototype.type;
+            if ( type in components ) {
+                throw new Error( type + ' is exists!' );
+            }
+
+            components[ type ] = component;
+        }
     };
 
 
