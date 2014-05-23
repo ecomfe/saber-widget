@@ -307,6 +307,9 @@ define(function ( require ) {
                 // 更新状态
                 this.addState( 'dispose' );
 
+                // 移除控件主元素实例标识属性
+                this.main.removeAttribute( widget.getConfig( 'instanceAttr' ) );
+
                 // 释放主元素引用
                 this.main = null;
             }
