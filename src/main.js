@@ -94,7 +94,10 @@ define(function ( require ) {
     /**
      * 清理已初始化的控件实例
      *
-     * @param {(string|Widget)=} widget 销毁指定`id`或`实例`的控件，不传则销毁全部
+     * @param {(string|Widget|HTMLElement)=} widget 控件实例或控件实例id或DOM元素，不传则销毁全部
+     * - 传入`控件id`时,销毁`id`对应的控件
+     * - 传入`控件实例`时,销毁之
+     * - 传入`DOM元素`时,销毁`DOM元素`内的所有控件
      */
     main.dispose = function ( widget ) {
         // 不传时，清理释放所有控件实例
@@ -114,6 +117,28 @@ define(function ( require ) {
         else if ( 'function' === typeof widget.dispose ) {
             widget.dispose();
         }
+        // 传入DOM元素时，清理释放DOM元素范围的实例
+        else if ( /^\[object\sHTML/.test( Object.prototype.toString.call( widget ) ) ) {
+            this.find( widget ).forEach( function ( w ) {
+                w.dispose();
+            } );
+        }
+    };
+
+    /**
+     * 获取指定DOM元素内的所有控件实例
+     *
+     * @param {HTMLElement} element 被检索的DOM元素
+     * @return {Array.<Widget>} 查找到的控件实例
+     */
+    main.find = function ( element ) {
+        var attr = this.getConfig( 'instanceAttr' );
+        return [].map.call(
+            element.querySelectorAll( '[' + attr + ']' ),
+            function ( node ) {
+                return main.get( node.getAttribute( attr ) );
+            }
+        );
     };
 
 
