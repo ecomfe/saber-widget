@@ -35,17 +35,22 @@ define(function ( require ) {
      * @requires saber-lang
      * @requires saber-dom
      * @requires saber-emitter
+     * @fires Widget#init
+     * @fires Widget#beforerender
+     * @fires Widget#afterrender
+     * @fires Widget#beforedispose
+     * @fires Widget#afterdispose
+     * @fires Widget#show
+     * @fires Widget#hide
+     * @fires Widget#enable
+     * @fires Widget#disable
+     * @fires Widget#propertychange
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
      * @param {*=} options.* 其余初始化参数由各控件自身决定
      */
     var Widget = function ( options ) {
-
-        // if ( Widget !== this.constructor ) {
-        //     return new Widget( options );
-        // }
-
         options = options || {};
 
         /**
@@ -54,67 +59,89 @@ define(function ( require ) {
          * @private
          * @type {Object}
          */
-        this.attrs = lang.extend( {
+        this.attrs = lang.extend(
 
-            /**
-             * 控件类型标识
-             *
-             * @type {string}
-             * @readonly
-             */
-            type: {
-                readOnly: true,
-                getter: function () {
-                    return this.type;
+            // `基类`默认属性集
+            // 使用`extend`确保正确`mixin`子类构造函数中定义的默认属性
+            {
+                /**
+                 * 控件类型标识
+                 *
+                 * @type {string}
+                 */
+                type: {
+                    readOnly: true,
+                    value: this.type
+                },
+
+                /**
+                 * 控件`id`
+                 *
+                 * @type {string}
+                 */
+                id: {
+                    readOnly: true,
+                    getter: function () {
+                        return this.id;
+                    }
+                },
+
+                /**
+                 * 控件主元素
+                 *
+                 * @type {HTMLElement}
+                 */
+                main: {
+                    readOnly: true,
+                    getter: function () {
+                        return this.main;
+                    }
                 }
+
             },
 
-            /**
-             * 控件`id`
-             *
-             * @type {string}
-             * @readonly
-             */
-            id: {
-                readOnly: true,
-                getter: function () {
-                    return this.id;
-                }
+            // `子类`默认属性集
+            this.attrs
+
+        );
+
+        /**
+         * 控件状态集
+         *
+         * @private
+         * @type {Object}
+         */
+        this.states = lang.extend(
+
+            // `基类`默认属性集
+            // 使用`extend`确保正确`mixin`子类构造函数中定义的默认状态
+            {
+
+                // 默认为禁用状态
+                disable: true
+
             },
 
-            /**
-             * 控件主元素
-             *
-             * @type {HTMLElement}
-             * @readonly
-             */
-            main: {
-                readOnly: true,
-                getter: function () {
-                    return this.main;
-                }
-            },
+            // `子类`默认属性集
+            this.states
 
-            /**
-             * 控件关联的`Helper`对象
-             *
-             * @type {Helper}
-             * @readonly
-             */
-            helper: {
-                readOnly: true,
-                getter: function () {
-                    return this.helper;
-                }
-            }
+        );
 
-        }, this.attrs );
+        /**
+         * 运行时缓存区
+         *
+         * @private
+         * @type {Object}
+         */
+        this.runtime = {};
 
 
+        // **只读**的**核心**属性需提前处理
         this.id = options.id || widget.getGUID();
         this.main = dom.query( options.main );
         // this.helper = new Helper( this );
 
+        // 初始化后立即从`options`里移除，以免`initOptions`触发`set`操作并抛异常
         delete options.id;
         delete options.main;
 
@@ -124,6 +151,9 @@ define(function ( require ) {
         // 存储实例
         widget.add( this );
 
+        // 更新状态
+        this.addState( 'init' );
+
         /**
          * @event Widget#init
          * @param {Object} ev 事件参数对象
@@ -131,14 +161,18 @@ define(function ( require ) {
          * @param {Widget} ev.target 触发事件的控件对象
          */
         this.emit( 'init' );
-
-        this.inited = true;
     };
 
     Widget.prototype = {
 
         constructor: Widget,
 
+        /**
+         * 控件类型标识
+         *
+         * @readonly
+         * @type {string}
+         */
         type: 'Widget',
 
         /**
@@ -166,7 +200,7 @@ define(function ( require ) {
          *
          * @protected
          */
-        initStructure: function () {},
+        initDom: function () {},
 
         /**
          * 初始化DOM相关事件，仅在第一次渲染时调用
@@ -179,20 +213,14 @@ define(function ( require ) {
          * 渲染控件
          *
          * @protected
-         * @fires Control#beforerender
-         * @fires Control#afterrender
+         * @fires Widget#beforerender
+         * @fires Widget#afterrender
          */
         render: function () {
-            var rendered = this.rendered;
+            var rendered = this.is( 'render' );
 
             if ( !rendered ) {
-                /**
-                 * 控件已渲染标志位
-                 *
-                 * @type {boolean}
-                 * @private
-                 */
-                this.rendered = true;
+                this.addState( 'render' );
 
                 /**
                  * @event Widget#beforerender
@@ -203,19 +231,16 @@ define(function ( require ) {
                 this.emit( 'beforerender' );
 
                 // DOM初始化
-                this.initStructure();
+                this.initDom();
 
                 // 事件初始化
                 this.initEvent();
 
                 // 为控件主元素添加控件实例标识属性
                 this.get( 'main' ).setAttribute( widget.getConfig( 'instanceAttr' ), this.get( 'id' ) );
-
-                // // 为控件主元素添加控件样式
-                // this.helper.addClass();
             }
 
-            // 子类自行覆盖扩展
+            // DOM重绘
             this.repaint();
 
             if ( !rendered ) {
@@ -231,10 +256,26 @@ define(function ( require ) {
             return this;
         },
 
+        /**
+         * 重新渲染视图
+         * 首次渲染时, 不传入变更属性集合参数
+         *
+         * @protected
+         * @param {Object=} changes 变更过的属性的集合
+         * 每个**属性变更对象**结构如下
+         * `属性名`：[ `变更前的值`, `变更后的值` ]
+         */
         repaint: function () {},
 
+        /**
+         * 销毁控件
+         *
+         * @public
+         * @fires Widget#beforedispose
+         * @fires Widget#afterdispose
+         */
         dispose: function () {
-            if ( !this.disposed ) {
+            if ( !this.is( 'dispose' ) ) {
                 /**
                  * @event Widget#beforedispose
                  * @param {Object} ev 事件参数对象
@@ -242,6 +283,9 @@ define(function ( require ) {
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
                 this.emit( 'beforedispose' );
+
+                // 清理运行时缓存区
+                this.runtime = null;
 
                 // 清理DOM事件
                 this.clearEvents();
@@ -260,21 +304,122 @@ define(function ( require ) {
                 // 清理自定义事件
                 this.off();
 
-                this.disposed = true;
+                // 更新状态
+                this.addState( 'dispose' );
+
+                // 释放主元素引用
+                this.main = null;
+            }
+        },
+
+        /**
+         * 启用控件
+         *
+         * @public
+         * @fires Widget#enable
+         */
+        enable: function () {
+            if ( this.is( 'disable' ) ) {
+                this.removeState( 'disable' );
+
+                /**
+                 * @event Widget#enable
+                 * @param {Object} ev 事件参数对象
+                 * @param {string} ev.type 事件类型
+                 * @param {Widget} ev.target 触发事件的控件对象
+                 */
+                this.emit( 'enable' );
+            }
+        },
+
+        /**
+         * 禁用控件
+         *
+         * @public
+         * @fires Widget#disable
+         */
+        disable: function () {
+            if ( !this.is( 'disable' ) ) {
+                this.addState( 'disable' );
+
+                /**
+                 * @event Widget#disable
+                 * @param {Object} ev 事件参数对象
+                 * @param {string} ev.type 事件类型
+                 * @param {Widget} ev.target 触发事件的控件对象
+                 */
+                this.emit( 'disable' );
             }
         },
 
 
-        // attribute
 
+        /**
+         * 控件是否处于指定状态
+         *
+         * @param {string} state 状态名
+         * @return {boolean} 包含指定状态返回`true`
+         */
+        is: function ( state ) {
+            return !!this.states[ state ];
+        },
+
+        /**
+         * 添加控件状态
+         *
+         * @public
+         * @param {string} state 状态名
+         */
+        addState: function ( state ) {
+            this.states[ state ] = !0;
+        },
+
+        /**
+         * 移除控件状态
+         *
+         * @public
+         * @param {string} state 状态名
+         */
+        removeState: function ( state ) {
+            delete this.states[ state ];
+        },
+
+
+
+        /**
+         * 获取控件属性
+         *
+         * @public
+         * @param {string} name 属性名
+         * @return {*} 返回目标属性的值
+         */
         get: function ( name ) {
             var attr = this.attrs[ name ] || {};
             return attr.getter ? attr.getter.call( this, attr.value, name ) : attr.value;
         },
 
+        /**
+         * 设置控件属性
+         *
+         * @public
+         * @param {string | Object} name 属性名
+         * - 当为`string`类型时, 为属性名
+         * - 当为`Object`类型时, 为包含`属性名:属性值`的对象
+         * @param {*=} value 属性值
+         * - 当`name`为`string`类型时, 为对应属性值
+         * - 当`name`为`Object`类型时, 为配置对象`options`
+         * @param {Object=} options 配置对象
+         * @param {boolean} options.silent 是否静默模式, 默认`false`
+         * 此配置为`true`时，属性的变化不会触发`propertychange`事件
+         * @param {boolean} options.override 是否覆盖模式, 默认`false`
+         * 当属性值是`简单对象`类型时,默认以`mixin`方式合并,此配置为`true`时，则直接覆盖
+         * @throws 对**只读**属性赋值时会抛出异常
+         * @fires Widget#propertychange
+         */
         set: function ( name, value, options ) {
             // 当前的属性集合
             var currentAttrs = this.attrs;
+
 
             // 待设置的属性集合: { 'key1': value1, 'key2': value2 ... }
             var newAttrs = {};
@@ -288,11 +433,11 @@ define(function ( require ) {
                 options = value;
             }
 
+
             options = options || {};
 
-            var isInited = this.inited;
-            var isSilent = options.silent;
-            var isOverride = options.override;
+            var isInited = this.is( 'init' );
+            var repaintChanges = {};
 
             // 循环处理每个属性
             for ( var key in newAttrs ) {
@@ -321,25 +466,43 @@ define(function ( require ) {
                 // 且新值也是`Object`时,
                 // 非覆盖模式需要`merge`防止丢失属性
                 var oldValue = attr.value;
-                if ( !isOverride && isPlainObject( oldValue ) &&  isPlainObject( newVal ) ) {
+                if ( !options.override && isPlainObject( oldValue ) &&  isPlainObject( newVal ) ) {
                     newVal = lang.extend( {}, oldValue, newVal );
                 }
 
                 // 更新属性`key`的值
                 currentAttrs[ key ].value = newVal;
 
+                // TODO: 是否有必要按属性触发? 或许集中在一起一次性通知更好? 暂时先这样吧
                 // 未指定静默 或 非初始化阶段 才触发事件
-                if ( !isSilent && isInited ) {
-                    // XXX: 考虑是否有必要这样，或许集中在一起通知一次更好？
+                if ( !options.silent && isInited ) {
+                    /**
+                     * @event Widget#propertychange
+                     * @param {Object} ev 事件参数对象
+                     * @param {string} ev.type 事件类型
+                     * @param {Widget} ev.target 触发事件的控件对象
+                     * @param {string} key 属性名
+                     * @param {*} oldValue 变更前的属性值
+                     * @param {*} newVal 变更后的属性值
+                     */
                     this.emit( 'propertychange', key, oldValue, newVal );
                 }
+
+                // 属性`key`的变化影响重绘，则加入重绘通知对象列表
+                if ( currentAttrs[ key ].repaint ) {
+                    repaintChanges[ key ] = [ oldValue, newVal ];
+                }
+            }
+
+            // 存在影响重绘的属性变更时执行一次重绘
+            if ( Object.keys( repaintChanges ).length > 0 ) {
+                this.repaint( repaintChanges );
             }
 
         },
 
 
 
-        // dom event
         /**
          * 为控件管理的DOM元素添加DOM事件
          *

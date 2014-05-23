@@ -1,5 +1,8 @@
 /**
- * @file [Please input file description]
+ * Saber Widget
+ * Copyright 2014 Baidu Inc. All rights reserved.
+ *
+ * @file 轮播图控件
  * @author zfkun(zfkun@msn.com)
  */
 
@@ -16,14 +19,11 @@ define( function ( require, exports, module ) {
      * @class
      * @constructor
      * @exports Slider
-     * @extends Control
+     * @extends Widget
      * @requires saber-lang
      * @requires saber-dom
-     * @fires Slider#destroy
      * @fires Slider#resize
      * @fires Slider#change
-     * @fires Slider#active
-     * @fires Slider#inactive
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
@@ -38,21 +38,7 @@ define( function ( require, exports, module ) {
      */
     function Slider( options ) {
 
-        // 加这货，纯属洁癖
-        /**
-         * 运行时缓存区对象
-         *
-         * @type {Object}
-         * @protected
-         */
-        this.runtime = {};
 
-        /**
-         * 控件属性集
-         *
-         * @private
-         * @type {Object}
-         */
         this.attrs = {
 
             /**
@@ -67,7 +53,7 @@ define( function ( require, exports, module ) {
              *
              * @type {boolean}
              */
-            auto: { value: true },
+            auto: { value: true, repaint: true },
 
             /**
              * 自动循环切换间隔，单位毫秒
@@ -82,7 +68,7 @@ define( function ( require, exports, module ) {
              *
              * @type {boolean}
              */
-            flex: { value: false },
+            flex: { value: false, repaint: true },
 
             /**
              * 初始位置
@@ -116,6 +102,21 @@ define( function ( require, exports, module ) {
 
         };
 
+        /**
+         * 控件状态集
+         *
+         * @private
+         * @type {Object}
+         */
+        this.states = {
+
+            // 默认停止自动切换状态
+            stop: true
+
+        };
+
+        // **MUST**最后调用父类的构造函数
+        // 由于子类的`attrs`、`states`等需要与父类的对应默认值进行`mixin`
         Widget.apply( this, arguments );
     }
 
@@ -123,11 +124,19 @@ define( function ( require, exports, module ) {
     Slider.prototype = {
 
         /**
+         * 控件类型标识
+         *
+         * @readonly
+         * @type {string}
+         */
+        type: 'Slider',
+
+        /**
          * 初始化DOM
          *
          * @override
          */
-        initStructure: function () {
+        initDom: function () {
             var wrapper = dom.query( '[data-role=wrapper]', this.main ) || dom.children( this.main )[ 0 ];
             var items = [];
 
@@ -168,18 +177,19 @@ define( function ( require, exports, module ) {
             this.runtime.x = 0;
 
             this.addEvent( this.get( 'main' ), 'touchstart', function ( e ) {
-                if ( !this.isActive ) {
+                if ( this.is( 'disable') ) {
                     return;
                 }
 
-                this.stop();
+                this.pause();
 
                 startX = e.touches[ 0 ].pageX;
                 diffX = 0;
             } );
 
+            // TODO: 防抖
             this.addEvent( this.get( 'main' ), 'touchmove', function ( e ) {
-                if ( !this.isActive ) {
+                if ( this.is( 'disable') ) {
                     return;
                 }
 
@@ -196,7 +206,7 @@ define( function ( require, exports, module ) {
             } );
 
             this.addEvent( this.get( 'main' ), 'touchend', function ( e ) {
-                if ( !this.isActive ) {
+                if ( this.is( 'disable') ) {
                     return;
                 }
 
@@ -219,8 +229,8 @@ define( function ( require, exports, module ) {
                     this.to( this.get( 'index' ) );
                 }
 
-                // 恢复自动轮换
-                this.start();
+                // 恢复自动切换
+                this.resume();
             } );
         },
 
@@ -230,12 +240,24 @@ define( function ( require, exports, module ) {
          *
          * @override
          * @param {Object=} changes 变更过的属性的集合
+         * 每个**属性变更对象**结构如下
+         * `属性名`：[ `变更前的值`, `变更后的值` ]
          */
         repaint: function ( changes ) {
+            // 先处理父类的重绘
+            Widget.prototype.repaint.call( this, changes );
+
             // `render` 阶段调用时,不传入 `changes`
             if ( !changes ) {
                 this._resize( this.runtime.width );
-                this.active();
+                this.enable();
+            }
+            else {
+                // 启动切换属性变更
+                if ( changes.hasOwnProperty( 'auto' ) ) {
+                    // 因属性`auto`值已发生变化, 这里调用需要带上`true`参数强制执行
+                    this[ changes.auto[ 1 ] ? 'start' : 'stop' ]( true );
+                }
             }
 
             // // `SliderFlex` 插件更新
@@ -247,8 +269,6 @@ define( function ( require, exports, module ) {
             //         ui.disposePlugin( this, 'SliderFlex' );
             //     }
             // }
-
-            Widget.prototype.repaint.call( this, changes );
         },
 
         /**
@@ -257,16 +277,16 @@ define( function ( require, exports, module ) {
          * @override
          */
         dispose: function () {
-            this.inactive();
-
+            this.disable();
             Widget.prototype.dispose.call( this );
         },
 
         /**
-         * 调整组件宽度
+         * 调整控件宽度
          *
          * @private
          * @param {number=} width 指定的容器宽度
+         * @fires Slider#resize
          */
         _resize: function ( width ) {
             var runtime = this.runtime;
@@ -300,7 +320,7 @@ define( function ( require, exports, module ) {
         },
 
         /**
-         * 启动/停止轮播
+         * 轮播切换处理
          *
          * @private
          * @param {boolean=} isStop 是否停止
@@ -315,11 +335,12 @@ define( function ( require, exports, module ) {
                 return;
             }
 
+            // next
             runtime.timer = setTimeout(
                 lang.bind( function () {
                     var index = this.get( 'index' ) + 1;
                     this.to( index < this.runtime.length ? index : 0 );
-                    this.start();
+                    this._loop();
                 }, this ),
                 delay
             );
@@ -342,73 +363,114 @@ define( function ( require, exports, module ) {
             ].join( '' );
         },
 
+
+
         /**
          * 激活控件
          *
-         * @override
+         * @public
+         * @fires Slider#enable
          * @return {Slider} 当前实例
          */
-        active: function () {
-            if ( !this.isActive ) {
-                this.isActive = true;
-
-                // 启动自动切换
+        enable: function () {
+            // 先启动自动切换
+            if ( this.is( 'disable' ) ) {
                 this.start();
-
-                /**
-                 * @event Slider#active
-                 */
-                this.emit( 'active' );
             }
 
-            return this;
+            // 回归父类继续后续处理
+            return Widget.prototype.enable.call( this );
         },
 
         /**
          * 禁用控件
          *
-         * @override
+         * @public
+         * @fires Slider#disable
          * @return {Slider} 当前实例
          */
-        inactive: function () {
-            if ( this.isActive ) {
-                this.isActive = false;
-
-                // 停止自动切换
+        disable: function () {
+            // 先停止自动切换
+            if ( !this.is( 'disable' ) ) {
                 this.stop();
-
-                /**
-                 * @event Slider#inactive
-                 */
-                this.emit( 'inactive' );
             }
 
-            return this;
+            // 回归父类继续后续处理
+            return Widget.prototype.disable.call( this );
         },
 
-        start: function () {
-            if ( this.get( 'auto' ) ) {
+
+        /**
+         * 启动自动切换
+         *
+         * @public
+         * @param {boolean} isForce 是否强制启动
+         * @return {Slider} 当前实例
+         */
+        start: function ( isForce ) {
+            if ( this.is( 'stop' ) && ( isForce || this.get( 'auto' ) ) ) {
+                this.removeState( 'stop' );
                 this._loop();
             }
+
             return this;
         },
 
-        stop: function () {
-            if ( this.get( 'auto' ) ) {
+        /**
+         * 停止自动切换
+         *
+         * @public
+         * @param {boolean} isForce 是否强制停止
+         * @return {Slider} 当前实例
+         */
+        stop: function ( isForce ) {
+            if ( !this.is( 'stop' ) && ( isForce || this.get( 'auto' ) ) ) {
+                this.addState( 'stop' );
                 this._loop( true );
             }
+
             return this;
         },
+
+        /**
+         * 暂停自动切换
+         *
+         * @public
+         * @return {Slider} 当前实例
+         */
+        pause: function () {
+            if ( !this.is( 'pause' ) && !this.is( 'stop' ) ) {
+                this.addState( 'pause' );
+                this._loop( true );
+            }
+        },
+
+        /**
+         * 恢复自动切换
+         * 仅对**暂停**状态有效，若处于**停止**状态，则无效
+         *
+         * @public
+         * @return {Slider} 当前实例
+         */
+        resume: function () {
+            if ( this.is( 'pause' ) ) {
+                this.removeState( 'pause' );
+                this._loop();
+            }
+        },
+
+
 
         /**
          * 切换到指定项
          *
          * @public
          * @param {number} index 目标项的位置
+         * @fires Slider#change
          * @return {Slider} 当前实例
          */
         to: function ( index ) {
-            if ( !this.isActive ) {
+            if ( this.is( 'disable' ) ) {
                 return this;
             }
 

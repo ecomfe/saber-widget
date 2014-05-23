@@ -51,7 +51,7 @@
 
     <div class="container">
         <h2>普通 (支持翻转)</h2>
-        <div class="ui-slider" data-ui="primary" s-ui="type: Slider; flex: true">
+        <div class="ui-slider" data-ui="primary">
             <div>
                 <div>
                     <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
@@ -73,7 +73,7 @@
         </div>
 
         <h2>无标题 (推荐)</h2>
-        <div class="ui-slider" s-ui="type: Slider; autoDelay: 3000">
+        <div class="ui-slider">
             <div data-role="wrapper">
                 <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
@@ -90,8 +90,8 @@
             </div>
         </div>
 
-        <h2>自带dot</h2>
-        <div class="ui-slider" s-ui="type: Slider">
+        <h2>自定义dot</h2>
+        <div class="ui-slider">
             <div data-role="wrapper">
                 <div>
                     <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
@@ -115,7 +115,7 @@
         </div>
 
         <h2>定宽</h2>
-        <div class="ui-slider" s-ui="type: Slider; auto: false;" style="width: 300px; margin: 0 auto;">
+        <div class="ui-slider" style="width: 300px; margin: 0 auto;">
             <div data-role="wrapper">
                 <div>
                     <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
@@ -133,7 +133,7 @@
         </div>
 
         <h2>处女座</h2>
-        <div class="ui-slider" s-ui="type: Slider; dot: false">
+        <div class="ui-slider">
             <div data-role="wrapper">
                 <img src="./img/4.png">
                 <img src="./img/3.png">
@@ -152,6 +152,7 @@
         ],
         function( dom, widget, Slider ) {
             sliders = [];
+
             dom.queryAll( '.ui-slider' ).forEach(
                 function ( node ) {
                     sliders.push( new Slider({ main: node }).render() );
