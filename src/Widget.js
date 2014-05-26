@@ -39,8 +39,6 @@ define( function ( require, exports, module ) {
      * @fires Widget#afterrender
      * @fires Widget#beforedispose
      * @fires Widget#afterdispose
-     * @fires Widget#show
-     * @fires Widget#hide
      * @fires Widget#enable
      * @fires Widget#disable
      * @fires Widget#propertychange
