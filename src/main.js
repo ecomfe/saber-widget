@@ -6,7 +6,7 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define(function ( require ) {
+define( function ( require, exports, module ) {
 
     /**
      * 主模块
@@ -35,10 +35,7 @@ define(function ( require ) {
         configAttr: 's-ui',
 
         // 控件实例的标识属性
-        instanceAttr: 's-id',
-
-        // 控件的默认class前缀
-        uiClassPrefix: 'ui'
+        instanceAttr: 's-id'
 
     };
 
@@ -94,7 +91,7 @@ define(function ( require ) {
     /**
      * 清理已初始化的控件实例
      *
-     * @param {(string|Widget|HTMLElement)=} widget 控件实例或控件实例id或DOM元素，不传则销毁全部
+     * @param {(string= | Widget= | HTMLElement=)} widget 控件实例或控件实例id或DOM元素，不传则销毁全部
      * - 传入`控件id`时,销毁`id`对应的控件
      * - 传入`控件实例`时,销毁之
      * - 传入`DOM元素`时,销毁`DOM元素`内的所有控件
@@ -227,6 +224,123 @@ define(function ( require ) {
 
 
 
+
+
+    /**
+     * 已注册插件类集合
+     *
+     * @inner
+     * @type {Object}
+     */
+    var plugins = {};
+
+    /**
+     * 注册插件类
+     * 通过类的`prototype.type`识别插件类型信息
+     *
+     * @public
+     * @param {Function} plugin 插件类
+     */
+    main.registerPlugin = function ( plugin ) {
+        if ( 'function' === typeof plugin ) {
+            var type = plugin.prototype.type;
+            if ( type in plugins ) {
+                throw new Error( 'plugin ' + type + ' is exists!' );
+            }
+
+            plugins[ type ] = plugin;
+        }
+    };
+
+    /**
+     * 启用插件
+     *
+     * @public
+     * @param {Control} control 目标控件实例
+     * @param {String} pluginName 待激活插件名
+     * @param {Object=} options 插件配置项
+     */
+    main.enablePlugin = function ( control, pluginName, options ) {
+        var enabledPlugins = control.plugins || ( control.plugins = {} );
+        var plugin = enabledPlugins[ pluginName ];
+
+        if ( !plugin && ( plugin = plugins[ pluginName ] ) ) {
+            control.plugins[ pluginName ] = new plugin( control, options );
+        }
+    };
+
+    /**
+     * 禁用插件
+     *
+     * @public
+     * @param {Control} control 目标控件实例
+     * @param {(String= | Array=)} pluginName 待禁用插件名
+     * 单个禁用传入插件名, 批量禁用传入数组, 全部禁用不传入
+     */
+    main.disablePlugin = function ( control, pluginName ) {
+        var enabledPlugins = control.plugins;
+
+        if ( !enabledPlugins ) {
+            return;
+        }
+
+        var names;
+
+        if ( Array.isArray( pluginName ) ) {
+            names = pluginName;
+        }
+        else if ( !pluginName ) {
+            names = Object.keys( enabledPlugins );
+        }
+        else if ( 'string' === typeof pluginName ) {
+            names = [ pluginName ];
+        }
+
+        names.forEach(function ( name ) {
+            if ( name && enabledPlugins[ name ] ) {
+                enabledPlugins[ name ].disable();
+            }
+        });
+    };
+
+    /**
+     * 销毁插件
+     *
+     * @public
+     * @param {Control} control 目标控件实例
+     * @param {(String= | Array=)} pluginName 待销毁插件名
+     * 单个删除传入插件名, 批量删除传入数组, 全部删除不传入
+     */
+    main.disposePlugin = function ( control, pluginName ) {
+        var enabledPlugins = control.plugins;
+
+        if ( !enabledPlugins ) {
+            return;
+        }
+
+
+        var names;
+
+        if ( Array.isArray( pluginName ) ) {
+            names = pluginName;
+        }
+        else if ( !pluginName ) {
+            names = Object.keys( enabledPlugins );
+        }
+        else if ( 'string' === typeof pluginName ) {
+            names = [ pluginName ];
+        }
+
+        names.forEach(function ( name ) {
+            if ( name && enabledPlugins[ name ] ) {
+                enabledPlugins[ name ].dispose();
+                delete enabledPlugins[ name ];
+            }
+        });
+    };
+
+
+
     return main;
 
-});
+} );

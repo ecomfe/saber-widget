@@ -153,11 +153,6 @@ define( function ( require, exports, module ) {
 
             this.runtime.length = items.length;
             this.runtime.wrapper = wrapper;
-
-            // // 屏幕旋转自适应支持
-            // if ( this.flex ) {
-            //     ui.activePlugin( this, 'SliderFlex', ( this.options.plugin || {} ).flex );
-            // }
         },
 
         /**
@@ -213,20 +208,18 @@ define( function ( require, exports, module ) {
                 var diff = Math.abs( diffX );
 
                 // 超过移动阀值，才进行拖动结束后的修正，防止影响内部的点击
-                if ( diff < this.get( 'moveAt' ) ) {
-                    return;
-                }
+                if ( diff > this.get( 'moveAt' ) ) {
+                    // update
+                    this.runtime.x = x;
 
-                // update
-                this.runtime.x = x;
-
-                // 达到切换阀值，则根据滑动方向切换
-                if ( diff > this.get( 'switchAt' ) ) {
-                    this.to( this.get( 'index' ) + ( diffX < 0 ? 1 : -1 ) );
-                }
-                // 未达到阀值，则回弹复位
-                else {
-                    this.to( this.get( 'index' ) );
+                    // 达到切换阀值，则根据滑动方向切换
+                    if ( diff > this.get( 'switchAt' ) ) {
+                        this.to( this.get( 'index' ) + ( diffX < 0 ? 1 : -1 ) );
+                    }
+                    // 未达到阀值，则回弹复位
+                    else {
+                        this.to( this.get( 'index' ) );
+                    }
                 }
 
                 // 恢复自动切换
@@ -271,15 +264,7 @@ define( function ( require, exports, module ) {
             // }
         },
 
-        /**
-         * 销毁控件
-         *
-         * @override
-         */
-        dispose: function () {
-            this.disable();
-            Widget.prototype.dispose.call( this );
-        },
+
 
         /**
          * 调整控件宽度
@@ -376,10 +361,15 @@ define( function ( require, exports, module ) {
             // 先启动自动切换
             if ( this.is( 'disable' ) ) {
                 this.start();
+
+                // 屏幕旋转自适应插件
+                if ( this.get( 'flex' ) ) {
+                    require( './main' ).enablePlugin( this, 'SliderFlex', ( this.options.plugin || {} ).flex );
+                }
             }
 
             // 回归父类继续后续处理
-            return Widget.prototype.enable.call( this );
+            Widget.prototype.enable.call( this );
         },
 
         /**
@@ -393,10 +383,15 @@ define( function ( require, exports, module ) {
             // 先停止自动切换
             if ( !this.is( 'disable' ) ) {
                 this.stop();
+
+                // 屏幕旋转自适应插件
+                if ( this.get( 'flex' ) ) {
+                    require( './main' ).disablePlugin( this, 'SliderFlex' );
+                }
             }
 
             // 回归父类继续后续处理
-            return Widget.prototype.disable.call( this );
+            Widget.prototype.disable.call( this );
         },
 
 
@@ -443,6 +438,8 @@ define( function ( require, exports, module ) {
                 this.addState( 'pause' );
                 this._loop( true );
             }
+
+            return this;
         },
 
         /**
@@ -457,6 +454,8 @@ define( function ( require, exports, module ) {
                 this.removeState( 'pause' );
                 this._loop();
             }
+
+            return this;
         },
 
 

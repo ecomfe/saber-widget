@@ -7,6 +7,7 @@
     "dependencies": {
         "saber-lang": "0.x",
         "saber-emitter": "0.x",
-        "saber-dom": "0.x"
+        "saber-dom": "0.x",
+        "saber-matchmedia": "0.x"
     }
 }

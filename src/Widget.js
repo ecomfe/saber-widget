@@ -6,12 +6,11 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define(function ( require ) {
+define( function ( require, exports, module ) {
 
     var lang = require( 'saber-lang' );
     var dom = require( 'saber-dom' );
     var Emitter = require( 'saber-emitter' );
-    // var Helper = require( './Helper' );
     var widget = require( './main' );
 
     /**
@@ -139,7 +138,6 @@ define(function ( require ) {
         // **只读**的**核心**属性需提前处理
         this.id = options.id || widget.getGUID();
         this.main = dom.query( options.main );
-        // this.helper = new Helper( this );
 
         // 初始化后立即从`options`里移除，以免`initOptions`触发`set`操作并抛异常
         delete options.id;
@@ -284,6 +282,9 @@ define(function ( require ) {
                  */
                 this.emit( 'beforedispose' );
 
+                // 先禁用控件
+                this.disable();
+
                 // 清理运行时缓存区
                 this.runtime = null;
 
@@ -292,6 +293,9 @@ define(function ( require ) {
 
                 // 清理实例存储
                 widget.remove( this );
+
+                // 清除已激活插件
+                widget.disposePlugin( this );
 
                 /**
                  * @event Widget#afterdispose
@@ -746,4 +750,4 @@ define(function ( require ) {
 
     return Widget;
 
-});
+} );

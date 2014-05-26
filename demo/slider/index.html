@@ -32,6 +32,11 @@
                 'main': 'main'
             },
             {
+                'name': 'saber-matchmedia',
+                'location': '../dep/saber-matchmedia/0.1.0/src',
+                'main': 'main'
+            },
+            {
                 'name': 'saber-widget',
                 'location': '../../src',
                 'main': 'main'
@@ -44,132 +49,19 @@
 
 <body>
     <nav class="ui-bar" data-ui="primary header">
-        <a href="../" class="ui-btn" data-ui="primary">&lt;返回</a>
+        <a href="../" class="ui-btn" data-ui="primary">← 返回</a>
         <h1 data-ui="title">Slider - Saber UI</h1>
-        <a href="#" class="ui-btn" data-ui="primary">设置</a>
+        <a href="https://github.com/ecomfe/saber-widget" class="ui-btn" data-ui="primary">主页</a>
     </nav>
 
     <div class="container">
-        <h2>普通 (支持翻转)</h2>
-        <div class="ui-slider" data-ui="primary">
-            <div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
-                    <p>1,啊大哥神的gas大噶的撒个说</p>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
-                    <p>2,按时打发上帝发誓的发方法</p>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
-                    <p>3,阿神的gas大噶撒旦gas的</p>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/4.png"></a>
-                    <p>4,啊神的gas大噶说的噶苏撒旦个</p>
-                </div>
-            </div>
-        </div>
-
-        <h2>无标题 (推荐)</h2>
-        <div class="ui-slider">
-            <div data-role="wrapper">
-                <div data-role="item">
-                    <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
-                </div>
-                <div data-role="item">
-                    <a href="http://www.baidu.com/"><img src="./img/4.png"></a>
-                </div>
-                <div data-role="item">
-                    <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
-                </div>
-                <div data-role="item">
-                    <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
-                </div>
-            </div>
-        </div>
-
-        <h2>自定义dot</h2>
-        <div class="ui-slider">
-            <div data-role="wrapper">
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/4.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
-                </div>
-            </div>
-            <div data-role="dot">
-                <b class="active"></b>
-                <b></b>
-                <b></b>
-                <b></b>
-            </div>
-        </div>
-
-        <h2>定宽</h2>
-        <div class="ui-slider" style="width: 300px; margin: 0 auto;">
-            <div data-role="wrapper">
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/4.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
-                </div>
-                <div>
-                    <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
-                </div>
-            </div>
-        </div>
-
-        <h2>处女座</h2>
-        <div class="ui-slider">
-            <div data-role="wrapper">
-                <img src="./img/4.png">
-                <img src="./img/3.png">
-                <img src="./img/2.png">
-                <img src="./img/1.png">
-            </div>
+        <div class="demos">
+            <a href="./basic.html" class="ui-btn" data-ui="success block">基本使用</a>
+            <a href="./flex.html" class="ui-btn" data-ui="success block">转屏支持</a>
         </div>
     </div>
 
     <script>
-    require(
-        [
-            'saber-dom',
-            'saber-widget',
-            'saber-widget/Slider'
-        ],
-        function( dom, widget, Slider ) {
-            sliders = [];
-
-            dom.queryAll( '.ui-slider' ).forEach(
-                function ( node ) {
-                    sliders.push( new Slider({ main: node }).render() );
-                }
-            );
-
-            // dot
-            sliders[ 2 ].on( 'change', function ( ev, from, to ) {
-                dom.children( dom.query( '[data-role=dot]', this.get( 'main' ) ) ).forEach(
-                    function ( node, i ) {
-                        dom[ i === to ? 'addClass' : 'removeClass' ]( node, 'active' );
-                    }
-                );
-            });
-        }
-    );
-
     document.addEventListener( 'touchstart', function(){}, false );
     </script>
 </body>
