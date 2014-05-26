@@ -15,9 +15,8 @@ $-role-attr ?= 'data-role'
 // ================
 
 // base
-ui-slider-base($ui-base, $ui-colors, $ui-size)
-    relative: _
-    width: $ui-base.width
+ui-slider-base()
+    width: 100%
     overflow: hidden
     user-select: none
     -webkit-touch-callout: none
@@ -25,87 +24,20 @@ ui-slider-base($ui-base, $ui-colors, $ui-size)
 
     > [{$-role-attr}~=wrapper]
         overflow: hidden
-        relative: _
         white-space: nowrap
         transform: translateZ(0)
 
         [{$-role-attr}~=item]
-            overflow: hidden
-            position: relative
             float: left
             box-sizing: border-box
-            text-align: center
-            background: $ui-colors.item-bg
-
-            a
-                display: inline-block
-            img
-                vertical-align: middle
-            p
-                absolute: $ui-size.title-position
-                width: 100%
-                padding: $ui-size.title-padding
-                background: $ui-colors.title-bg
-                color: $ui-colors.title-color
-                text-align: left
-                text-indent: $ui-size.title-text-indent
-
-                ellipsis()
-
-    > [{$-role-attr}~=dot]
-        absolute: $ui-size.dot-position
-        padding: $ui-size.dot-padding
-        text-align: right
-
-        > b
-            display: inline-block
-            margin: $ui-size.dot-b-margin
-            size: $ui-size.dot-b-size
-            border-radius: $ui-size.dot-b-border-radius
-            background: $ui-colors.dot-b-bg
-
-            // &[{$-ui-attr}~=active]
-            &.active
-                background: $ui-colors.dot-b-active-bg
-
 
 
 // variables
 // ================
-
-// base
-$-ui-slider-base = {
-    width: 100%
-}
-
-// default btn size
-$-ui-slider-size = {
-    title-position: _ _ 0 _
-    title-padding: 6px 0
-    title-text-indent: 10px
-    dot-position: _ 0 8px _
-    dot-padding: 0 6px
-    dot-b-margin: 0 4px
-    dot-b-size: 6px
-    dot-b-border-radius: 3px
-}
-
-// default slider colors
-$-ui-slider-colors = {
-    bg: rgba(0, 0, 0, 0.5)
-    text: #fff
-    item-bg: #e3e3e3
-    title-bg: rgba(0, 0, 0, 0.5)
-    title-color: #fff
-    dot-b-bg: rgba(150, 150, 150, 0.8)
-    dot-b-active-bg: #fff
-}
-
-
 
 
 // exports
 // ================
 
 .ui-slider
-    ui-slider-base($-ui-slider-base, $-ui-slider-colors, $-ui-slider-size)
+    ui-slider-base()

@@ -1,7 +1,32 @@
 @require 'rider-ui/default'
 
+
+// default btn size
+$-ui-slider-size = {
+    title-position: _ _ 0 _
+    title-padding: 6px 0
+    title-text-indent: 10px
+    dot-position: _ 0 8px _
+    dot-padding: 0 6px
+    dot-b-margin: 0 4px
+    dot-b-size: 6px
+    dot-b-border-radius: 3px
+}
+
+// default slider colors
+$-ui-slider-colors = {
+    bg: rgba(0, 0, 0, 0.5)
+    text: #fff
+    item-bg: #e3e3e3
+    title-bg: rgba(0, 0, 0, 0.5)
+    title-color: #fff
+    dot-b-bg: rgba(150, 150, 150, 0.8)
+    dot-b-active-bg: #fff
+}
+
+
 .container
-    padding: 44px _
+    padding: 88px _
 
     h2
         margin: 10px 0
@@ -11,3 +36,44 @@
 
         .ui-btn
             margin: 10px _
+
+
+.ui-slider
+    relative: _
+
+    [data-role~=item]
+        relative: _
+        text-align: center
+        background: #e3e3e3
+
+        a
+            display: inline-block
+        img
+            vertical-align: middle
+        p
+            absolute: _ _ 0 _
+            width: 100%
+            padding: 6px 0
+            background: rgba(0, 0, 0, 0.5)
+            color: #fff
+            text-align: left
+            text-indent: 10px
+
+            ellipsis()
+
+
+    [data-role~=dot]
+        absolute: _ 0 8px _
+        padding: 0 6px
+        text-align: right
+
+        > b
+            display: inline-block
+            margin: 0 4px
+            size: 6px
+            border-radius: 3px
+            background: rgba(150, 150, 150, 0.8)
+
+            &.active,
+            &[{$-ui-attr}~=active]
+                background: #fff
