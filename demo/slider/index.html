@@ -37,6 +37,11 @@
                 'main': 'main'
             },
             {
+                'name': 'saber-tap',
+                'location': '../dep/saber-tap/0.1.2/src',
+                'main': 'tap'
+            },
+            {
                 'name': 'saber-widget',
                 'location': '../../src',
                 'main': 'main'
@@ -62,6 +67,15 @@
     </div>
 
     <script>
+    require(
+        [
+            'saber-tap'
+        ],
+        function( Tap ) {
+            // 点击延迟修正
+            Tap.mixin( document.body );
+        }
+    );
     document.addEventListener( 'touchstart', function(){}, false );
     </script>
 </body>

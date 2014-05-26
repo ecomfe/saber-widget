@@ -87,18 +87,20 @@ define( function ( require, exports, module ) {
          * @protected
          */
         attachEvents: function () {
-            var slider = this.target;
+            orientationHelper.on(
+                'change',
+                this.onRepaint = bind( this.repaint, this )
+            );
 
-            this.onRepaint = bind( this.repaint, this );
-            orientationHelper.on( 'change', this.onRepaint );
+            this.target.on(
+                'enable',
+                this.onEnable = bind( this.enable, this )
+            );
 
-            this.onEnable = bind( this.enable, this );
-            slider.on( 'enable', this.onEnable );
-            slider.on( 'show', this.onEnable );
-
-            this.onDisable = bind( this.disable, this );
-            slider.on( 'disable', this.onDisable );
-            slider.on( 'hide', this.onDisable );
+            this.target.on(
+                'disable',
+                this.onDisable = bind( this.disable, this )
+            );
         },
 
         /**
@@ -109,15 +111,11 @@ define( function ( require, exports, module ) {
         detachEvents: function() {
             var slider = this.target;
 
-            slider.off( 'afterrender', this.onRender );
-
             orientationHelper.off( 'change', this.onRepaint );
 
+            slider.off( 'afterrender', this.onRender );
             slider.off( 'enable', this.onEnable );
-            slider.off( 'show', this.onEnable );
-
             slider.off( 'disable', this.onDisable );
-            slider.off( 'hide', this.onDisable );
 
             this.onRender = this.onRepaint = this.onEnable = this.onDisable = null;
         },
@@ -139,7 +137,11 @@ define( function ( require, exports, module ) {
          * @public
          */
         enable: function () {
-            this.disabled = false;
+            if ( this.disabled ) {
+                this.disabled = false;
+                this.attachEvents();
+                this.repaint();
+            }
         },
 
         /**
@@ -148,7 +150,10 @@ define( function ( require, exports, module ) {
          * @public
          */
         disable: function () {
-            this.disabled = true;
+            if ( !this.disabled ) {
+                this.disabled = true;
+                this.detachEvents();
+            }
         },
 
         /**

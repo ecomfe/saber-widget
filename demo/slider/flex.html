@@ -37,6 +37,11 @@
                 'main': 'main'
             },
             {
+                'name': 'saber-tap',
+                'location': '../dep/saber-tap/0.1.2/src',
+                'main': 'tap'
+            },
+            {
                 'name': 'saber-widget',
                 'location': '../../src',
                 'main': 'main'
@@ -155,17 +160,28 @@
         </div>
     </div>
 
+    <nav class="ui-bar" data-ui="footer">
+        <div class="ui-btns">
+            <a href="#" class="ui-btn" data-ui="small danger" data-role="disable">禁用flex插件</a>
+            <a href="#" class="ui-btn" data-ui="small success" data-role="enable">启用flex插件</a>
+        </div>
+    </nav>
+
     <script>
     require(
         [
+            'saber-tap',
             'saber-dom',
             'saber-widget',
             'saber-widget/Slider',
             'saber-widget/plugin/SliderFlex'
         ],
-        function( dom, widget, Slider ) {
-            sliders = [];
+        function( Tap, dom, widget, Slider ) {
+            // 点击延迟修正
+            Tap.mixin( document.body );
 
+            // 初始化
+            sliders = [];
             dom.queryAll( '.ui-slider' ).forEach(
                 function ( node ) {
                     sliders.push(
@@ -174,7 +190,7 @@
                 }
             );
 
-            // dot
+            // 自定义dot
             sliders[ 2 ].on( 'change', function ( ev, from, to ) {
                 dom.children( dom.query( '[data-role=dot]', this.get( 'main' ) ) ).forEach(
                     function ( node, i ) {
@@ -182,6 +198,24 @@
                     }
                 );
             });
+
+            // 控制按钮
+            dom.query( '.ui-bar[data-ui~=footer]' ).addEventListener(
+                'click',
+                function ( ev ) {
+                    var target = ev.target;
+                    if ( dom.hasClass( target, 'ui-btn' ) ) {
+                        ev.preventDefault();
+
+                        var isEnable = dom.getData( target, 'role' ) === 'enable';
+                        sliders.forEach(
+                            function ( slider ) {
+                                slider.set( 'flex', isEnable );
+                            }
+                        );
+                    }
+                }
+            );
         }
     );
 

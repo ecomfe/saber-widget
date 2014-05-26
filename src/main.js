@@ -22,7 +22,6 @@ define( function ( require, exports, module ) {
 
 
 
-
     /**
      * 控件库默认配置
      *
@@ -266,6 +265,9 @@ define( function ( require, exports, module ) {
 
         if ( !plugin && ( plugin = plugins[ pluginName ] ) ) {
             control.plugins[ pluginName ] = new plugin( control, options );
+        }
+        else {
+            plugin.enable();
         }
     };
 

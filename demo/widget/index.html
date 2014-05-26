@@ -37,6 +37,11 @@
                 'main': 'main'
             },
             {
+                'name': 'saber-tap',
+                'location': '../dep/saber-tap/0.1.2/src',
+                'main': 'tap'
+            },
+            {
                 'name': 'saber-widget',
                 'location': '../../src',
                 'main': 'main'
@@ -67,6 +72,8 @@ require(
 
     function( widget, Widget ) {
         w1 = new Widget( {
+
+            main: document.body,
 
             foo: 'baidu',
 

@@ -12,6 +12,7 @@ define( function ( require, exports, module ) {
     var dom = require( 'saber-dom' );
     var Emitter = require( 'saber-emitter' );
     var widget = require( './main' );
+    var lib = require( './lib' );
 
     /**
      * DOM事件存储器键值
@@ -471,12 +472,17 @@ define( function ( require, exports, module ) {
                 // 且新值也是`Object`时,
                 // 非覆盖模式需要`merge`防止丢失属性
                 var oldValue = attr.value;
-                if ( !options.override && isPlainObject( oldValue ) &&  isPlainObject( newVal ) ) {
+                if ( !options.override && lib.isPlainObject( oldValue ) &&  lib.isPlainObject( newVal ) ) {
                     newVal = lang.extend( {}, oldValue, newVal );
                 }
 
                 // 更新属性`key`的值
                 currentAttrs[ key ].value = newVal;
+
+                // 忽略重复赋值
+                if ( lib.isEqual( newVal, oldValue ) ) {
+                    continue;
+                }
 
                 // TODO: 是否有必要按属性触发? 或许集中在一起一次性通知更好? 暂时先这样吧
                 // 未指定静默 或 非初始化阶段 才触发事件
@@ -720,7 +726,7 @@ define( function ( require, exports, module ) {
 
             val = options[ key ];
 
-            if ( /^on[A-Z]/.test( key ) && isFunction( val ) ) {
+            if ( /^on[A-Z]/.test( key ) && lib.isFunction( val ) ) {
                 // 移除on前缀，并转换第3个字符为小写，得到事件类型
                 this.on(
                     key.charAt( 2 ).toLowerCase() + key.slice( 3 ),
@@ -733,15 +739,6 @@ define( function ( require, exports, module ) {
         return options;
     }
 
-    function isFunction ( obj ) {
-        return '[object Function]' === Object.prototype.toString.call( obj );
-    }
-
-    function isPlainObject ( obj ) {
-        return '[object Object]' === Object.prototype.toString.call( obj )
-            && !( obj && obj === obj.window )
-            && Object.getPrototypeOf( obj ) === Object.prototype;
-    }
 
 
 

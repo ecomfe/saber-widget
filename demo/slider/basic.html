@@ -37,6 +37,11 @@
                 'main': 'main'
             },
             {
+                'name': 'saber-tap',
+                'location': '../dep/saber-tap/0.1.2/src',
+                'main': 'tap'
+            },
+            {
                 'name': 'saber-widget',
                 'location': '../../src',
                 'main': 'main'
@@ -155,16 +160,29 @@
         </div>
     </div>
 
+    <nav class="ui-bar" data-ui="footer">
+        <div class="ui-btns">
+            <a href="#" class="ui-btn" data-ui="small warning" data-role="pause">暂停</a>
+            <a href="#" class="ui-btn" data-ui="small success" data-role="resume">恢复</a>
+            <a href="#" class="ui-btn" data-ui="small danger" data-role="stop">停止</a>
+            <a href="#" class="ui-btn" data-ui="small primary" data-role="start">开始</a>
+        </div>
+    </nav>
+
     <script>
     require(
         [
+            'saber-tap',
             'saber-dom',
             'saber-widget',
             'saber-widget/Slider'
         ],
-        function( dom, widget, Slider ) {
-            sliders = [];
+        function( Tap, dom, widget, Slider ) {
+            // 点击延迟修正
+            Tap.mixin( document.body );
 
+            // 批量初始化
+            sliders = [];
             dom.queryAll( '.ui-slider' ).forEach(
                 function ( node ) {
                     sliders.push(
@@ -173,7 +191,7 @@
                 }
             );
 
-            // dot
+            // 自定义dot
             sliders[ 2 ].on( 'change', function ( ev, from, to ) {
                 dom.children( dom.query( '[data-role=dot]', this.get( 'main' ) ) ).forEach(
                     function ( node, i ) {
@@ -181,6 +199,24 @@
                     }
                 );
             });
+
+            // 控制按钮
+            dom.query( '.ui-bar[data-ui~=footer]' ).addEventListener(
+                'click',
+                function ( ev ) {
+                    var target = ev.target;
+                    if ( dom.hasClass( target, 'ui-btn' ) ) {
+                        ev.preventDefault();
+
+                        var method = dom.getData( target, 'role' );
+                        sliders.forEach(
+                            function ( slider ) {
+                                slider[ method ]();
+                            }
+                        );
+                    }
+                }
+            );
         }
     );
 

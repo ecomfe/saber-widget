@@ -12,6 +12,14 @@ define( function ( require, exports, module ) {
     var dom = require( 'saber-dom' );
     var Widget = require( './Widget' );
 
+    /**
+     * CSS 专有前缀
+     *
+     * @const
+     * @type {string}
+     */
+    var CSS_PREFIX = require( './lib' ).CSS_PREFIX;
+
 
     /**
      * 轮播图控件
@@ -251,17 +259,15 @@ define( function ( require, exports, module ) {
                     // 因属性`auto`值已发生变化, 这里调用需要带上`true`参数强制执行
                     this[ changes.auto[ 1 ] ? 'start' : 'stop' ]( true );
                 }
+
+                // `SliderFlex` 插件更新
+                if ( changes.hasOwnProperty( 'flex' ) ) {
+                    require( './main' )[
+                        changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin'
+                    ]( this, 'SliderFlex' );
+                }
             }
 
-            // // `SliderFlex` 插件更新
-            // if ( changes && changes.hasOwnProperty( 'flex' ) ) {
-            //     if ( this.flex ) {
-            //         ui.activePlugin( this, 'SliderFlex', ( this.options.plugin || {} ).flex );
-            //     }
-            //     else {
-            //         ui.disposePlugin( this, 'SliderFlex' );
-            //     }
-            // }
         },
 
 
@@ -341,8 +347,8 @@ define( function ( require, exports, module ) {
         _move: function ( x, speed ) {
             speed = speed || 0;
             this.runtime.wrapper.style.cssText += [
-                ( this.get( 'animate' ) ? '-webkit-transition-duration:' + speed + 'ms;' : '' ),
-                '-webkit-transform: translate(' + x + 'px, 0)',
+                ( this.get( 'animate' ) ? CSS_PREFIX + 'transition-duration:' + speed + 'ms;' : '' ),
+                CSS_PREFIX + 'transform: translate(' + x + 'px, 0)',
                 ' translateZ(0)',
                 ';'
             ].join( '' );
