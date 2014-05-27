@@ -1,0 +1,43 @@
+// Rider UI 默认主题
+//
+// @desc    轮播图
+// @author  zfkun(zfkun@msn.com)
+
+
+@require 'rider-ui/core'
+
+
+$-role-attr ?= 'data-role'
+
+
+
+// mixins
+// ================
+
+// base
+ui-slider-base()
+    width: 100%
+    overflow: hidden
+    user-select: none
+    -webkit-touch-callout: none
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+
+    [{$-role-attr}~=wrapper]
+        overflow: hidden
+        white-space: nowrap
+        transform: translateZ(0)
+
+        [{$-role-attr}~=item]
+            float: left
+            box-sizing: border-box
+
+
+// variables
+// ================
+
+
+// exports
+// ================
+
+.ui-slider
+    ui-slider-base()

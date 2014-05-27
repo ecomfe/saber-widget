@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Slider - Saber Widget Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link rel="stylesheet" href="slider.css">
+    <link rel="stylesheet" href="demo.css">
+    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-6-10/esl.js"></script>
+    <script>
+    require.config({
+        'paths': {},
+        'packages': [
+            {
+                'name': 'saber-lang',
+                'location': '../dep/saber-lang/0.3.1/src',
+                'main': 'main'
+            },
+            {
+                'name': 'saber-emitter',
+                'location': '../dep/saber-emitter/0.5.0/src',
+                'main': 'emitter'
+            },
+            {
+                'name': 'saber-dom',
+                'location': '../dep/saber-dom/0.4.0/src',
+                'main': 'main'
+            },
+            {
+                'name': 'saber-matchmedia',
+                'location': '../dep/saber-matchmedia/0.1.0/src',
+                'main': 'main'
+            },
+            {
+                'name': 'saber-tap',
+                'location': '../dep/saber-tap/0.1.2/src',
+                'main': 'tap'
+            },
+            {
+                'name': 'saber-widget',
+                'location': '../../src',
+                'main': 'main'
+            }
+        ]
+    });
+    </script>
+
+</head>
+
+<body>
+    <nav class="ui-bar" data-ui="primary header">
+        <a href="../" class="ui-btn" data-ui="primary">← 返回</a>
+        <h1 data-ui="title">Slider - Saber UI</h1>
+        <a href="https://github.com/ecomfe/saber-widget" class="ui-btn" data-ui="primary">主页</a>
+    </nav>
+
+    <div class="container">
+        <div class="demos">
+            <a href="./basic.html" class="ui-btn" data-ui="success block">基本使用</a>
+            <a href="./flex.html" class="ui-btn" data-ui="success block">转屏支持</a>
+            <a href="./sync.html" class="ui-btn" data-ui="success block">动态同步</a>
+        </div>
+    </div>
+
+    <script>
+    require(
+        [
+            'saber-tap'
+        ],
+        function( Tap ) {
+            // 点击延迟修正
+            Tap.mixin( document.body );
+        }
+    );
+    document.addEventListener( 'touchstart', function(){}, false );
+    </script>
+</body>
+</html>
