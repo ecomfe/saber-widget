@@ -2,14 +2,14 @@
  * Saber Widget
  * Copyright 2014 Baidu Inc. All rights reserved.
  *
- * @file 工具库模块
+ * @file 常用工具库模块
  * @author zfkun(zfkun@msn.com)
  */
 
 define( function ( require, exports, module ) {
 
     /**
-     * 工具库模块
+     * 常用工具库模块
      *
      * @exports lib
      * @singleton
@@ -28,8 +28,10 @@ define( function ( require, exports, module ) {
      */
     lib.CSS_PREFIX = '';
 
-    // CSS 专属前缀探测
+    // 支持浏览器列表
     var vendors = { webkit: 'webkit', moz: '', o: 'o', ms: 'MS' };
+
+    // 探测
     var detectNode = document.createElement( 'div' );
     for ( var vendor in vendors ) {
         if ( undefined !== detectNode.style[ vendors[ vendor ] + 'TransitionProperty' ] ) {
@@ -45,7 +47,7 @@ define( function ( require, exports, module ) {
 
 
     /**
-     * 类型查询map
+     * 类型查询表
      *
      * @inner
      * @type {Object}
@@ -62,23 +64,56 @@ define( function ( require, exports, module ) {
     );
 
 
-    // 类型对比系列
+    /**
+     * 图个方便
+     *
+     * @inner
+     * @type {Function}
+     */
     var toString = class2type.toString;
 
+    /**
+     * 获取变量类型
+     *
+     * @public
+     * @param {*} obj 目标变量
+     * @return {string} 类型名
+     */
     lib.type = function ( obj ) {
         return ( obj == null ? String( obj ) : class2type[ toString.call( obj ) ] ) || 'object';
     };
 
+    /**
+     * 检测变量是否为函数
+     *
+     * @public
+     * @param {*} obj 目标变量
+     * @return {boolean}
+     */
     lib.isFunction = function ( obj ) {
         return 'function' === this.type( obj );
     };
 
+    /**
+     * 检测变量是否为简单对象
+     *
+     * @public
+     * @param {*} obj 目标变量
+     * @return {boolean}
+     */
     lib.isPlainObject = function ( obj ) {
         return 'object' === this.type( obj )
             && !( obj && obj === obj.window )
             && Object.getPrototypeOf( obj ) === Object.prototype;
     };
 
+    /**
+     * 检测变量是否为空的简单对象
+     *
+     * @public
+     * @param {*} obj 目标变量
+     * @return {boolean}
+     */
     lib.isEmptyObject = function ( obj ) {
         if ( 'object' !== this.type( obj ) ) {
             return false;
@@ -91,6 +126,14 @@ define( function ( require, exports, module ) {
         return true;
     };
 
+    /**
+     * 检测变量是否为空值类型
+     * 目前 `[]`, `{}` 也算做空值
+     *
+     * @public
+     * @param {*} obj 目标变量
+     * @return {boolean}
+     */
     lib.isEmpty = function ( obj ) {
         return null === obj
             || undefined === obj
@@ -99,6 +142,14 @@ define( function ( require, exports, module ) {
             || this.isEmptyObject( obj );
     };
 
+    /**
+     * 判断变量是否相同
+     *
+     * @public
+     * @param {*} x 目标变量
+     * @param {*} y 对比变量
+     * @return {boolean}
+     */
     lib.isEqual = function ( x, y ) {
         // 简单常规的
         if ( x === y ) {
