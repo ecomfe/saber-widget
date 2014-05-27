@@ -23,6 +23,7 @@ define( function ( require, exports, module ) {
     /**
      * CSS 专属前缀
      *
+     * @public
      * @const
      * @type {string}
      */
@@ -167,13 +168,13 @@ define( function ( require, exports, module ) {
         var primitiveTypes = {
 
             // 'a', new String( 'a' ), new String( true ), new String( window ) ..
-            '[object String]': String,
+            'string': String,
 
             // 1, new Number( 1 ), new Number( '1' ) ..
-            '[object Number]': Number,
+            'number': Number,
 
             // true, new Boolean( true ), new Boolean( 'true' ), new Boolean( 'a' ) ..
-            '[object Boolean]': Boolean
+            'boolean': Boolean
 
         };
         for ( var type in primitiveTypes ) {
