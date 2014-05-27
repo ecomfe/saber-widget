@@ -68,8 +68,11 @@ define( function ( require, exports, module ) {
                  * @type {string}
                  */
                 type: {
+
                     readOnly: true,
+
                     value: this.type
+
                 },
 
                 /**
@@ -78,10 +81,13 @@ define( function ( require, exports, module ) {
                  * @type {string}
                  */
                 id: {
+
                     readOnly: true,
+
                     getter: function () {
                         return this.id;
                     }
+
                 },
 
                 /**
@@ -90,10 +96,13 @@ define( function ( require, exports, module ) {
                  * @type {HTMLElement}
                  */
                 main: {
+
                     readOnly: true,
+
                     getter: function () {
                         return this.main;
                     }
+
                 }
 
             },
@@ -323,6 +332,7 @@ define( function ( require, exports, module ) {
          *
          * @public
          * @fires Widget#enable
+         * @return {Widget} 当前实例
          */
         enable: function () {
             if ( this.is( 'disable' ) ) {
@@ -336,6 +346,8 @@ define( function ( require, exports, module ) {
                  */
                 this.emit( 'enable' );
             }
+
+            return this;
         },
 
         /**
@@ -343,6 +355,7 @@ define( function ( require, exports, module ) {
          *
          * @public
          * @fires Widget#disable
+         * @return {Widget} 当前实例
          */
         disable: function () {
             if ( !this.is( 'disable' ) ) {
@@ -356,6 +369,8 @@ define( function ( require, exports, module ) {
                  */
                 this.emit( 'disable' );
             }
+
+            return this;
         },
 
 

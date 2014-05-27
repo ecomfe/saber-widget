@@ -106,7 +106,37 @@ define( function ( require, exports, module ) {
              *
              * @type {number}
              */
-            switchAt: { value: 30 }
+            switchAt: { value: 30 },
+
+            /**
+             * 轮播项总数
+             *
+             * @type {Object}
+             */
+            length: {
+
+                readOnly: true,
+
+                getter: function () {
+                    return this.runtime.length || 0;
+                }
+
+            },
+
+            /**
+             * 切换项包装元素
+             *
+             * @type {HTMLElement}
+             */
+            wrapper: {
+
+                readOnly: true,
+
+                getter: function () {
+                    return this.runtime.wrapper;
+                }
+
+            }
 
         };
 
@@ -145,22 +175,8 @@ define( function ( require, exports, module ) {
          * @override
          */
         initDom: function () {
-            var wrapper = dom.query( '[data-role=wrapper]', this.main ) || dom.children( this.main )[ 0 ];
-            var items = [];
-
-            if ( wrapper ) {
-                dom.setData( wrapper, 'role', 'wrapper' );
-
-                items = dom.children( wrapper );
-                items.forEach(
-                    function ( item ) {
-                        dom.setData( item, 'role', 'item' );
-                    }
-                );
-            }
-
-            this.runtime.length = items.length;
-            this.runtime.wrapper = wrapper;
+            this.runtime.wrapper = dom.children( this.main )[ 0 ];
+            // this.runtime.length = dom.children( this.runtime.wrapper ).length;
         },
 
         /**
@@ -250,8 +266,7 @@ define( function ( require, exports, module ) {
 
             // `render` 阶段调用时,不传入 `changes`
             if ( !changes ) {
-                this._resize( this.runtime.width );
-                this.enable();
+                this._resize( this.runtime.width ).enable();
             }
             else {
                 // 启动切换属性变更
@@ -277,7 +292,9 @@ define( function ( require, exports, module ) {
          *
          * @private
          * @param {number=} width 指定的容器宽度
+         * 不传宽度，则仅在容器宽度变化时才重绘，反之，则强制重绘
          * @fires Slider#resize
+         * @return {Slider} 当前实例
          */
         _resize: function ( width ) {
             var runtime = this.runtime;
@@ -290,14 +307,14 @@ define( function ( require, exports, module ) {
                 }
             }
 
-            var children = dom.children( runtime.wrapper );
-            var childrenCount = children.length;
+            var items = dom.children( runtime.wrapper );
+            var length = runtime.length = items.length;
 
-            for ( var i = 0; i < childrenCount; i++ ) {
-                styleNumber( children[ i ], 'width', width );
+            for ( var i = 0; i < length; i++ ) {
+                styleNumber( items[ i ], 'width', width );
             }
 
-            styleNumber( runtime.wrapper, 'width', width * childrenCount );
+            styleNumber( runtime.wrapper, 'width', width * length );
 
             var oldWidth = runtime.width;
             runtime.width = width;
@@ -308,6 +325,8 @@ define( function ( require, exports, module ) {
              * @param {number} to 当前的切换项宽度,单位像素
              */
             this.emit( 'resize', oldWidth, width );
+
+            return this;
         },
 
         /**
@@ -322,7 +341,14 @@ define( function ( require, exports, module ) {
 
             runtime.timer = clearTimeout( runtime.timer );
 
-            if ( isStop || runtime.length < 2 || !delay || delay < 0 ) {
+            // 已停止 或 间隔时长异常 则终止切换
+            if ( isStop || !delay || delay < 0 ) {
+                return;
+            }
+
+            // 切换项不足时, 恢复到第一项目并暂停切换
+            if ( runtime.length < 2 ) {
+                this.to( 0 ).pause();
                 return;
             }
 
@@ -331,6 +357,8 @@ define( function ( require, exports, module ) {
                 lang.bind( function () {
                     var index = this.get( 'index' ) + 1;
                     this.to( index < this.runtime.length ? index : 0 );
+
+                    // next
                     this._loop();
                 }, this ),
                 delay
@@ -365,7 +393,7 @@ define( function ( require, exports, module ) {
          */
         enable: function () {
             // 先启动自动切换
-            if ( this.is( 'disable' ) ) {
+            if ( this.is( 'disable' ) && this.is( 'render' ) ) {
                 this.start();
 
                 // 屏幕旋转自适应插件
@@ -376,6 +404,8 @@ define( function ( require, exports, module ) {
 
             // 回归父类继续后续处理
             Widget.prototype.enable.call( this );
+
+            return this;
         },
 
         /**
@@ -387,7 +417,7 @@ define( function ( require, exports, module ) {
          */
         disable: function () {
             // 先停止自动切换
-            if ( !this.is( 'disable' ) ) {
+            if ( !this.is( 'disable' ) && this.is( 'render' ) ) {
                 this.stop();
 
                 // 屏幕旋转自适应插件
@@ -398,6 +428,26 @@ define( function ( require, exports, module ) {
 
             // 回归父类继续后续处理
             Widget.prototype.disable.call( this );
+
+            return this;
+        },
+
+        /**
+         * 数据同步
+         * 此方法供用户在对`切换项`做了`添加`或`删除`后同步修改使用
+         *
+         * @public
+         * @return {Slider} 当前实例
+         */
+        sync: function () {
+            // 未渲染控件无需同步
+            if ( this.is( 'render' ) ) {
+                this.pause()
+                ._resize( this.runtime.width )
+                .resume();
+            }
+
+            return this;
         },
 
 

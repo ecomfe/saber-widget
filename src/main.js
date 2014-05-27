@@ -255,16 +255,16 @@ define( function ( require, exports, module ) {
      * 启用插件
      *
      * @public
-     * @param {Control} control 目标控件实例
+     * @param {Widget} widget 目标控件实例
      * @param {String} pluginName 待激活插件名
      * @param {Object=} options 插件配置项
      */
-    main.enablePlugin = function ( control, pluginName, options ) {
-        var enabledPlugins = control.plugins || ( control.plugins = {} );
+    main.enablePlugin = function ( widget, pluginName, options ) {
+        var enabledPlugins = widget.plugins || ( widget.plugins = {} );
         var plugin = enabledPlugins[ pluginName ];
 
         if ( !plugin && ( plugin = plugins[ pluginName ] ) ) {
-            control.plugins[ pluginName ] = new plugin( control, options );
+            widget.plugins[ pluginName ] = new plugin( widget, options );
         }
         else {
             plugin.enable();
@@ -275,12 +275,12 @@ define( function ( require, exports, module ) {
      * 禁用插件
      *
      * @public
-     * @param {Control} control 目标控件实例
+     * @param {Widget} widget 目标控件实例
      * @param {(String= | Array=)} pluginName 待禁用插件名
      * 单个禁用传入插件名, 批量禁用传入数组, 全部禁用不传入
      */
-    main.disablePlugin = function ( control, pluginName ) {
-        var enabledPlugins = control.plugins;
+    main.disablePlugin = function ( widget, pluginName ) {
+        var enabledPlugins = widget.plugins;
 
         if ( !enabledPlugins ) {
             return;
@@ -309,12 +309,12 @@ define( function ( require, exports, module ) {
      * 销毁插件
      *
      * @public
-     * @param {Control} control 目标控件实例
+     * @param {Widget} widget 目标控件实例
      * @param {(String= | Array=)} pluginName 待销毁插件名
      * 单个删除传入插件名, 批量删除传入数组, 全部删除不传入
      */
-    main.disposePlugin = function ( control, pluginName ) {
-        var enabledPlugins = control.plugins;
+    main.disposePlugin = function ( widget, pluginName ) {
+        var enabledPlugins = widget.plugins;
 
         if ( !enabledPlugins ) {
             return;
