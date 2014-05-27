@@ -70,17 +70,17 @@
     <div class="container">
         <h2>标准</h2>
         <div class="ui-slider">
-            <div>
-                <div>
+            <div data-role="wrapper">
+                <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
                 </div>
-                <div>
+                <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/4.png"></a>
                 </div>
-                <div>
+                <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/1.png"></a>
                 </div>
-                <div>
+                <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/3.png"></a>
                 </div>
             </div>
@@ -119,6 +119,7 @@
 
             dom.g( 'add' ).onclick = function () {
                 var item = document.createElement( 'div' );
+                dom.setData( item, 'role', 'item' );
                 item.innerHTML = ''
                     + '<a href="http://www.google.com/">'
                     + '<img src="./img/' + ( Math.floor( Math.random() * 10 ) % 3 + 1 ) + '.png">'

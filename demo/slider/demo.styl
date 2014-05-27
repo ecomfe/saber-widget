@@ -21,26 +21,25 @@
 .ui-slider
     relative: _
 
-    >:nth-child(1)
-        >:nth-child(n)
-            relative: _
-            text-align: center
-            background: #e3e3e3
+    [data-role~=item]
+        relative: _
+        text-align: center
+        background: #e3e3e3
 
-            a
-                display: inline-block
-            img
-                vertical-align: middle
-            p
-                absolute: _ _ 0 _
-                width: 100%
-                padding: 6px 0
-                background: rgba(0, 0, 0, 0.5)
-                color: #fff
-                text-align: left
-                text-indent: 10px
+        a
+            display: inline-block
+        img
+            vertical-align: middle
+        p
+            absolute: _ _ 0 _
+            width: 100%
+            padding: 6px 0
+            background: rgba(0, 0, 0, 0.5)
+            color: #fff
+            text-align: left
+            text-indent: 10px
 
-                ellipsis()
+            ellipsis()
 
 
     [data-role~=dot]

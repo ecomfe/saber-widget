@@ -81,6 +81,7 @@ define( function ( require, exports, module ) {
      * @return {string} 类型名
      */
     lib.type = function ( obj ) {
+        // 这里使用 `==` 出于节省次数对比次数的目的, 比如 `undefined`
         return ( obj == null ? String( obj ) : class2type[ toString.call( obj ) ] ) || 'object';
     };
 

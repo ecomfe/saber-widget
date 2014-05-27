@@ -175,8 +175,20 @@ define( function ( require, exports, module ) {
          * @override
          */
         initDom: function () {
-            this.runtime.wrapper = dom.children( this.main )[ 0 ];
-            // this.runtime.length = dom.children( this.runtime.wrapper ).length;
+            var main = this.get( 'main' );
+            var wrapper = dom.query( '[data-role=wrapper]', main ) || dom.children( main )[ 0 ];
+
+            // 确保 `data-role` 设置正确
+            if ( wrapper) {
+                dom.setData( wrapper, 'role', 'wrapper' );
+                dom.children( wrapper ).forEach(
+                    function ( item ) {
+                        dom.setData( item, 'role', 'item' );
+                    }
+                );
+            }
+
+            this.runtime.wrapper = wrapper;
         },
 
         /**
