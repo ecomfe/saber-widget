@@ -110,9 +110,7 @@
             sliders = [];
             dom.queryAll( '.ui-slider' ).forEach(
                 function ( node ) {
-                    sliders.push(
-                        new Slider( { main: node } ).render()
-                    );
+                    sliders.push( widget.slider( node ) );
                 }
             );
 

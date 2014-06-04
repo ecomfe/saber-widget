@@ -6,8 +6,10 @@
 ## Usage
 
 ``` javascript
-var Slider = require( 'saber-widget/Slider' );
-var slider = new Slider( { main: element } );
+var widget = require( 'saber-widget' );
+require( 'saber-widget/Slider' );
+
+var slider = widget.slider( element );
 console.info( slider.get( 'main' ) );
 ```
 
