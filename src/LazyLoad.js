@@ -14,7 +14,7 @@ define( function ( require, exports, module ) {
     var debounce = require( 'saber-lang/function/debounce' );
 
     /**
-     * 轮播图控件
+     * LazyLoad 控件
      *
      * @class
      * @constructor
@@ -44,7 +44,7 @@ define( function ( require, exports, module ) {
              *
              * @type {string}
              */
-            events: { value: 'scroll touchmove resize orientationchange'},
+            events: { value: 'scroll touchmove resize orientationchange' },
 
             /**
              * 是否启用动画
@@ -56,6 +56,7 @@ define( function ( require, exports, module ) {
 
             /**
              * 临界点偏移量
+             *
              * @type {number}
              */
             range: { value: 100 },
@@ -63,6 +64,7 @@ define( function ( require, exports, module ) {
 
             /**
              * 占位图片
+             *
              * @type {string}
              */
             placeholder: {
@@ -108,7 +110,7 @@ define( function ( require, exports, module ) {
          */
         initDom: function () {
 
-            this.container = this.get('main');
+            this.container = this.get( 'main' );
 
             this.main = this.get( 'main' ) || document.body;
 
@@ -116,9 +118,12 @@ define( function ( require, exports, module ) {
 
             // 初始化占位图片
             if ( this.get( 'placeholder' ) ) {
-                this.elements.forEach( function (el) {
-                    el.src = this.get( 'placeholder' );
-                }, this );
+                this.elements.forEach(
+                    function ( el ) {
+                        el.src = this.get( 'placeholder' );
+                    },
+                    this
+                );
             }
 
         },
@@ -134,16 +139,12 @@ define( function ( require, exports, module ) {
 
             this.get( 'events' )
                 .split( ' ' )
-                .forEach( function ( evt ) {
-
-                    // 绑定事件
-                    me.addEvent(
-                        me.container || window,
-                        evt,
-                        me._update
-                    );
-
-            } );
+                .forEach(
+                    function ( evt ) {
+                        // 绑定事件
+                        me.addEvent( me.container || window, evt, me._update );
+                    }
+                );
 
             // 初始化, 先来一次
             this._update();
@@ -169,7 +170,7 @@ define( function ( require, exports, module ) {
          */
         refresh: function () {
             this.elements = this._filterElements();
-            this.removeState('complete');
+            this.removeState( 'complete' );
         },
 
         /**
@@ -178,7 +179,7 @@ define( function ( require, exports, module ) {
          * @private
          * @param  {HTMLElemnt} el 需要加载的元素
          */
-        _loadElement: function (el) {
+        _loadElement: function ( el ) {
 
             // 动画
             if ( this.get( 'animate' ) ) {
@@ -208,7 +209,8 @@ define( function ( require, exports, module ) {
             /**
              * 触发 真实图片加载完成事件
              *
-             * @event
+             * @event LazyLoad#load
+             * @param {HTMLElement} el 目标元素
              */
             this.emit( 'load', el );
         },
@@ -218,65 +220,69 @@ define( function ( require, exports, module ) {
          *
          * @private
          */
-        _update: debounce(function () {
+        _update: debounce(
+            function () {
+                var me = this;
+
+                // 此处简单粗暴的 处理了 加载完成逻辑
+                // 后期如果 有性能瓶颈 会考虑 维护一个状态队列
+                this.elements = this.elements.filter(
+                    function ( el ) {
+
+                        if ( isElementInViewport( el, me.container, me.get( 'range' ) ) ) {
+
+                            me._loadElement( el );
+
+                            return false;
+                        }
+
+                        return true;
+
+                    }
+                );
 
 
-            var me = this;
+                /**
+                 * 触发 页面变化事件
+                 *
+                 * @event LazyLoad#change
+                 */
+                this.emit( 'change' );
 
-            // 此处简单粗暴的 处理了 加载完成逻辑
-            // 后期如果 有性能瓶颈 会考虑 维护一个状态队列
-            this.elements = this.elements.filter( function (el) {
+                // 队列空了
+                if ( !this.is( 'complete' ) && !this.elements.length ) {
 
-                if ( isElementInViewport( el, me.container, me.get( 'range' ) ) ) {
+                    this.addState( 'complete' );
 
-                    me._loadElement( el );
+                     /**
+                     * 触发加载完毕事件
+                     * ----------------
+                     * 考虑到 有可能 图片是异步加载的
+                     * 就不自动清除 事件了
+                     *
+                     * @event LazyLoad#complete
+                     */
+                    this.emit( 'complete' );
 
-                    return false;
                 }
 
-                return true;
-
-            });
-
-
-            /**
-             * 触发 页面变化事件
-             *
-             * @event
-             */
-            this.emit('change');
-
-            // 队列空了
-            if ( !this.is('complete') && !this.elements.length ) {
-
-                this.addState('complete');
-
-                 /**
-                 * 触发加载完毕事件
-                 * ----------------
-                 * 考虑到 有可能 图片是异步加载的
-                 * 就不自动清除 事件了
-                 *
-                 * @event
-                 */
-                this.emit('complete');
-
-            }
-
-        }
-        , 200)
+            },
+            200
+        )
 
     };
 
 
     /**
      * 判断元素是否在可视范围内
+     *
+     * @inner
      * @param  {HTMLElement}  ele       目标元素
      * @param  {HTMLElement}  container 容器
      * @param  {number}  range     值域
      * @return {Boolean}           结果
      */
-    function isElementInViewport(ele, container, range) {
+    function isElementInViewport ( ele, container, range ) {
 
         range = range || 0;
 
@@ -298,8 +304,8 @@ define( function ( require, exports, module ) {
         var pos;
         var cRect;
 
-        if (container) {
-            pos = dom.position(ele, container);
+        if ( container ) {
+            pos = dom.position( ele, container );
             cRect = container.getBoundingClientRect();
         }
         else {
@@ -307,23 +313,24 @@ define( function ( require, exports, module ) {
             cRect = getViewRect();
         }
 
-        // console.log(pos.top, range, cRect.height);
+        // console.log( pos.top, range, cRect.height );
 
-        return (pos.top > 0)
-            ? (pos.top - range < cRect.height)      // 下
-            : (pos.top + range > 0)                 // 上
-            && (pos.left > 0)
-            ? (pos.left - range < cRect.width)      // 右
-            : (pos.left + range > 0);               // 左
+        return ( pos.top > 0 )
+            ? ( pos.top - range < cRect.height )      // 下
+            : ( pos.top + range > 0 )                 // 上
+            && ( pos.left > 0 )
+            ? ( pos.left - range < cRect.width )      // 右
+            : ( pos.left + range > 0 );               // 左
 
     }
 
     /**
      * 获取窗口大小
      *
+     * @inner
      * @return {object} size object
      */
-    function getViewRect() {
+    function getViewRect () {
 
         var win = window;
         var doc = document;
