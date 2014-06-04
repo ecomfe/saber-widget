@@ -82,18 +82,19 @@
 <script>
    require(
         [
+            'saber-widget',
             'saber-widget/LazyLoad'
         ],
-        function( LazyLoad ) {
+        function( widget ) {
 
-            var lazyLoader = new LazyLoad({ animate: true }).render();
+            lazyLoader = widget.lazyload( null, { animate: true } );
 
-            lazyLoader.on('load', function (ele) {
-                console.info('load', ele);
+            lazyLoader.on( 'load', function ( ev, node ) {
+                console.info( 'load', node );
             });
 
-            lazyLoader.on('complete', function () {
-                console.info('complete');
+            lazyLoader.on( 'complete', function () {
+                console.info( 'complete' );
             });
 
         }
