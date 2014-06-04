@@ -218,6 +218,20 @@ define( function ( require, exports, module ) {
             }
 
             components[ type ] = component;
+
+            // 增加注册控件快捷初始化方式(自动渲染)
+            // 生成规则: 以控件类型名**小写**为方法名
+            // 如: `Slider`控件对应生成 `.slider( main, options )`
+            main[ type.toLowerCase() ] = function ( element, options ) {
+                options = options || {};
+                options.main = element;
+
+                // 这里未使用 new component( options )
+                // 主要考虑闭包内肯定要有个上层内部变量的引用
+                // `String`类型的`type` 总比`Function`类型的`component`要好一点
+                // 退十万八千里讲, 未来也许控件类的构造函数不是注册时的`component`，而是经过包装的也说不好
+                return new components[ type ]( options ).render();
+            };
         }
     };
 

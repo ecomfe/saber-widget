@@ -184,9 +184,7 @@
             sliders = [];
             dom.queryAll( '.ui-slider' ).forEach(
                 function ( node ) {
-                    sliders.push(
-                        new Slider( { main: node, flex: true } ).render()
-                    );
+                    sliders.push( widget.slider( node, { flex: true } ) );
                 }
             );
 
