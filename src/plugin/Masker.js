@@ -39,6 +39,23 @@ define( function ( require, exports, module ) {
          */
         type: 'Masker',
 
+        /**
+         * 默认配置
+         *
+         * @type {Object}
+         */
+        options: {
+
+            /**
+             * 是否自动关闭
+             * 遮罩区域被点击时自动关闭
+             *
+             * @type {boolean}
+             */
+            autoclose: false
+
+        },
+
 
         /**
          * 渲染插件
@@ -58,6 +75,45 @@ define( function ( require, exports, module ) {
 
             // 挂载到DOM树
             document.body.appendChild( main );
+        },
+
+        /**
+         * 初始化所有事件监听
+         *
+         * @override
+         */
+        initEvent: function () {
+            var self = this;
+
+            if ( self.options.autoclose ) {
+                this.target.addEvent( this.main, 'click', this.onClose = function ( ev ) {
+                    self.disable();
+                } );
+            }
+        },
+
+        /**
+         * 清理所有事件监听
+         *
+         * @protected
+         */
+        clearEvent: function () {
+            if ( this.onClose ) {
+                this.target.removeEvent( this.main, 'click', this.onClose );
+                this.onClose = null;
+            }
+        },
+
+
+        /**
+         * 禁用插件
+         *
+         * @override
+         */
+        disable: function () {
+            dom.hide( this.main );
+
+            Plugin.prototype.disable.call( this );
         }
 
     };
