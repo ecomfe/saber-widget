@@ -175,7 +175,7 @@ define( function ( require, exports, module ) {
             var header = runtime.header = document.createElement( 'header' );
             dom.setData( header, 'role', 'header' );
             header.innerHTML = [
-                '<span data-role="close">Back</span>',
+                '<span data-role="close">' + this.getClose() + '</span>',
                 '<h1>' + this.getTitle( this.get( 'index' ), this.get( 'length' ) ) + '</h1>'
             ].join( '' );
             main.appendChild( header );
@@ -460,6 +460,15 @@ define( function ( require, exports, module ) {
          */
         getTitle: function ( index, length ) {
             return ( index + 1 ) + ' of ' + length;
+        },
+
+        /**
+         * 关闭按钮内容生成器
+         *
+         * @public
+         */
+        getClose: function () {
+            return 'Back';
         },
 
         /**
