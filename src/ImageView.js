@@ -77,6 +77,13 @@ define( function ( require, exports, module ) {
             zoomAt: { value: 500 },
 
             /**
+             * 图片附加缩放比例
+             *
+             * @type {Object}
+             */
+            zoomScale: { value: 0.8 },
+
+            /**
              * 移动侦测阀值，单位像素
              * 当按下后`移动距离`超过此阀值时才`启动`切换动画
              *
@@ -360,12 +367,17 @@ define( function ( require, exports, module ) {
             var img = node ? dom.query( 'img', node ) : null;
             if ( !img ) {
                 img = document.createElement('img');
+
+                dom.hide( img );
+
                 img.src = this.get( 'items' )[ index ];
-                img.style.display = 'none';
+
+                var viewport = this.runtime.viewport;
+                var scale = this.get( 'zoomScale' );
 
                 img.onload = function() {
-                    imageResizeToCenter( this );
-                    this.style.display = 'block';
+                    imageResizeToCenter( this, viewport.width, viewport.height, scale );
+                    dom.show( this );
                 };
 
                 node.appendChild( img );
@@ -472,33 +484,34 @@ define( function ( require, exports, module ) {
 
 
 
-    function imageResizeToCenter ( img ) {
+    function imageResizeToCenter ( img, width, height, scale ) {
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
 
-        var viewport = [ window.innerWidth, window.innerHeight ];
-        var wh = [
-            img.naturalWidth || img.width,
-            img.naturalHeight || img.height
-        ];
-
-        // 缩放比例
-        var ratio = 1;
-
-        // 超出容器尺寸, 需计算出缩放比例
-        if ( wh[ 0 ] > viewport[ 0 ] || wh[ 1 ] > viewport[ 1 ] ) {
-            ratio = wh[ 0 ] > wh[ 1 ] ? viewport[ 0 ] / wh[ 0 ] : viewport[ 1 ] / wh[ 1 ];
+        // 先以宽为基准缩放
+        if ( w > width ) {
+            h *= width / w;
+            w = width;
         }
 
-        wh[ 0 ] = wh[ 0 ] * ratio;
-        wh[ 1 ] = wh[ 1 ] * ratio;
+        // 再以高为基准缩放
+        if ( h > height ) {
+            w *= height / h;
+            h = height;
+        }
 
-        // 等比缩放
-        dom.setStyle( img, 'width', wh[ 0 ] + 'px' );
-        dom.setStyle( img, 'height', wh[ 1 ] + 'px' );
+        // 考虑美观，再稍微缩放一点，让图片四周多点间距
+        w *= scale;
+        h *= scale;
 
 
-        // 小尺寸图需处理垂直居中
-        if ( ratio >= 1 ) {
-            var marginTop = Math.round( Math.max( ( viewport[ 1 ] - wh[ 1 ] ) / 2, 0 ) );
+        dom.setStyle( img, 'width', w + 'px' );
+        dom.setStyle( img, 'height', h + 'px' );
+
+
+        // 高度不足, 需垂直居中（水平居中CSS已处理了）
+        if ( h < height ) {
+            var marginTop = Math.round( Math.max( ( height - h ) / 2, 0 ) );
             dom.setStyle( img, 'margin-top', marginTop + 'px' );
         }
     }
