@@ -14,15 +14,6 @@ define( function ( require, exports, module ) {
 
 
     /**
-     * CSS 专有前缀
-     *
-     * @const
-     * @type {string}
-     */
-    var CSS_PREFIX = require( './lib' ).CSS_PREFIX;
-
-
-    /**
      * 图片预览
      *
      * @class
@@ -588,7 +579,16 @@ define( function ( require, exports, module ) {
 
 
 
-
+    /**
+     * 根据参考宽高等比缩放图片
+     * 缩放后若高度不足,会自动垂直居中
+     *
+     * @inner
+     * @param {HTMLElement} img 图片元素
+     * @param {number} width 参考宽度
+     * @param {number} height 参考高度
+     * @param {number} scale 附加缩放比例
+     */
     function imageResizeToCenter ( img, width, height, scale ) {
         var w = img.naturalWidth || img.width;
         var h = img.naturalHeight || img.height;
