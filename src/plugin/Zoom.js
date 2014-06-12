@@ -61,6 +61,10 @@ define( function ( require, exports, module ) {
          */
         disable: function () {
             this.reset();
+
+            // 及时解绑, 以防元素意外删除等
+            this.main = null;
+
             Plugin.prototype.disable.call( this );
         },
 
