@@ -234,14 +234,17 @@ define( function ( require, exports, module ) {
      * @param {string} transition transition值
      * @param {number=} x X轴位移
      * @param {number=} y Y轴位移
-     * @param {number} scale 缩放比
+     * @param {number=} scale 缩放比
      */
     function transformNode( node, transition, x, y, scale ) {
-        node.style.webkitTransition = transition;
+        if ( transition ) {
+            node.style.webkitTransition = transition;
+        }
+
         node.style.webkitTransform = [
             'translateX(' + ( x || 0 ) + 'px)',
             'translateY(' + ( y || 0 ) + 'px)',
-            'scale(' + scale + ')'
+            'scale(' + ( scale || 1 ) + ')'
         ].join( ' ' );
     }
 
