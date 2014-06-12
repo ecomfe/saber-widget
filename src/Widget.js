@@ -521,7 +521,7 @@ define( function ( require, exports, module ) {
             }
 
             // 存在影响重绘的属性变更时执行一次重绘
-            if ( Object.keys( repaintChanges ).length > 0 ) {
+            if ( this.is( 'render' ) && Object.keys( repaintChanges ).length > 0 ) {
                 this.repaint( repaintChanges );
             }
 
