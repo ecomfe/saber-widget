@@ -640,19 +640,34 @@ define( function ( require, exports, module ) {
             guid = element[ DOM_EVENTS_KEY ];
             events = events[ guid ];
 
-            // `events`是各种DOM事件的键值对容器
-            // 但包含存在一个键值为`node`的DOM对象，需要先移除掉
-            // 以避免影响后面的`for`循环处理
-            delete events.node;
+            if ( events ) {
+                // `events`是各种DOM事件的键值对容器
+                // 但包含存在一个键值为`node`的DOM对象，需要先移除掉
+                // 以避免影响后面的`for`循环处理
+                delete events.node;
 
-            // 清除已经注册的事件
-            for ( var type in events ) {
-                if ( events.hasOwnProperty( type ) ) {
-                    this.removeEvent( element, type );
+                // 清除已经注册的事件
+                for ( var type in events ) {
+                    if ( events.hasOwnProperty( type ) ) {
+                        this.removeEvent( element, type );
+                    }
                 }
             }
 
-            delete this.domEvents[ guid ];
+            if ( guid ) {
+                delete this.domEvents[ guid ];
+            }
+        },
+
+
+        /**
+         * 获取控件激活的指定插件
+         *
+         * @param {string} pluginName 插件名称
+         * @return {?Plugin} 插件实例
+         */
+        plugin: function ( pluginName ) {
+            return ( this.plugins || {} )[ pluginName ];
         }
 
     };
