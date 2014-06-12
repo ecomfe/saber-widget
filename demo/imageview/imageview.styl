@@ -1,0 +1,57 @@
+// Rider UI 默认主题
+//
+// @desc    图片查看器
+// @author  zfkun(zfkun@msn.com)
+
+
+@require 'rider-ui/core'
+
+
+$-role-attr ?= 'data-role'
+
+
+
+
+// mixins
+// ================
+
+// base
+ui-imageview-base()
+    display: inline-block
+    size: 100%
+
+    > [{$-role-attr}~=wrapper]
+        white-space: nowrap
+
+        size: 100%
+
+        > [{$-role-attr}~=item]
+            absolute: 0 _ _ _
+            box-sizing: border-box
+            width: 100%
+
+            img
+                // Hack to get rid of flickering on images (iPhone bug) by
+                // forcing hardware acceleration. See
+                // http://stackoverflow.com/questions/3461441/prevent-flicker-on-webkit-transition-of-webkit-transform
+                backface-visibility: hidden
+
+                user-select: none
+                user-drag: none
+
+                display: block
+                margin: 0 auto
+
+                transition: all 500ms
+
+
+// variables
+// ================
+
+
+// exports
+// ================
+
+
+.ui-imageview
+    ui-imageview-base()

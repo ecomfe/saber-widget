@@ -399,7 +399,7 @@ define( function ( require, exports, module ) {
         /**
          * 激活控件
          *
-         * @public
+         * @override
          * @fires Slider#enable
          * @return {Slider} 当前实例
          */
@@ -423,7 +423,7 @@ define( function ( require, exports, module ) {
         /**
          * 禁用控件
          *
-         * @public
+         * @override
          * @fires Slider#disable
          * @return {Slider} 当前实例
          */
