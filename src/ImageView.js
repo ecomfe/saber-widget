@@ -31,8 +31,8 @@ define( function ( require, exports, module ) {
      * @extends Widget
      * @requires saber-lang
      * @requires saber-dom
-     * @fires Slider#resize
-     * @fires Slider#change
+     * @fires ImageView#resize
+     * @fires ImageView#change
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
@@ -41,26 +41,19 @@ define( function ( require, exports, module ) {
 
         this.attrs = {
 
-            // /**
-            //  * 背景色
-            //  *
-            //  * @type {string}
-            //  */
-            // color: { value: '#' },
-
-            // /**
-            //  * 透明度
-            //  *
-            //  * @type {number}
-            //  */
-            // opacity: { value: 0.7 },
-
             /**
              * 是否启用切换动画
              *
              * @type {boolean}
              */
             animate: { value: true },
+
+            /**
+             * 是否显示顶部导航
+             *
+             * @type {boolean}
+             */
+            header: { value: true, repaint: true },
 
             /**
              * 回弹动画时长，单位毫秒
@@ -81,7 +74,7 @@ define( function ( require, exports, module ) {
              *
              * @type {Object}
              */
-            zoomScale: { value: 0.8 },
+            zoomScale: { value: 0.95 },
 
             /**
              * 移动侦测阀值，单位像素
@@ -187,6 +180,15 @@ define( function ( require, exports, module ) {
             var main = this.main = document.createElement( 'div' );
             main.className = 'ui-imageview';
 
+            // 导航
+            var header = runtime.header = document.createElement( 'header' );
+            dom.setData( header, 'role', 'header' );
+            header.innerHTML = [
+                '<span data-role="close">Back</span>',
+                '<h1>' + this.getTitle( this.get( 'index' ), this.get( 'length' ) ) + '</h1>'
+            ].join( '' );
+            main.appendChild( header );
+
             // 容器
             var wrapper = runtime.wrapper = document.createElement( 'div' );
             dom.setData( wrapper, 'role', 'wrapper' );
@@ -206,6 +208,21 @@ define( function ( require, exports, module ) {
         initEvent: function () {
             // TODO: 双指缩放支持
 
+
+            if ( this.get( 'header' ) ) {
+                this.addEvent(
+                    dom.query( '[data-role=close]', this.runtime.header ),
+                    'click',
+                    function ( e ) {
+                        e.preventDefault();
+                        this.disable();
+                    }
+                );
+
+                this.on( 'change', function ( ev, from, to ) {
+                    dom.query( 'h1', this.runtime.header ).innerHTML = this.getTitle( to, this.get( 'length' ) );
+                } );
+            }
 
 
             // 每次拖动开始时的X
@@ -379,7 +396,12 @@ define( function ( require, exports, module ) {
 
 
 
-
+        /**
+         * 加载指定位置的图片
+         *
+         * @private
+         * @param {number} index 图片所在位置索引
+         */
         _load: function ( index ) {
             var node = dom.queryAll( '[data-role=item]', this.get( 'main' ) )[ index ];
             var img = node ? dom.query( 'img', node ) : null;
@@ -411,18 +433,43 @@ define( function ( require, exports, module ) {
          */
         _move: function ( x, speed ) {
             speed = speed || 0;
-            this.get( 'wrapper' ).style.cssText += [
-                ( this.get( 'animate' ) ? CSS_PREFIX + 'transition-duration:' + speed + 'ms;' : '' ),
-                CSS_PREFIX + 'transform: translate(' + x + 'px, 0)',
-                ' translateZ(0)',
-                ';'
-            ].join( '' );
+
+            var style = this.get( 'wrapper' ).style;
+
+            if ( this.get( 'animate' ) ) {
+                style.webkitTransitionDuration = speed + 'ms';
+            }
+
+            style.webkitTransform = [
+                'translateX(' + ( x || 0 ) + 'px)',
+                'translateY(0)',
+                'translateZ(0)'
+            ].join( ' ' );
         },
 
+        /**
+         * 获取指定位置的图片元素
+         *
+         * @private
+         * @param {number} index 图片所在位置索引
+         * @return {?HTMLElement} 获取到的图片元素, 失败返回`undefine`
+         */
         _image: function ( index ) {
             return dom.queryAll( 'img', this.get( 'wrapper' ) )[ index ];
         },
 
+
+        /**
+         * 标题内容生成器
+         *
+         * @public
+         * @param {number} index 当前显示项的位置
+         * @param {number} length 图片总数
+         * @return {string} 标题内容
+         */
+        getTitle: function ( index, length ) {
+            return ( index + 1 ) + ' of ' + length;
+        },
 
         /**
          * 添加图片
@@ -471,7 +518,7 @@ define( function ( require, exports, module ) {
             // 排除回弹
             if ( from !== index ) {
                 /**
-                 * @event Slider#change
+                 * @event ImageView#change
                  * @param {number} from 原来显示项的位置
                  * @param {number} to 当前显示项的位置
                  */
