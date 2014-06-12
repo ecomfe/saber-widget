@@ -52,7 +52,7 @@ define( function ( require, exports, module ) {
              *
              * @type {boolean}
              */
-            autoclose: false
+            autoClose: false
 
         },
 
@@ -85,7 +85,7 @@ define( function ( require, exports, module ) {
         initEvent: function () {
             var self = this;
 
-            if ( self.options.autoclose ) {
+            if ( self.options.autoClose ) {
                 this.target.addEvent( this.main, 'click', this.onClose = function ( ev ) {
                     self.disable();
                 } );
