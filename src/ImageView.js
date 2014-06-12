@@ -104,7 +104,7 @@ define( function ( require, exports, module ) {
              *
              * @type {Array}
              */
-            items: { value: [] },
+            items: { value: [], repaint: true },
 
             /**
              * 初始位置
@@ -177,6 +177,9 @@ define( function ( require, exports, module ) {
         initDom: function () {
             var runtime = this.runtime;
 
+            // 可是窗口尺寸
+            runtime.viewport = { width: window.innerWidth, height: window.innerHeight };
+
             // 可视窗口宽
             runtime.width = window.innerWidth;
 
@@ -187,11 +190,11 @@ define( function ( require, exports, module ) {
             // 容器
             var wrapper = runtime.wrapper = document.createElement( 'div' );
             dom.setData( wrapper, 'role', 'wrapper' );
-            wrapper.innerHTML = this.get( 'items' ).map(
-                function ( item, i ) {
-                    return '<div data-role="item" style="left: ' + ( i * 100 ) + '%"></div>';
-                }
-            ).join( '' );
+
+            // 初始化图片列表
+            this.get( 'items' ).forEach( this.add, this );
+
+            // 挂载到DOM流
             main.appendChild( wrapper );
         },
 
@@ -312,6 +315,21 @@ define( function ( require, exports, module ) {
             if ( !changes ) {
                 this.enable().to( this.get( 'index' ) );
             }
+            else {
+                // 数据源变更
+                if ( changes.hasOwnProperty( 'items' ) ) {
+                    // 先禁用控件
+                    this.disable();
+
+                    // 重构容器元素
+                    this.runtime.wrapper.innerHTML = '';
+                    // 逐一添加图片空间
+                    changes.items[ 1 ].forEach( this.add, this );
+
+                    // 解除禁用 & 强制跳转到第一张
+                    this.enable().to( 0 );
+                }
+            }
         },
 
         /**
@@ -405,6 +423,24 @@ define( function ( require, exports, module ) {
             return dom.queryAll( 'img', this.get( 'wrapper' ) )[ index ];
         },
 
+
+        /**
+         * 添加图片
+         *
+         * @public
+         * @param {string} image 图片绝对地址
+         */
+        add: function ( image ) {
+            var wrapper = this.runtime.wrapper;
+
+            var item = document.createElement( 'div' );
+            dom.setData( item, 'role', 'item' );
+            dom.setStyle( item, 'left', dom.children( wrapper ).length * 100 + '%' );
+
+            wrapper.appendChild( item );
+        },
+
+
         /**
          * 切换到指定项
          *
@@ -447,6 +483,12 @@ define( function ( require, exports, module ) {
             return this;
         },
 
+        /**
+         * 缩放指定位置的图片
+         *
+         * @public
+         * @param {number} index 图片位置索引
+         */
         zoom: function ( index ) {
             var zoomPlugin = this.plugin( 'Zoom' );
             if ( zoomPlugin ) {
@@ -454,18 +496,34 @@ define( function ( require, exports, module ) {
             }
         },
 
+        /**
+         * 显示控件
+         *
+         * @public
+         */
         show: function () {
             if ( this.is( 'hide' ) ) {
                 this.removeState( 'hide' );
+
+                // 目前主元素是挂载在 `Masker` 插件的主元素上的
                 dom.show( this.plugin( 'Masker' ).main );
+
                 this.enable();
             }
         },
 
+        /**
+         * 隐藏控件
+         *
+         * @public
+         */
         hide: function () {
             if ( !this.is( 'hide' ) ) {
                 this.disable();
+
                 this.addState( 'hide' );
+
+                // 目前主元素是挂载在 `Masker` 插件的主元素上的
                 dom.hide( this.plugin( 'Masker' ).main );
             }
         },
