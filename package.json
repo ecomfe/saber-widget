@@ -6,6 +6,9 @@
   "maintainers": [
     { "name": "zfkun", "email": "zfkun@msn.com" }
   ],
+  "contributors": [
+    { "name": "junmer", "email": "junemr@foxmail.com" }
+  ],
   "scripts": {
     "test": "./node_modules/.bin/phantomjs test/run-jasmine.js test/runner.html"
   },
