@@ -98,6 +98,25 @@ define( function ( require, exports, module ) {
             index: { value: 0 },
 
             /**
+             * 是否全屏模式
+             *
+             * @type {boolean}
+             */
+            full: {
+
+                value: false,
+
+                setter: function ( isFull ) {
+                    this.toggleState( 'full', isFull );
+
+                    if ( this.is( 'render' ) ) {
+                        dom[ isFull ? 'addClass' : 'removeClass' ]( this.get( 'main' ), 'full' );
+                    }
+                }
+
+            },
+
+            /**
              * 图片总数
              *
              * @type {Object}
@@ -170,6 +189,11 @@ define( function ( require, exports, module ) {
             // 主元素
             var main = this.main = document.createElement( 'div' );
             main.className = 'ui-imageview';
+
+            // 检测下是否需要立即全屏 (可能初始化配置设置了`full`: true)
+            if ( this.is( 'full' ) ) {
+                dom.addClass( main, 'full' );
+            }
 
             // 导航
             var header = runtime.header = document.createElement( 'header' );
@@ -264,14 +288,11 @@ define( function ( require, exports, module ) {
 
                 // 计算最近两次`tap`时差 (用于 dobule-tap 处理)
                 var diffTapTime = Date.now() - lastTapTime;
-
                 // 更新计时, 这里用加法是为了省一个临时中间变量
                 lastTapTime = diffTapTime + lastTapTime;
 
-
                 // 本次`tap`的X轴移动距离
                 var diff = Math.abs( diffX );
-
 
 
                 // 下面的处理，分2个部分: `拖拽` & `双击`
@@ -294,6 +315,10 @@ define( function ( require, exports, module ) {
                     return;
                 }
 
+                // XXX: 这里有个小瑕疵，因为双击判断的原因其实双击过程中全屏模式是会连续触发2次，视觉上感觉不到而已
+                // 无有效拖拽，则进行全屏模式切换
+                this.set( 'full', !this.is( 'full' ) );
+
                 // 在双击延迟阀值有效范围内?
                 if ( diffTapTime < this.get( 'zoomAt' ) ) {
                     // 重置计时
@@ -301,6 +326,8 @@ define( function ( require, exports, module ) {
 
                     // 启动缩放
                     this.zoom( this.get( 'index' ) );
+
+                    return;
                 }
 
             } );

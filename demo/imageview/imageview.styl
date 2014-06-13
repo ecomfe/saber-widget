@@ -20,6 +20,10 @@ ui-imageview-base()
     display: inline-block
     size: 100%
 
+    &.full
+        > [{$-role-attr}~=header]
+            transform: translate3d(0, -100%, 0)
+
 
     > [{$-role-attr}~=header]
         absolute: 0 _ _ 0
@@ -36,7 +40,7 @@ ui-imageview-base()
         color: #fff
         background: rgba(0, 0, 0, .5)
 
-        transition: transform 0.5s ease-in-out 200ms
+        transition: transform 0.4s ease-in-out 200ms
 
     [{$-role-attr}~=close]
         absolute: 0 _ _ 0
