@@ -229,19 +229,17 @@ define( function ( require, exports, module ) {
                 this.elements = this.elements.filter(
                     function ( el ) {
 
-<<<<<<< HEAD
-                        if (
-                            el
-                            && el.parentNode
-                            && isElementInViewport( el, me.container, me.get( 'range' ) )
-                            ) {
-=======
-                        if ( isElementInViewport( el, me.container, me.get( 'range' ) ) ) {
->>>>>>> 9eaafb6a7204a009840a131fc795f9f9f2736619
+                        if ( el ) {
 
-                            me._loadElement( el );
+                            if( ! el.parentNode ) {
+                                return false;
+                            }
+                            else if( isElementInViewport( el, me.container, me.get( 'range' ) ) ) {
+                                me._loadElement( el );
+                                return false;
+                            }
 
-                            return false;
+
                         }
 
                         return true;
