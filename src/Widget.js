@@ -405,6 +405,18 @@ define( function ( require, exports, module ) {
             delete this.states[ state ];
         },
 
+        /**
+         * 反转控件状态
+         *
+         * @public
+         * @param {string} state 状态名
+         * @param {boolean} isForce 强制指定添加或删除, 传入`true`则添加, 反之则删除
+         */
+        toggleState: function ( state, isForce ) {
+            isForce = 'boolean' === typeof isForce ? isForce : !this.is( state );
+            this[ isForce ? 'addState' : 'removeState' ]( state );
+        },
+
 
 
         /**
