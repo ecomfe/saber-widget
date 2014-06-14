@@ -289,9 +289,7 @@ define( function ( require, exports, module ) {
 
                 // `SliderFlex` 插件更新
                 if ( changes.hasOwnProperty( 'flex' ) ) {
-                    require( './main' )[
-                        changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin'
-                    ]( this, 'SliderFlex' );
+                    this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'SliderFlex', 'flex' );
                 }
             }
 
@@ -410,7 +408,7 @@ define( function ( require, exports, module ) {
 
                 // 屏幕旋转自适应插件
                 if ( this.get( 'flex' ) ) {
-                    require( './main' ).enablePlugin( this, 'SliderFlex', ( this.options.plugin || {} ).flex );
+                    this.enablePlugin( 'SliderFlex', 'flex' );
                 }
             }
 
@@ -434,7 +432,7 @@ define( function ( require, exports, module ) {
 
                 // 屏幕旋转自适应插件
                 if ( this.get( 'flex' ) ) {
-                    require( './main' ).disablePlugin( this, 'SliderFlex' );
+                    this.disablePlugin( 'SliderFlex' );
                 }
             }
 

@@ -682,6 +682,33 @@ define( function ( require, exports, module ) {
          */
         plugin: function ( pluginName ) {
             return ( this.plugins || {} )[ pluginName ];
+        },
+
+        /**
+         * 激活插件
+         *
+         * @param {string} pluginName 插件名称
+         * @param {string=} optionName 插件初始化配置名
+         * @return {Widget} 当前控件实例
+         */
+        enablePlugin: function ( pluginName, optionName ) {
+            require( './main' ).enablePlugin(
+                this,
+                pluginName,
+                ( this.options.plugin || {} )[ optionName || pluginName.toLowerCase() ]
+            );
+            return this;
+        },
+
+        /**
+         * 禁用插件
+         *
+         * @param {string} pluginName 插件名称
+         * @return {Widget} 当前控件实例
+         */
+        disablePlugin: function ( pluginName ) {
+            require( './main' ).disablePlugin( this, pluginName );
+            return this;
         }
 
     };

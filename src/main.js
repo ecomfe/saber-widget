@@ -223,8 +223,14 @@ define( function ( require, exports, module ) {
             // 生成规则: 以控件类型名**小写**为方法名
             // 如: `Slider`控件对应生成 `.slider( main, options )`
             main[ type.toLowerCase() ] = function ( element, options ) {
-                options = options || {};
-                options.main = element;
+                // TODO: 待  saber-lang/type` 更新后替换为 `isPlainObject`
+                if ( '[object Object]' === Object.prototype.toString.call( element ) ) {
+                    options = element || {};
+                }
+                else {
+                    options = options || {};
+                    options.main = element;
+                }
 
                 // 这里未使用 new component( options )
                 // 主要考虑闭包内肯定要有个上层内部变量的引用
@@ -278,9 +284,10 @@ define( function ( require, exports, module ) {
         var plugin = enabledPlugins[ pluginName ];
 
         if ( !plugin && ( plugin = plugins[ pluginName ] ) ) {
-            widget.plugins[ pluginName ] = new plugin( widget, options );
+            plugin = widget.plugins[ pluginName ] = new plugin( widget, options );
         }
-        else {
+
+        if ( plugin ) {
             plugin.enable();
         }
     };
