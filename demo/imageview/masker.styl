@@ -42,3 +42,8 @@ ui-masker-base()
 
 .ui-masker
     ui-masker-base()
+
+    .ui-imageview
+        > [{$-role-attr}~=toolbar]
+            color: #fff
+            background: rgba(0, 0, 0, .5)

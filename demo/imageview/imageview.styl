@@ -17,16 +17,22 @@ $-role-attr ?= 'data-role'
 
 // base
 ui-imageview-base()
-    display: inline-block
+    display: block
     size: 100%
 
+    fixed: 0 _ _ 0
+    z-index: 999
+
     &.full
-        > [{$-role-attr}~=header]
-            transform: translate3d(0, -100%, 0)
+        > [{$-role-attr}~=toolbar]
+            transform: translate3d(0, 100%, 0)
+
+            &[{$-ui-attr}~=header]
+                transform: translate3d(0, -100%, 0)
 
 
-    > [{$-role-attr}~=header]
-        absolute: 0 _ _ 0
+    > [{$-role-attr}~=toolbar]
+        absolute: _ _ 0 0
         z-index: 2046
 
         width: 100%
@@ -35,12 +41,12 @@ ui-imageview-base()
 
         font-size: rem(20px)
         font-weight: 700
-
         text-align: center
-        color: #fff
-        background: rgba(0, 0, 0, .5)
 
         transition: transform 0.4s ease-in-out 200ms
+
+        &[{$-ui-attr}~=header]
+            absolute: 0 _ _ 0
 
     [{$-role-attr}~=close]
         absolute: 0 _ _ 0
@@ -61,7 +67,9 @@ ui-imageview-base()
         absolute: 0 _ _ _
         z-index: 1999
         box-sizing: border-box
-        width: 100%
+        size: 100%
+
+        ir( "data:image/gif;base64,R0lGODlhEAAQAPIAAAAAAP///zw8PLy8vP///5ycnHx8fGxsbCH+GkNyZWF0ZWQgd2l0aCBhamF4bG9hZC5pbmZvACH5BAAKAAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQACgABACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkEAAoAAgAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkEAAoAAwAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkEAAoABAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQACgAFACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQACgAGACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAAKAAcALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==", 50%, 50% )
 
         img
             // Hack to get rid of flickering on images (iPhone bug) by

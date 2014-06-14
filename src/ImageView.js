@@ -40,11 +40,11 @@ define( function ( require, exports, module ) {
             animate: { value: true },
 
             /**
-             * 是否显示顶部导航
+             * 是否显示工具栏
              *
              * @type {boolean}
              */
-            header: { value: true, repaint: true },
+            toolbar: { value: true, repaint: true },
 
             /**
              * 回弹动画时长，单位毫秒
@@ -65,7 +65,7 @@ define( function ( require, exports, module ) {
              *
              * @type {Object}
              */
-            zoomScale: { value: 0.95 },
+            zoomScale: { value: 0.88 },
 
             /**
              * 移动侦测阀值，单位像素
@@ -108,10 +108,7 @@ define( function ( require, exports, module ) {
 
                 setter: function ( isFull ) {
                     this.toggleState( 'full', isFull );
-
-                    if ( this.is( 'render' ) ) {
-                        dom[ isFull ? 'addClass' : 'removeClass' ]( this.get( 'main' ), 'full' );
-                    }
+                    dom.toggleClass( this.main, 'full', isFull );
                 }
 
             },
@@ -129,32 +126,10 @@ define( function ( require, exports, module ) {
                     return this.get( 'items' ).length;
                 }
 
-            },
-
-            /**
-             * 包装容器元素
-             *
-             * @type {HTMLElement}
-             */
-            wrapper: {
-
-                readOnly: true,
-
-                getter: function () {
-                    return this.runtime.wrapper;
-                }
-
             }
 
         };
 
-        /**
-         * 控件状态集
-         *
-         * @private
-         * @type {Object}
-         */
-        this.states = {};
 
         // **MUST**最后调用父类的构造函数
         // 由于子类的`attrs`、`states`等需要与父类的对应默认值进行`mixin`
@@ -183,36 +158,53 @@ define( function ( require, exports, module ) {
             // 可是窗口尺寸
             runtime.viewport = { width: window.innerWidth, height: window.innerHeight };
 
-            // 可视窗口宽
-            runtime.width = window.innerWidth;
+            // 指定了主元素, 则认为是 `setup` 模式, 忽略 `items` 属性并扫描主元素内图片源生成 `items` 属性
+            if ( this.main ) {
+                // 因 `setup` 模式下，`this.main` 稍后会被覆盖掉
+                // 这里存到运行时, 方便在 `initEvent` 时初始化点击事件
+                runtime.setup = this.main;
+
+                // 扫描 `main` 元素内需加入的图片
+                this.set(
+                    'items',
+                    dom.queryAll( '[data-role=image]', this.main ).map(
+                        function ( image, index ) {
+                            // 顺便加个标志属性, 为点击交互使用
+                            dom.setData( image, 'imageview', index );
+
+                            return dom.getData( image, 'src' ) || image.getAttribute( 'src' );
+                        }
+                    )
+                );
+            }
 
             // 主元素
             var main = this.main = document.createElement( 'div' );
             main.className = 'ui-imageview';
+            dom.hide( main );
 
             // 检测下是否需要立即全屏 (可能初始化配置设置了`full`: true)
+            // XXX: 虽然 `full` 的 `setter` 内有此逻辑，但是考虑 `init` 阶段 DOM构建还未完成，这里需要单独处理
             if ( this.is( 'full' ) ) {
                 dom.addClass( main, 'full' );
             }
 
-            // 导航
-            var header = runtime.header = document.createElement( 'header' );
-            dom.setData( header, 'role', 'header' );
-            header.innerHTML = [
-                '<span data-role="close">' + this.getClose() + '</span>',
-                '<h1>' + this.getTitle( this.get( 'index' ), this.get( 'length' ) ) + '</h1>'
-            ].join( '' );
-            main.appendChild( header );
+            // 工具栏
+            var toolbar = runtime.toolbar = document.createElement( 'div' );
+            dom.setData( toolbar, 'role', 'toolbar' );
+            toolbar.innerHTML = this.getToolbar();
+            main.appendChild( toolbar );
 
             // 容器
             var wrapper = runtime.wrapper = document.createElement( 'div' );
             dom.setData( wrapper, 'role', 'wrapper' );
+            main.appendChild( wrapper );
 
             // 初始化图片列表
-            this.get( 'items' ).forEach( this.add, this );
+            this.get( 'items' ).forEach( this._append, this );
 
             // 挂载到DOM流
-            main.appendChild( wrapper );
+            document.body.appendChild( main );
         },
 
         /**
@@ -221,21 +213,39 @@ define( function ( require, exports, module ) {
          * @override
          */
         initEvent: function () {
+            var runtime = this.runtime;
+
             // TODO: 双指缩放支持
+            // ...
 
+            // `setup` 模式构建， 则需增加点击交互
+            if ( runtime.setup ) {
+                this.addEvent( runtime.setup, 'click', function ( ev ) {
+                    if ( dom.matches( ev.target, '[data-imageview]' ) ) {
+                        var index = dom.getData( ev.target, 'imageview' );
+                        if ( index ) {
+                            this.enable().to( index | 0 );
+                        }
+                    }
+                } );
+            }
 
-            if ( this.get( 'header' ) ) {
-                this.addEvent(
-                    dom.query( '[data-role=close]', this.runtime.header ),
-                    'click',
-                    function ( e ) {
-                        e.preventDefault();
+            // 工具栏
+            if ( this.get( 'toolbar' ) ) {
+                // 关闭按钮交互
+                this.addEvent( runtime.toolbar, 'touchstart', function ( ev ) {
+                    ev.preventDefault();
+                    // ev.stopPropagation();
+
+                    // 点击源为关闭按钮，则立即禁用控件
+                    if ( dom.matches( ev.target, '[data-role=close]' ) ) {
                         this.disable();
                     }
-                );
+                } );
 
+                // 工具栏内容
                 this.on( 'change', function ( ev, from, to ) {
-                    dom.query( 'h1', this.runtime.header ).innerHTML = this.getTitle( to, this.get( 'length' ) );
+                    runtime.toolbar.innerHTML = this.getToolbar();
                 } );
             }
 
@@ -250,7 +260,7 @@ define( function ( require, exports, module ) {
             var x = 0;
 
             // 上次拖动完成后的`wrapper`元素的左外边距
-            this.runtime.x = 0;
+            runtime.x = 0;
 
             this.addEvent( this.get( 'main' ), 'touchstart', function ( e ) {
                 if ( this.is( 'disable' ) ) {
@@ -272,7 +282,7 @@ define( function ( require, exports, module ) {
                 if ( Math.abs( diffX ) > this.get( 'moveAt' ) ) {
                     e.preventDefault();
 
-                    x = this.runtime.x + diffX;
+                    x = runtime.x + diffX;
 
                     this._move( x );
                 }
@@ -301,7 +311,7 @@ define( function ( require, exports, module ) {
                 // 超过移动阀值，才进行拖动结束后的修正，防止影响内部的点击
                 if ( diff > this.get( 'moveAt' ) ) {
                     // 更新存储位置
-                    this.runtime.x = x;
+                    runtime.x = x;
 
                     // 达到切换阀值，则根据滑动方向切换
                     if ( diff > this.get( 'switchAt' ) ) {
@@ -348,21 +358,28 @@ define( function ( require, exports, module ) {
 
             // `render` 阶段调用时,不传入 `changes`
             if ( !changes ) {
-                this.enable().to( this.get( 'index' ) );
+                // this.enable().to( this.get( 'index' ) );
+                this.to( this.get( 'index' ), true );
             }
             else {
                 // 数据源变更
                 if ( changes.hasOwnProperty( 'items' ) ) {
-                    // 先禁用控件
-                    this.disable();
+                    var isEnabled = !this.is( 'disable' );
+
+                    if ( isEnabled ) {
+                        // 先禁用控件
+                        this.disable();
+                    }
 
                     // 重构容器元素
                     this.runtime.wrapper.innerHTML = '';
-                    // 逐一添加图片空间
-                    changes.items[ 1 ].forEach( this.add, this );
+                    // 逐一添加图片
+                    changes.items[ 1 ].forEach( this._append, this );
 
-                    // 解除禁用 & 强制跳转到第一张
-                    this.enable().to( 0 );
+                    if ( isEnabled ) {
+                        // 解除禁用 & 强制跳转到第一张
+                        this.enable().to( 0 );
+                    }
                 }
             }
         },
@@ -375,16 +392,14 @@ define( function ( require, exports, module ) {
          * @return {ImageView} 当前实例
          */
         enable: function () {
-            // 先启用插件
-            if ( this.is( 'disable' ) && this.is( 'render' ) ) {
-                // 遮罩插件
-                require( './main' ).enablePlugin( this, 'Masker', ( this.options.plugin || {} ).masker );
+            if ( this.is( 'render' ) ) {
+                // 启用插件 遮罩 & 缩放
+                this.enablePlugin( 'Masker' ).enablePlugin( 'Zoom' );
 
-                // 缩放插件
-                require( './main' ).enablePlugin( this, 'Zoom', ( this.options.plugin || {} ).zoom );
+                // 显示主元素
+                dom.show( this.main );
             }
 
-            // 回归父类继续后续处理
             Widget.prototype.enable.call( this );
 
             return this;
@@ -398,21 +413,36 @@ define( function ( require, exports, module ) {
          * @return {ImageView} 当前实例
          */
         disable: function () {
-            if ( !this.is( 'disable' ) && this.is( 'render' ) ) {
-                // 遮罩插件
-                require( './main' ).disablePlugin( this, 'Masker' );
+            if ( this.is( 'render' ) ) {
+                // 启用插件 遮罩 & 缩放
+                this.disablePlugin( 'Masker' ).disablePlugin( 'Zoom' );
 
-                // 缩放插件
-                require( './main' ).disablePlugin( this, 'Zoom' );
+                // 隐藏主元素
+                dom.hide( this.main );
             }
 
-            // 回归父类继续后续处理
             Widget.prototype.disable.call( this );
 
             return this;
         },
 
 
+
+        /**
+         * 添加图片
+         *
+         * @public
+         * @param {string} image 图片绝对地址
+         */
+        _append: function ( image ) {
+            var wrapper = this.runtime.wrapper;
+
+            var item = document.createElement( 'div' );
+            dom.setData( item, 'role', 'item' );
+            dom.setStyle( item, 'left', dom.children( wrapper ).length * 100 + '%' );
+
+            wrapper.appendChild( item );
+        },
 
         /**
          * 加载指定位置的图片
@@ -452,7 +482,7 @@ define( function ( require, exports, module ) {
         _move: function ( x, speed ) {
             speed = speed || 0;
 
-            var style = this.get( 'wrapper' ).style;
+            var style = this.runtime.wrapper.style;
 
             if ( this.get( 'animate' ) ) {
                 style.webkitTransitionDuration = speed + 'ms';
@@ -473,60 +503,80 @@ define( function ( require, exports, module ) {
          * @return {?HTMLElement} 获取到的图片元素, 失败返回`undefine`
          */
         _image: function ( index ) {
-            return dom.queryAll( 'img', this.get( 'wrapper' ) )[ index ];
+            return dom.query(
+                '[data-role=item]:nth-child(' + ( index + 1 ) + ') img',
+                this.runtime.wrapper
+            );
         },
 
 
         /**
-         * 标题内容生成器
+         * 更新数据源为目标元素内的图片
+         * 注, 有效的图片需附带 `data-role=image` 属性
+         *
+         * @param {HTMLElement} main 目标容器元素
+         */
+        setup: function ( main ) {
+            if ( main && main !== this.runtime.setup ) {
+                // 更新关联构建区域
+                this.runtime.setup = main;
+
+                // 扫描 `main` 元素内需加入的图片
+                this.set(
+                    'items',
+                    dom.queryAll( '[data-role=image]', main ).map(
+                        function ( image, index ) {
+                            dom.setData( image, 'imageview', index );
+                            return dom.getData( image, 'src' ) || image.getAttribute( 'src' );
+                        }
+                    )
+                );
+            }
+        },
+
+        /**
+         * 工具栏内容生成器
          *
          * @public
-         * @param {number} index 当前显示项的位置
-         * @param {number} length 图片总数
          * @return {string} 标题内容
          */
-        getTitle: function ( index, length ) {
-            return ( index + 1 ) + ' of ' + length;
+        getToolbar: function () {
+            return [
+                '<span data-role="close">关闭</span>',
+                '<h1>' + ( this.get( 'index' ) + 1 ) + ' of ' + this.get( 'length' ) + '</h1>'
+            ].join( '' );
         },
-
-        /**
-         * 关闭按钮内容生成器
-         *
-         * @public
-         */
-        getClose: function () {
-            return 'Back';
-        },
-
-        /**
-         * 添加图片
-         *
-         * @public
-         * @param {string} image 图片绝对地址
-         */
-        add: function ( image ) {
-            var wrapper = this.runtime.wrapper;
-
-            var item = document.createElement( 'div' );
-            dom.setData( item, 'role', 'item' );
-            dom.setStyle( item, 'left', dom.children( wrapper ).length * 100 + '%' );
-
-            wrapper.appendChild( item );
-        },
-
 
         /**
          * 切换到指定项
          *
          * @public
-         * @param {number} index 目标项的位置
+         * @param {number|HTMLImageElement} index 目标项的位置或目标图片元素
+         * @param {boolean=} isForce 是否强制切换
          * @fires ImageView#change
          * @return {ImageView} 当前实例
          */
-        to: function ( index ) {
-            if ( this.is( 'disable' ) ) {
+        to: function ( index, isForce ) {
+            if ( !isForce && this.is( 'disable' ) ) {
                 return this;
             }
+
+            // XXX: 节省点, 这里不严格判断是否`图片元素`了
+            if ( 'number' !== typeof index ) {
+                index = dom.getData( index, 'imageview' );
+
+                if ( !index ) {
+                    return this;
+                }
+
+                index = index | 0;
+            }
+
+            // 若当前缩放状态，需先还原
+            if ( this.is( 'zoom' ) ) {
+                this.reset();
+            }
+
 
             var runtime = this.runtime;
             var from = this.get( 'index' );
@@ -538,7 +588,7 @@ define( function ( require, exports, module ) {
             this.set( 'index', index );
 
             // 更新计算X轴偏移
-            runtime.x = 0 - runtime.width * index;
+            runtime.x = 0 - runtime.viewport.width * index;
 
             this._move( runtime.x, this.get( 'speed' ) );
 
@@ -570,35 +620,10 @@ define( function ( require, exports, module ) {
             }
         },
 
-        /**
-         * 显示控件
-         *
-         * @public
-         */
-        show: function () {
-            if ( this.is( 'hide' ) ) {
-                this.removeState( 'hide' );
-
-                // 目前主元素是挂载在 `Masker` 插件的主元素上的
-                dom.show( this.plugin( 'Masker' ).main );
-
-                this.enable();
-            }
-        },
-
-        /**
-         * 隐藏控件
-         *
-         * @public
-         */
-        hide: function () {
-            if ( !this.is( 'hide' ) ) {
-                this.disable();
-
-                this.addState( 'hide' );
-
-                // 目前主元素是挂载在 `Masker` 插件的主元素上的
-                dom.hide( this.plugin( 'Masker' ).main );
+        reset: function () {
+            var zoomPlugin = this.plugin( 'Zoom' );
+            if ( zoomPlugin ) {
+                zoomPlugin.reset();
             }
         },
 
