@@ -226,8 +226,6 @@ define( function ( require, exports, module ) {
             var rendered = this.is( 'render' );
 
             if ( !rendered ) {
-                this.addState( 'render' );
-
                 /**
                  * @event Widget#beforerender
                  * @param {Object} ev 事件参数对象
@@ -244,6 +242,8 @@ define( function ( require, exports, module ) {
 
                 // 为控件主元素添加控件实例标识属性
                 this.get( 'main' ).setAttribute( widget.getConfig( 'instanceAttr' ), this.get( 'id' ) );
+
+                this.addState( 'render' );
             }
 
             // DOM重绘
@@ -410,7 +410,7 @@ define( function ( require, exports, module ) {
          *
          * @public
          * @param {string} state 状态名
-         * @param {boolean} isForce 强制指定添加或删除, 传入`true`则添加, 反之则删除
+         * @param {boolean=} isForce 强制指定添加或删除, 传入`true`则添加, 反之则删除
          */
         toggleState: function ( state, isForce ) {
             isForce = 'boolean' === typeof isForce ? isForce : !this.is( state );
@@ -670,6 +670,8 @@ define( function ( require, exports, module ) {
                 delete this.domEvents[ guid ];
             }
         },
+
+
 
 
         /**
