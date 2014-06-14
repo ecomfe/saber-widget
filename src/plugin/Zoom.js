@@ -76,8 +76,9 @@ define( function ( require, exports, module ) {
          */
         reset: function () {
             if ( !this.is( 'disable' ) ) {
-                // 清理侦听器 & 还原缩放
+                // 清理侦听器
                 this._toggleTouchEvents( true );
+                // 还原缩放
                 this._zoom( true );
             }
 
@@ -125,7 +126,7 @@ define( function ( require, exports, module ) {
                 transformNode( this.main, 'all 500ms', 0, 0, isZooming ? 1 : 2 );
 
                 // 更新宿主控件缩放状态标示
-                this.target[ isZooming ? 'removeState' : 'addState' ]( 'zoom' );
+                this.target.toggleState( 'zoom', !isZooming );
 
                 // 更新缩放相关事件监听
                 this._toggleTouchEvents( isZooming );

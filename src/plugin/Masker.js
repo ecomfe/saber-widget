@@ -66,6 +66,7 @@ define( function ( require, exports, module ) {
             var main = this.main = document.createElement( 'div' );
             main.className = 'ui-masker';
             main.innerHTML = '<div data-role="wrapper"></div>';
+            dom.hide( main );
 
             // 为方便使用
             this.wrapper = main.firstChild;
@@ -106,6 +107,19 @@ define( function ( require, exports, module ) {
 
 
         /**
+         * 启用插件
+         *
+         * @override
+         */
+        enable: function () {
+            dom.show( this.main );
+
+            Plugin.prototype.disable.call( this );
+
+            return this;
+        },
+
+        /**
          * 禁用插件
          *
          * @override
@@ -114,6 +128,8 @@ define( function ( require, exports, module ) {
             dom.hide( this.main );
 
             Plugin.prototype.disable.call( this );
+
+            return this;
         }
 
     };
