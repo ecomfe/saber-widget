@@ -223,8 +223,7 @@ define( function ( require, exports, module ) {
             // 生成规则: 以控件类型名**小写**为方法名
             // 如: `Slider`控件对应生成 `.slider( main, options )`
             main[ type.toLowerCase() ] = function ( element, options ) {
-                // TODO: 待  saber-lang/type` 更新后替换为 `isPlainObject`
-                if ( '[object Object]' === Object.prototype.toString.call( element ) ) {
+                if ( require( 'saber-lang/type' ).isPlainObject( element ) ) {
                     options = element || {};
                 }
                 else {
