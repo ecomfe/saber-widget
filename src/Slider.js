@@ -375,13 +375,21 @@ define( function ( require, exports, module ) {
          * @param {number=} speed 移动速度,单位毫秒
          */
         _move: function ( x, speed ) {
-            speed = speed || 0;
-            this.runtime.wrapper.style.cssText += [
-                ( this.get( 'animate' ) ? CSS_PREFIX + 'transition-duration:' + speed + 'ms;' : '' ),
-                CSS_PREFIX + 'transform: translate(' + x + 'px, 0)',
-                ' translateZ(0)',
-                ';'
-            ].join( '' );
+            var wrapper = this.runtime.wrapper;
+
+            if ( this.get( 'animate' ) ) {
+                dom.setStyle( wrapper, 'transition-duration', ( speed || 0 ) + 'ms' );
+            }
+
+            dom.setStyle(
+                wrapper,
+                'transform',
+                [
+                    'translateX(' + ( x || 0 ) + 'px)',
+                    'translateY(0)',
+                    'translateZ(0)'
+                ].join( ' ' )
+            );
         },
 
 

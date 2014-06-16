@@ -76,9 +76,7 @@ define( function ( require, exports, module ) {
          */
         reset: function () {
             if ( !this.is( 'disable' ) ) {
-                // 清理侦听器
                 this._toggleTouchEvents( true );
-                // 还原缩放
                 this._zoom( true );
             }
 
@@ -113,6 +111,7 @@ define( function ( require, exports, module ) {
 
         /**
          * 执行缩放
+         * 使目标元素缩放`1倍`或`2倍`
          *
          * @private
          * @param {boolean=} isReset 是否强制还原
@@ -123,7 +122,7 @@ define( function ( require, exports, module ) {
                 var isZooming = isReset || this.target.is( 'zoom' );
 
                 // 3D变换
-                transformNode( this.main, 'all 500ms', 0, 0, isZooming ? 1 : 2 );
+                this._scale( isZooming ? 1 : 2 );
 
                 // 更新宿主控件缩放状态标示
                 this.target.toggleState( 'zoom', !isZooming );
@@ -136,6 +135,18 @@ define( function ( require, exports, module ) {
         },
 
         /**
+         * 3D变换
+         *
+         * @private
+         * @param {number} scale 缩放比例
+         * @param {string=} duration -webkit-transition-duration 值
+         */
+        _scale: function ( scale, duration ) {
+            this.level = scale;
+            transformNode( this.main, ( duration || 'all 500ms' ), 0, 0, this.level );
+        },
+
+        /**
          * 切换移动
          *
          * @private
@@ -144,7 +155,7 @@ define( function ( require, exports, module ) {
          * @return {Zoom} 当前实例
          */
         _move: function ( x, y ) {
-            transformNode( this.main, '0ms', x, y, this.target.is( 'zoom' ) ? 2 : 1 );
+            transformNode( this.main, '0ms', x, y, this.level );
             return this;
         },
 
@@ -165,6 +176,7 @@ define( function ( require, exports, module ) {
             }
             else {
                 var self = this;
+                var moveAt = self.options.moveAt;
 
                 // 每次拖动开始时的X
                 var startXY;
@@ -176,7 +188,6 @@ define( function ( require, exports, module ) {
                 var lastXY = [ 0, 0 ];
 
                 this.target.addEvent( this.main, 'touchstart', function ( e ) {
-                    // 停止冒泡
                     e.stopPropagation();
 
                     diffXY = [ 0, 0 ];
@@ -184,7 +195,6 @@ define( function ( require, exports, module ) {
                 } );
 
                 this.target.addEvent( this.main, 'touchmove', function ( e ) {
-                    // 停止冒泡
                     e.stopPropagation();
 
                     // 计算移动偏移
@@ -193,9 +203,8 @@ define( function ( require, exports, module ) {
                         e.touches[ 0 ].pageY - startXY[ 1 ]
                     ];
 
-
                     // 超过移动阀值，才进行移动，防止影响内部的点击
-                    if ( Math.abs( diffXY[ 0 ] ) > self.options.moveAt || Math.abs( diffXY[ 1 ] ) > self.options.moveAt ) {
+                    if ( Math.abs( diffXY[ 0 ] ) > moveAt || Math.abs( diffXY[ 1 ] ) > moveAt ) {
                         xy = [ lastXY[ 0 ] + diffXY[ 0 ], lastXY[ 1 ] + diffXY[ 1 ] ];
 
                         self._move( xy[ 0 ], xy[ 1 ] );
@@ -204,11 +213,9 @@ define( function ( require, exports, module ) {
 
                 this.target.addEvent( this.main, 'touchend', function ( e ) {
                     // 超过移动阀值，才进行必要的更新
-                    if ( Math.abs( diffXY[ 0 ] ) > self.options.moveAt || Math.abs( diffXY[ 1 ] ) > self.options.moveAt ) {
-                        // 停止冒泡
+                    if ( Math.abs( diffXY[ 0 ] ) > moveAt || Math.abs( diffXY[ 1 ] ) > moveAt ) {
                         e.stopPropagation();
 
-                        // 更新坐标
                         lastXY = xy.concat( [] );
                     }
                 } );

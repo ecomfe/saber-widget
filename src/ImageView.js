@@ -51,7 +51,7 @@ define( function ( require, exports, module ) {
              *
              * @type {number}
              */
-            speed: { value: 400 },
+            speed: { value: 200 },
 
             /**
              * 启动缩放的双击间隔，单位毫秒
@@ -480,19 +480,21 @@ define( function ( require, exports, module ) {
          * @param {number=} speed 移动速度,单位毫秒
          */
         _move: function ( x, speed ) {
-            speed = speed || 0;
-
-            var style = this.runtime.wrapper.style;
+            var wrapper = this.runtime.wrapper;
 
             if ( this.get( 'animate' ) ) {
-                style.webkitTransitionDuration = speed + 'ms';
+                dom.setStyle( wrapper, 'transition-duration', ( speed || 0 ) + 'ms' );
             }
 
-            style.webkitTransform = [
-                'translateX(' + ( x || 0 ) + 'px)',
-                'translateY(0)',
-                'translateZ(0)'
-            ].join( ' ' );
+            dom.setStyle(
+                wrapper,
+                'transform',
+                [
+                    'translateX(' + ( x || 0 ) + 'px)',
+                    'translateY(0)',
+                    'translateZ(0)'
+                ].join( ' ' )
+            );
         },
 
         /**
@@ -625,11 +627,6 @@ define( function ( require, exports, module ) {
             if ( zoomPlugin ) {
                 zoomPlugin.reset();
             }
-        },
-
-        // TODO
-        resize: function () {
-            return this;
         }
 
     };
