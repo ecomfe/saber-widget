@@ -86,27 +86,29 @@ define( function ( require, exports, module ) {
         /**
          * 缩放指定元素
          *
+         * @public
          * @param {HTMLElement} node 目标元素
+         * @return {Zoom} 当前实例
          */
         scale: function ( node ) {
-            if ( !node ) {
-                return;
+            if ( node ) {
+                // 主元素发生变化，则需要先清理还原当前关联的主元素
+                if ( this.main && this.main !== node ) {
+                    this.reset();
+                }
+
+                // 更新关联元素
+                /**
+                 * 插件关联的当前缩放元素
+                 *
+                 * @type {HTMLElement}
+                 */
+                this.main = node;
+
+                this._zoom();
             }
 
-            // 主元素发生变化，则需要先清理还原当前关联的主元素
-            if ( this.main && this.main !== node ) {
-                this.reset();
-            }
-
-            // 更新关联元素
-            /**
-             * 插件关联的当前缩放元素
-             *
-             * @type {HTMLElement}
-             */
-            this.main = node;
-
-            this._zoom();
+            return this;
         },
 
         /**
@@ -156,7 +158,6 @@ define( function ( require, exports, module ) {
          */
         _move: function ( x, y ) {
             transformNode( this.main, '0ms', x, y, this.level );
-            return this;
         },
 
         /**
@@ -168,7 +169,7 @@ define( function ( require, exports, module ) {
          */
         _toggleTouchEvents: function ( isOff ) {
             if ( !this.main ) {
-                return this;
+                return;
             }
 
             if ( isOff ) {
@@ -221,7 +222,6 @@ define( function ( require, exports, module ) {
                 } );
             }
 
-            return this;
         }
 
     };
