@@ -2,17 +2,12 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>Slider - Saber Widget Demo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-    <link rel="stylesheet" href="slider.css">
-    <link rel="stylesheet" href="demo.css">
-    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-6-10/esl.js"></script>
+    <meta name="author" content="menglingjun" />
+    <title>suggestion demo</title>
+    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js"></script>
     <script>
     require.config({
+        'baseUrl': '../src',
         'paths': {},
         'packages': [
             {
@@ -59,34 +54,56 @@
     });
     </script>
 
+    <link rel="stylesheet" href="demo.css">
+
 </head>
 
 <body>
     <nav class="ui-bar" data-ui="primary header">
         <a href="../" class="ui-btn" data-ui="primary">← 返回</a>
-        <h1 data-ui="title">Slider - Saber UI</h1>
+        <h1 data-ui="title">Suggestion - Saber UI</h1>
         <a href="https://github.com/ecomfe/saber-widget" class="ui-btn" data-ui="primary">主页</a>
     </nav>
 
-    <div class="container">
-        <div class="demos">
-            <a href="./basic.html" class="ui-btn" data-ui="success block">基本使用</a>
-            <a href="./flex.html" class="ui-btn" data-ui="success block">转屏支持</a>
-            <a href="./sync.html" class="ui-btn" data-ui="success block">动态同步</a>
-        </div>
-    </div>
+    <article>
+        <form action="http://www.baidu.com/s" method="get">
+            <div class="ui-suggestion">
+                <div data-role="wrapper">
+                    <input data-role="input" type="text" id="input" name="wd">
+                    <i class="icon-search">s</i>
+                    <span data-role="reset">x</span>
+                    <input data-role="search" type="submit" value="百度一下">
+                </div>
+            </div>
+        </form>
+    </article>
 
-    <script>
-    require(
+
+<script>
+   require(
         [
-            'saber-tap'
+            'saber-dom',
+            'saber-widget',
+            'saber-widget/Suggestion'
         ],
-        function( Tap ) {
-            // 点击延迟修正
-            Tap.mixin( document.body );
+        function( dom, widget ) {
+
+            var sug = widget.suggestion( dom.query('.ui-suggestion') );
+
+            sug.on('request', function (ev, data) {
+                console.log(data)
+            })
+
+            sug.on('select', function (ev, domEv) {
+                var target = domEv.target;
+                if (target && target.tagName == 'LI') {
+                    location.href = 'http://www.baidu.com?wd=' + dom.getData(target, 'key');
+                }
+            });
+
         }
     );
-    document.addEventListener( 'touchstart', function(){}, false );
-    </script>
+
+</script>
 </body>
 </html>

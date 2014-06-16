@@ -18,9 +18,21 @@ edp import saber-widget
 ## API
 
 * [主模块 main](./doc/api-main.md)
-* [基类 Widget](./doc/api-widget.md)
-* [轮播图 Slider](./doc/api-slider.md)
 
+### 控件
+
+* [基类 Widget](./doc/api-widget.md)
+* [懒加载 LazyLoad](./doc/api-widget-lazyload.md)
+* [轮播图 Slider](./doc/api-widget-slider.md)
+* [图片查看器 ImageView](./doc/api-widget-imageview.md)
+* [搜索建议 Suggestion](./doc/api-widget-suggestion.md)
+
+### 插件
+
+* [基类 Plugin](./doc/api-plugin.md)
+* [翻转自适应(轮播图) SliderFlex](./doc/api-plugin-sliderflex.md)
+* [遮罩 Masker](./doc/api-plugin-masker.md)
+* [缩放 Zoom](./doc/api-plugin-zoom.md)
 
 ===
 

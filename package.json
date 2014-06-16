@@ -1,15 +1,22 @@
 {
   "name": "saber-widget",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "适合移动端的UI组件库",
   "main": "main",
   "maintainers": [
     { "name": "zfkun", "email": "zfkun@msn.com" }
   ],
+  "contributors": [
+    { "name": "junmer", "email": "junemr@foxmail.com" }
+  ],
   "scripts": {
     "test": "./node_modules/.bin/phantomjs test/run-jasmine.js test/runner.html"
   },
-  "dependencies": {},
+  "dependencies": {
+    "saber-lang": "~0.4.0",
+    "saber-dom": "~0.4.1",
+    "saber-emitter": "~0.5.0"
+  },
   "devDependencies": {
     "phantomjs": "~1.9"
   },

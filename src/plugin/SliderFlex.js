@@ -10,6 +10,7 @@ define( function ( require, exports, module ) {
 
     var bind = require( 'saber-lang/bind' );
     var matchMedia = require( 'saber-matchmedia' );
+    var Plugin = require( './Plugin' );
 
 
     /**
@@ -32,23 +33,17 @@ define( function ( require, exports, module ) {
     /**
      * 轮播图翻转自适应插件
      *
+     * @class
      * @constructor
      * @exports SliderFlex
-     * @class
+     * @extends Plugin
      * @requires saber-lang
      * @requires saber-matchmedia
      * @param {Slider} slider 轮播图控件实例
      * @param {Object=} options 插件配置项
      */
     var SliderFlex = function( slider, options ) {
-        /**
-         * 轮播图控件实例
-         *
-         * @public
-         * @type {Slider}
-         */
-        this.target = slider;
-        this.initOptions( options );
+        Plugin.apply( this, arguments );
     };
 
     SliderFlex.prototype = {
@@ -62,98 +57,24 @@ define( function ( require, exports, module ) {
         type: 'SliderFlex',
 
         /**
-         * 插件初始化
-         *
-         * @protected
-         * @param {Object=} options 构造函数传入的配置参数
-         */
-        initOptions: function ( options ) {
-            this.options = options || {};
-
-            if ( this.target.is( 'render' ) ) {
-                this.render();
-            }
-            else {
-                this.target.on(
-                    'afterrender',
-                    this.onRender = bind( this.render, this )
-                );
-            }
-        },
-
-        /**
          * 初始化所有事件监听
          *
-         * @protected
+         * @override
          */
-        attachEvents: function () {
-            orientationHelper.on(
-                'change',
-                this.onRepaint = bind( this.repaint, this )
-            );
-
-            this.target.on(
-                'enable',
-                this.onEnable = bind( this.enable, this )
-            );
-
-            this.target.on(
-                'disable',
-                this.onDisable = bind( this.disable, this )
-            );
+        initEvent: function () {
+            // 添加屏幕旋转变化监听
+            orientationHelper.on( 'change', this.onRepaint = bind( this.repaint, this ) );
         },
 
         /**
          * 释放所有事件监听
          *
-         * @protected
+         * @override
          */
-        detachEvents: function() {
-            var slider = this.target;
-
+        clearEvent: function() {
+            // 移除屏幕旋转变化监听
             orientationHelper.off( 'change', this.onRepaint );
-
-            slider.off( 'afterrender', this.onRender );
-            slider.off( 'enable', this.onEnable );
-            slider.off( 'disable', this.onDisable );
-
-            this.onRender = this.onRepaint = this.onEnable = this.onDisable = null;
-        },
-
-
-        /**
-         * 销毁插件
-         *
-         * @public
-         */
-        dispose: function () {
-            this.detachEvents();
-            this.target = null;
-        },
-
-        /**
-         * 启用插件
-         *
-         * @public
-         */
-        enable: function () {
-            if ( this.disabled ) {
-                this.disabled = false;
-                this.attachEvents();
-                this.repaint();
-            }
-        },
-
-        /**
-         * 禁用插件
-         *
-         * @public
-         */
-        disable: function () {
-            if ( !this.disabled ) {
-                this.disabled = true;
-                this.detachEvents();
-            }
+            this.onRepaint = null;
         },
 
         /**
@@ -162,41 +83,37 @@ define( function ( require, exports, module ) {
          * @public
          */
         repaint: function () {
-            if ( this.disabled ) {
+            if ( this.is( 'disable' ) ) {
                 return;
             }
 
             var slider = this.target;
 
-            // 暂停自动轮播
-            slider.pause();
+            if ( slider.is( 'disable' ) ) {
+                return;
+            }
+
+            // 若控件已处于暂停状态，则需要保持状态，防止重绘后产生意外恢复的问题
+            var isSliderPaused = slider.is( 'pause' );
+
+            // 处理前，若控件是暂停状态，这里就不需要暂停了 (其实调了也会被忽略~)
+            if ( !isSliderPaused ) {
+                slider.pause();
+            }
 
             // 重绘尺寸 & 重新切换一下使新尺寸立即生效
             slider._resize();
             slider.to( slider.get( 'index' ) );
 
-            // 恢复自动轮播
-            slider.resume();
-        },
-
-        /**
-         * 渲染插件
-         *
-         * @public
-         */
-        render: function () {
-            if ( this.rendered ) {
-                return;
+            // 处理前，若控件是暂停状态，这里就不需要恢复了
+            if ( !isSliderPaused ) {
+                slider.resume();
             }
-
-            this.rendered = !0;
-
-            this.attachEvents();
-
-            this.repaint();
         }
 
     };
+
+    require( 'saber-lang' ).inherits( SliderFlex, Plugin );
 
     require( '../main' ).registerPlugin( SliderFlex );
 

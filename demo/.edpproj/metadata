@@ -9,6 +9,8 @@
         "saber-emitter": "0.x",
         "saber-dom": "0.x",
         "saber-matchmedia": "0.x",
-        "saber-tap": "0.x"
+        "saber-tap": "0.x",
+        "saber-ajax": "0.x",
+        "saber-promise": "0.x"
     }
 }

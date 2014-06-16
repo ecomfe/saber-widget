@@ -12,14 +12,6 @@ define( function ( require, exports, module ) {
     var dom = require( 'saber-dom' );
     var Widget = require( './Widget' );
 
-    /**
-     * CSS 专有前缀
-     *
-     * @const
-     * @type {string}
-     */
-    var CSS_PREFIX = require( './lib' ).CSS_PREFIX;
-
 
     /**
      * 轮播图控件
@@ -289,9 +281,7 @@ define( function ( require, exports, module ) {
 
                 // `SliderFlex` 插件更新
                 if ( changes.hasOwnProperty( 'flex' ) ) {
-                    require( './main' )[
-                        changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin'
-                    ]( this, 'SliderFlex' );
+                    this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'SliderFlex', 'flex' );
                 }
             }
 
@@ -385,13 +375,21 @@ define( function ( require, exports, module ) {
          * @param {number=} speed 移动速度,单位毫秒
          */
         _move: function ( x, speed ) {
-            speed = speed || 0;
-            this.runtime.wrapper.style.cssText += [
-                ( this.get( 'animate' ) ? CSS_PREFIX + 'transition-duration:' + speed + 'ms;' : '' ),
-                CSS_PREFIX + 'transform: translate(' + x + 'px, 0)',
-                ' translateZ(0)',
-                ';'
-            ].join( '' );
+            var wrapper = this.runtime.wrapper;
+
+            if ( this.get( 'animate' ) ) {
+                dom.setStyle( wrapper, 'transition-duration', ( speed || 0 ) + 'ms' );
+            }
+
+            dom.setStyle(
+                wrapper,
+                'transform',
+                [
+                    'translateX(' + ( x || 0 ) + 'px)',
+                    'translateY(0)',
+                    'translateZ(0)'
+                ].join( ' ' )
+            );
         },
 
 
@@ -399,7 +397,7 @@ define( function ( require, exports, module ) {
         /**
          * 激活控件
          *
-         * @public
+         * @override
          * @fires Slider#enable
          * @return {Slider} 当前实例
          */
@@ -410,7 +408,7 @@ define( function ( require, exports, module ) {
 
                 // 屏幕旋转自适应插件
                 if ( this.get( 'flex' ) ) {
-                    require( './main' ).enablePlugin( this, 'SliderFlex', ( this.options.plugin || {} ).flex );
+                    this.enablePlugin( 'SliderFlex', 'flex' );
                 }
             }
 
@@ -423,7 +421,7 @@ define( function ( require, exports, module ) {
         /**
          * 禁用控件
          *
-         * @public
+         * @override
          * @fires Slider#disable
          * @return {Slider} 当前实例
          */
@@ -434,7 +432,7 @@ define( function ( require, exports, module ) {
 
                 // 屏幕旋转自适应插件
                 if ( this.get( 'flex' ) ) {
-                    require( './main' ).disablePlugin( this, 'SliderFlex' );
+                    this.disablePlugin( 'SliderFlex' );
                 }
             }
 

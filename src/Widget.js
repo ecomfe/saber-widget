@@ -8,11 +8,11 @@
 
 define( function ( require, exports, module ) {
 
-    var lang = require( 'saber-lang' );
     var dom = require( 'saber-dom' );
+    var lang = require( 'saber-lang' );
+    var Type = require( 'saber-lang/type' );
     var Emitter = require( 'saber-emitter' );
     var widget = require( './main' );
-    var lib = require( './lib' );
 
     /**
      * DOM事件存储器键值
@@ -226,8 +226,6 @@ define( function ( require, exports, module ) {
             var rendered = this.is( 'render' );
 
             if ( !rendered ) {
-                this.addState( 'render' );
-
                 /**
                  * @event Widget#beforerender
                  * @param {Object} ev 事件参数对象
@@ -244,6 +242,8 @@ define( function ( require, exports, module ) {
 
                 // 为控件主元素添加控件实例标识属性
                 this.get( 'main' ).setAttribute( widget.getConfig( 'instanceAttr' ), this.get( 'id' ) );
+
+                this.addState( 'render' );
             }
 
             // DOM重绘
@@ -405,6 +405,18 @@ define( function ( require, exports, module ) {
             delete this.states[ state ];
         },
 
+        /**
+         * 反转控件状态
+         *
+         * @public
+         * @param {string} state 状态名
+         * @param {boolean=} isForce 强制指定添加或删除, 传入`true`则添加, 反之则删除
+         */
+        toggleState: function ( state, isForce ) {
+            isForce = 'boolean' === typeof isForce ? isForce : !this.is( state );
+            this[ isForce ? 'addState' : 'removeState' ]( state );
+        },
+
 
 
         /**
@@ -487,7 +499,7 @@ define( function ( require, exports, module ) {
                 // 且新值也是`Object`时,
                 // 非覆盖模式需要`merge`防止丢失属性
                 var oldValue = attr.value;
-                if ( !options.override && lib.isPlainObject( oldValue ) &&  lib.isPlainObject( newVal ) ) {
+                if ( !options.override && Type.isPlainObject( oldValue ) &&  Type.isPlainObject( newVal ) ) {
                     newVal = lang.extend( {}, oldValue, newVal );
                 }
 
@@ -495,7 +507,7 @@ define( function ( require, exports, module ) {
                 currentAttrs[ key ].value = newVal;
 
                 // 忽略重复赋值
-                if ( lib.isEqual( newVal, oldValue ) ) {
+                if ( isEqual( newVal, oldValue ) ) {
                     continue;
                 }
 
@@ -521,7 +533,7 @@ define( function ( require, exports, module ) {
             }
 
             // 存在影响重绘的属性变更时执行一次重绘
-            if ( Object.keys( repaintChanges ).length > 0 ) {
+            if ( this.is( 'render' ) && Object.keys( repaintChanges ).length > 0 ) {
                 this.repaint( repaintChanges );
             }
 
@@ -640,19 +652,63 @@ define( function ( require, exports, module ) {
             guid = element[ DOM_EVENTS_KEY ];
             events = events[ guid ];
 
-            // `events`是各种DOM事件的键值对容器
-            // 但包含存在一个键值为`node`的DOM对象，需要先移除掉
-            // 以避免影响后面的`for`循环处理
-            delete events.node;
+            if ( events ) {
+                // `events`是各种DOM事件的键值对容器
+                // 但包含存在一个键值为`node`的DOM对象，需要先移除掉
+                // 以避免影响后面的`for`循环处理
+                delete events.node;
 
-            // 清除已经注册的事件
-            for ( var type in events ) {
-                if ( events.hasOwnProperty( type ) ) {
-                    this.removeEvent( element, type );
+                // 清除已经注册的事件
+                for ( var type in events ) {
+                    if ( events.hasOwnProperty( type ) ) {
+                        this.removeEvent( element, type );
+                    }
                 }
             }
 
-            delete this.domEvents[ guid ];
+            if ( guid ) {
+                delete this.domEvents[ guid ];
+            }
+        },
+
+
+
+
+        /**
+         * 获取控件激活的指定插件
+         *
+         * @param {string} pluginName 插件名称
+         * @return {?Plugin} 插件实例
+         */
+        plugin: function ( pluginName ) {
+            return ( this.plugins || {} )[ pluginName ];
+        },
+
+        /**
+         * 激活插件
+         *
+         * @param {string} pluginName 插件名称
+         * @param {string=} optionName 插件初始化配置名
+         * @return {Widget} 当前控件实例
+         */
+        enablePlugin: function ( pluginName, optionName ) {
+            require( './main' ).enablePlugin(
+                this,
+                pluginName,
+                ( this.options.plugin || {} )[ optionName || pluginName.toLowerCase() ]
+            );
+            return this;
+        },
+
+        /**
+         * 禁用插件
+         *
+         * @param {string} pluginName 插件名称
+         * @return {Widget} 当前控件实例
+         */
+        disablePlugin: function ( pluginName ) {
+            require( './main' ).disablePlugin( this, pluginName );
+            return this;
         }
 
     };
@@ -741,7 +797,7 @@ define( function ( require, exports, module ) {
 
             val = options[ key ];
 
-            if ( /^on[A-Z]/.test( key ) && lib.isFunction( val ) ) {
+            if ( /^on[A-Z]/.test( key ) && 'function' === Type.type( val ) ) {
                 // 移除on前缀，并转换第3个字符为小写，得到事件类型
                 this.on(
                     key.charAt( 2 ).toLowerCase() + key.slice( 3 ),
@@ -752,6 +808,102 @@ define( function ( require, exports, module ) {
         }
 
         return options;
+    }
+
+
+
+    /**
+     * 判断变量是否相同
+     *
+     * @innder
+     * @param {*} x 目标变量
+     * @param {*} y 对比变量
+     * @return {boolean}
+     */
+    function isEqual ( x, y ) {
+        // 简单常规的
+        if ( x === y ) {
+            return true;
+        }
+
+        // 复杂非常规: 先对比类型, 不同直接返回
+        var xType = Type.type( x );
+        var yType = Type.type( y );
+        if ( xType !== yType ) {
+            return false;
+        }
+
+        // 简单原始类型: String, Number, Boolean
+        var primitiveTypes = {
+
+            // 'a', new String( 'a' ), new String( true ), new String( window ) ..
+            'string': String,
+
+            // 1, new Number( 1 ), new Number( '1' ) ..
+            'number': Number,
+
+            // true, new Boolean( true ), new Boolean( 'true' ), new Boolean( 'a' ) ..
+            'boolean': Boolean
+
+        };
+        for ( var type in primitiveTypes ) {
+            if ( type === xType ) {
+                return x === primitiveTypes[ type ]( y );
+            }
+        }
+
+        // 数组类型: 数组中含有非原始类型值时暂时认为不相等
+        if ( 'array' === xType ) {
+            var xyString = [ x.toString(), y.toString() ];
+            return !/\[object\s/.test( xyString[ 0 ] )
+                && !/\[object\s/.test( xyString[ 1 ] )
+                && xyString[ 0 ] === xyString[ 1 ];
+        }
+
+
+        // 日期类型
+        if ( 'date' === xType ) {
+            return +x === +y;
+        }
+
+        // 正则类型
+        if ( 'regexp' === xType ) {
+            return xType.source === yType.source
+                && xType.global === yType.global
+                && xType.ignoreCase === yType.ignoreCase
+                && xType.multiline === yType.multiline;
+        }
+
+        // 空值类型: null, undefined, '', [], {}
+        if ( Type.isEmpty( x ) && Type.isEmpty( y ) ) {
+            return true;
+        }
+
+        // 至此，非对象类型时，也直接 false
+        if ( 'object' !== typeof x || 'object' !== typeof y ) {
+            return false;
+        }
+
+        // 普通对象类型时，浅对比(因要递归)
+        if ( Type.isPlainObject( x ) && Type.isPlainObject( y ) ) {
+            // 先对比`键`
+            if ( Object.keys( x ).toString() !== Object.keys( y ).toString()  ) {
+                return false;
+            }
+
+            // 再对比`值`
+            for ( var k in x ) {
+                if ( x[ k ] !== y[ k ] ) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // 到此也够了 ~
+        return false;
+
     }
 
 
