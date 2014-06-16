@@ -13,7 +13,6 @@ define(function (require, exports, module) {
     var ajax        = require('saber-ajax');
     var Resolver    = require('saber-promise');
     var Widget      = require('./Widget');
-    var debounce    = require('saber-lang/function/debounce');
 
     /**
      * 搜索建议控件
@@ -248,7 +247,7 @@ define(function (require, exports, module) {
                 }
 
                 return tplWrapper.replace( '{#list}', ret.join( '' ) );
-            }
+            };
 
         },
 
@@ -291,7 +290,7 @@ define(function (require, exports, module) {
             else if ( me.get('jsonp') ) {
                 handler = jsonp(url, {
                     key: me.get('jsonp')
-                })
+                });
             }
             // ajax
             else {
@@ -378,10 +377,11 @@ define(function (require, exports, module) {
         // init var
         var resolver            = new Resolver();
         var callbackName        = 'S_CB_' + Math.random().toString(12).substr(2);
-        var url                 = url + '&' + options.key + '=' + callbackName;
         var script              = document.createElement( 'script' );
         // var data                = options.data;
         // data[options.key]       = callbackName;
+
+        url                     = url + '&' + options.key + '=' + callbackName;
 
         // // set url
         // var params = [];
@@ -409,11 +409,11 @@ define(function (require, exports, module) {
         }());
 
         // send
-        script.src = url
+        script.src = url;
         script.async = true;
-        var parent = document.getElementsByTagName( 'head' )[ 0 ]
-            || document.body;
-        parent.appendChild( script ) && ( parent = null );
+        var parent = document.getElementsByTagName( 'head' )[ 0 ] || document.body;
+        parent.appendChild( script );
+        parent = null;
 
         // return promise
         return resolver.promise();
