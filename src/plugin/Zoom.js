@@ -145,7 +145,7 @@ define( function ( require, exports, module ) {
          */
         _scale: function ( scale, duration ) {
             this.level = scale;
-            transformNode( this.main, ( duration || 'all 500ms' ), 0, 0, this.level );
+            transformNode( this.main, ( duration || '500ms' ), 0, 0, this.level );
         },
 
         /**
@@ -239,14 +239,14 @@ define( function ( require, exports, module ) {
      *
      * @inner
      * @param {HTMLElement} node 目标元素
-     * @param {string} transition transition值
+     * @param {string} duration duration
      * @param {number=} x X轴位移
      * @param {number=} y Y轴位移
      * @param {number=} scale 缩放比
      */
-    function transformNode( node, transition, x, y, scale ) {
-        if ( transition ) {
-            dom.setStyle( node, 'transition-duration', transition );
+    function transformNode( node, duration, x, y, scale ) {
+        if ( duration ) {
+            dom.setStyle( node, 'transition-duration', duration );
         }
 
         dom.setStyle(
