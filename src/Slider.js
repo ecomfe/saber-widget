@@ -12,14 +12,6 @@ define( function ( require, exports, module ) {
     var dom = require( 'saber-dom' );
     var Widget = require( './Widget' );
 
-    /**
-     * CSS 专有前缀
-     *
-     * @const
-     * @type {string}
-     */
-    var CSS_PREFIX = require( './lib' ).CSS_PREFIX;
-
 
     /**
      * 轮播图控件
