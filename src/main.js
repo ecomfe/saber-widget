@@ -283,6 +283,7 @@ define( function ( require, exports, module ) {
         var enabledPlugins = widget.plugins || ( widget.plugins = {} );
         var plugin = enabledPlugins[ pluginName ];
 
+        /*jslint newcap:true */
         if ( !plugin && ( plugin = plugins[ pluginName ] ) ) {
             plugin = widget.plugins[ pluginName ] = new plugin( widget, options );
         }

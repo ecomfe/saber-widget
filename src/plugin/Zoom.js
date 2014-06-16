@@ -246,14 +246,18 @@ define( function ( require, exports, module ) {
      */
     function transformNode( node, transition, x, y, scale ) {
         if ( transition ) {
-            node.style.webkitTransition = transition;
+            dom.setStyle( node, 'transition-duration', transition );
         }
 
-        node.style.webkitTransform = [
-            'translateX(' + ( x || 0 ) + 'px)',
-            'translateY(' + ( y || 0 ) + 'px)',
-            'scale(' + ( scale || 1 ) + ')'
-        ].join( ' ' );
+        dom.setStyle(
+            node,
+            'transform',
+            [
+                'translateX(' + ( x || 0 ) + 'px)',
+                'translateY(' + ( y || 0 ) + 'px)',
+                'scale(' + ( scale || 1 ) + ')'
+            ].join( ' ' )
+        );
     }
 
     return Zoom;
