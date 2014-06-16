@@ -25,6 +25,7 @@ edp import saber-widget
 * [懒加载 LazyLoad](./doc/api-widget-lazyload.md)
 * [轮播图 Slider](./doc/api-widget-slider.md)
 * [图片查看器 ImageView](./doc/api-widget-imageview.md)
+* [搜索建议 Suggestion](./doc/api-widget-suggestion.md)
 
 ### 插件
 

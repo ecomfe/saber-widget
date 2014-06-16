@@ -83,13 +83,12 @@
    require(
         [
             'saber-dom',
+            'saber-widget',
             'saber-widget/Suggestion'
         ],
-        function( dom, Suggestion ) {
+        function( dom, widget ) {
 
-            var sug = new Suggestion({
-                main: dom.query('.ui-suggestion')
-            }).render();
+            var sug = widget.suggestion( dom.query('.ui-suggestion') );
 
             sug.on('request', function (ev, data) {
                 console.log(data)
