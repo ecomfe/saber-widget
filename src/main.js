@@ -70,7 +70,7 @@ define( function ( require, exports, module ) {
      * @inner
      * @type {number}
      */
-    var guid = 0x861005;
+    var guid = 0x840704;
 
     /**
      * 生成全局唯一id

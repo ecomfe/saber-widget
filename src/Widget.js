@@ -192,8 +192,9 @@ define( function ( require, exports, module ) {
          */
         initOptions: function ( options ) {
 
-            // 过滤`onxxx`形式参数并自动化绑定
-            options = processEventHandlers.call( this, options );
+            // 过滤 `onxxx` 形式参数并自动化绑定
+            // 过滤 `public` 方法重载
+            options = processEventHandlerAndOverrideMethod.call( this, options );
 
             // 这里做了下对象克隆，以防各种不可预知的覆盖错误
             this.options = lang.extend( {}, options );
@@ -782,13 +783,14 @@ define( function ( require, exports, module ) {
 
 
     /**
-     * 处理`onxxx`形式的监听方法参数
+     * 处理`onxxx`形式的自定义事件监听 和 `public`方法重载
+     * 为节省一次遍历，特意融合2个任务在一起
      *
      * @inner
      * @param {Object} options 配置对象
-     * @return {Object} 过滤掉事件监听属性的配置对象
+     * @return {Object} 过滤掉`事件监听`和`重载方法`属性的配置对象
      */
-    function processEventHandlers( options ) {
+    function processEventHandlerAndOverrideMethod( options ) {
         var key, val;
         for ( key in options ) {
             if ( !options.hasOwnProperty( key ) ) {
@@ -797,12 +799,15 @@ define( function ( require, exports, module ) {
 
             val = options[ key ];
 
+            // 自定义事件添加
             if ( /^on[A-Z]/.test( key ) && 'function' === Type.type( val ) ) {
                 // 移除on前缀，并转换第3个字符为小写，得到事件类型
-                this.on(
-                    key.charAt( 2 ).toLowerCase() + key.slice( 3 ),
-                    val
-                );
+                this.on( key.charAt( 2 ).toLowerCase() + key.slice( 3 ), val );
+                delete options[ key ];
+            }
+            // `public`方法重载
+            else if ( isFunction( this[ key ] ) && isFunction( val ) ) {
+                this[ key ] = val;
                 delete options[ key ];
             }
         }
@@ -810,6 +815,18 @@ define( function ( require, exports, module ) {
         return options;
     }
 
+
+
+    /**
+     * 判断变量是否是函数
+     *
+     * @innder
+     * @param {*} obj 目标变量
+     * @return {boolean}
+     */
+    function isFunction ( obj ) {
+        return 'function' === Type.type( obj );
+    }
 
 
     /**
