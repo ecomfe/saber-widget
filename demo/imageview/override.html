@@ -71,8 +71,8 @@
 
     <nav class="ui-bar" data-ui="subheader">
         <div class="ui-btns">
-            <a href="./basic.html" class="ui-btn" data-ui="active">基本</a>
-            <a href="./override.html" class="ui-btn">自定义</a>
+            <a href="./basic.html" class="ui-btn">基本</a>
+            <a href="./override.html" class="ui-btn" data-ui="active">自定义</a>
             <a href="./setup.html" class="ui-btn">Setup</a>
             <a href="./group.html" class="ui-btn">分组</a>
         </div>
@@ -106,7 +106,23 @@
                 'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-13/1/5483238720140323173013082.jpg'
             ];
 
-            iv = widget.imageview( { items: images } );
+            iv = widget.imageview( {
+
+                items: images,
+
+                getToolbar: function () {
+                    return [
+                        '<span data-role="close">返回</span>',
+                        '<h1>No.' + ( this.get( 'index' ) + 1 ) + '</h1>'
+                    ].join( '' );
+                },
+
+                onChange: function ( ev, from, to ) {
+                    console.info( 'change from %s to %s', from, to );
+                }
+
+            } );
+
 
             dom.g( 'showBtn' ).addEventListener( 'click', function ( ev ) {
                 iv.enable();
