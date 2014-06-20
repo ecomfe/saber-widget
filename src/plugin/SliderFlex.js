@@ -8,26 +8,7 @@
 
 define( function ( require, exports, module ) {
 
-    var bind = require( 'saber-lang/bind' );
-    var matchMedia = require( 'saber-matchmedia' );
     var Plugin = require( './Plugin' );
-
-
-    /**
-     * 屏幕翻转监听辅助对象
-     * 为了节省内存，只监听一次，所有`Slider实例`使用这个`Helper`来处理
-     *
-     * @inner
-     * @type {Object}
-     */
-    var orientationHelper = {};
-    require( 'saber-emitter' ).mixin( orientationHelper );
-
-    // 监听屏幕翻转，并由 `orientationHelper` 统一调度
-    matchMedia( 'screen and (orientation: portrait)' ).addListener(function () {
-        orientationHelper.emit( 'change' );
-    });
-
 
 
     /**
@@ -38,7 +19,6 @@ define( function ( require, exports, module ) {
      * @exports SliderFlex
      * @extends Plugin
      * @requires saber-lang
-     * @requires saber-matchmedia
      * @param {Slider} slider 轮播图控件实例
      * @param {Object=} options 插件配置项
      */
@@ -62,8 +42,13 @@ define( function ( require, exports, module ) {
          * @override
          */
         initEvent: function () {
+            var slider = this.target;
+
+            this.onRepaint = require( 'saber-lang' ).bind( this.repaint, this );
+
             // 添加屏幕旋转变化监听
-            orientationHelper.on( 'change', this.onRepaint = bind( this.repaint, this ) );
+            slider.addEvent( window, 'resize', this.onRepaint );
+            slider.addEvent( window, 'orientationchange', this.onRepaint );
         },
 
         /**
@@ -72,8 +57,12 @@ define( function ( require, exports, module ) {
          * @override
          */
         clearEvent: function() {
+            var slider = this.target;
+
             // 移除屏幕旋转变化监听
-            orientationHelper.off( 'change', this.onRepaint );
+            slider.removeEvent( window, 'resize', this.onRepaint );
+            slider.removeEvent( window, 'orientationchange', this.onRepaint );
+
             this.onRepaint = null;
         },
 
@@ -102,8 +91,7 @@ define( function ( require, exports, module ) {
             }
 
             // 重绘尺寸 & 重新切换一下使新尺寸立即生效
-            slider._resize();
-            slider.to( slider.get( 'index' ) );
+            slider._resize().to( slider.get( 'index' ) );
 
             // 处理前，若控件是暂停状态，这里就不需要恢复了
             if ( !isSliderPaused ) {
