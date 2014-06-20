@@ -54,6 +54,11 @@
                 'name': 'saber-promise',
                 'location': '../dep/saber-promise/0.1.2/src',
                 'main': 'promise'
+            },
+            {
+                'name': 'hammer',
+                'location': '../dep/hammer/1.0.10/src',
+                'main': 'hammer'
             }
         ]
     });
@@ -78,8 +83,8 @@
 
     <div class="container">
         <h2>标准</h2>
-        <div class="ui-slider">
-            <div data-role="wrapper">
+        <div id="mySlider" class="ui-slider">
+            <div data-role="wrapper" id="mySliderWrapper">
                 <div data-role="item">
                     <a href="http://www.baidu.com/"><img src="./img/2.png"></a>
                 </div>
@@ -113,49 +118,44 @@
             'saber-widget/Slider'
         ],
         function( Tap, dom, widget, Slider ) {
-            // 点击延迟修正
             Tap.mixin( document.body );
 
-            // 批量初始化
-            sliders = [];
-            dom.queryAll( '.ui-slider' ).forEach(
-                function ( node ) {
-                    sliders.push( widget.slider( node ) );
-                }
-            );
+            slider = widget.slider( dom.g( 'mySlider' ) );
 
             dom.g( 'add' ).onclick = function () {
                 var item = document.createElement( 'div' );
                 dom.setData( item, 'role', 'item' );
-                item.innerHTML = ''
-                    + '<a href="http://www.google.com/">'
-                    + '<img src="./img/' + ( Math.floor( Math.random() * 10 ) % 3 + 1 ) + '.png">'
-                    + '</a>';
+                item.innerHTML = [
+                    '<a href="http://www.google.com/">',
+                    '<img src="./img/' + ( Math.floor( Math.random() * 10 ) % 3 + 1 ) + '.png">',
+                    '</a>'
+                ].join( '' );
+                dom.g( 'mySliderWrapper' ).appendChild( item );
 
-                sliders[ 0 ].get( 'wrapper' ).appendChild( item );
-
-                if ( autoSync ) {
-                    sliders[0].sync();
-                }
+                syncSlider();
             };
 
             dom.g( 'remove' ).onclick = function () {
-                var wrapper = sliders[ 0 ].get( 'wrapper' );
+                var wrapper = dom.g( 'mySliderWrapper' );
                 wrapper.removeChild( wrapper.lastElementChild );
 
-                if ( autoSync ) {
-                    sliders[0].sync();
-                }
+                syncSlider();
+            };
+
+            dom.g( 'sync' ).onclick = function () {
+                autoSync = !autoSync;
+
+                dom.setData( this, 'ui', ( autoSync ? ' active' : '' ) );
+
+                syncSlider();
             };
 
             var autoSync = true;
-            dom.g( 'sync' ).onclick = function () {
-                autoSync = !autoSync;
-                dom.setData( this, 'ui', ( autoSync ? ' active' : '' ) );
+            function syncSlider () {
                 if ( autoSync ) {
-                    sliders[ 0 ].sync();
+                    slider.sync();
                 }
-            };
+            }
         }
     );
 
