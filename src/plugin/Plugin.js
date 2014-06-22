@@ -6,7 +6,7 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require, exports, module ) {
+define( function ( require ) {
 
     var bind = require( 'saber-lang/bind' );
     var extend = require( 'saber-lang/extend' );
