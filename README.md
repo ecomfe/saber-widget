@@ -6,6 +6,8 @@
 ## Dependencies
 
 + [saber-lang](https://github.com/ecomfe/saber-lang)
++ [saber-dom](https://github.com/ecomfe/saber-dom)
++ [saber-emitter](https://github.com/ecomfe/saber-emitter)
 
 ## Usage
 
