@@ -76,8 +76,8 @@
 
     <nav class="ui-bar" data-ui="subheader">
         <div class="ui-btns">
-            <a href="./basic.html" class="ui-btn" data-ui="active">基本</a>
-            <a href="./flex.html" class="ui-btn">转屏</a>
+            <a href="./basic.html" class="ui-btn">基本</a>
+            <a href="./flex.html" class="ui-btn" data-ui="active">转屏</a>
             <a href="./override.html" class="ui-btn">自定义</a>
             <a href="./setup.html" class="ui-btn">Setup</a>
             <a href="./group.html" class="ui-btn">分组</a>
@@ -98,7 +98,8 @@
             'saber-dom',
             'saber-widget',
             'saber-widget/ImageView',
-            'saber-widget/plugin/Masker'
+            'saber-widget/plugin/Masker',
+            'saber-widget/plugin/ImageViewFlex'
         ],
         function( Tap, dom, widget ) {
             Tap.mixin( document.body );
@@ -111,7 +112,7 @@
                 'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-13/1/5483238720140323173013082.jpg'
             ];
 
-            iv = widget.imageview( { datasource: images } );
+            iv = widget.imageview( { datasource: images, flex: true } );
 
             dom.g( 'showBtn' ).addEventListener( 'click', function ( ev ) {
                 iv.enable();
