@@ -6,7 +6,7 @@
  * @author junmer(junemr@foxmail.com)
  */
 
-define( function ( require, exports, module ) {
+define( function ( require ) {
 
     var lang = require( 'saber-lang' );
     var dom = require( 'saber-dom' );

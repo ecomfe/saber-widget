@@ -8,7 +8,6 @@
 ``` javascript
 var widget = require( 'saber-widget' );
 require( 'saber-widget/plugin/Masker' );
-require( 'saber-widget/plugin/Zoom' );
 require( 'saber-widget/ImageView' );
 
 var imageview = widget.imageview( element );

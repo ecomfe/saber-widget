@@ -29,11 +29,12 @@ define( function ( require, exports, module ) {
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
+     * @param {number=} options.length 图片总数
+     * @param {number=} options.index 初始位置
      * @param {boolean=} options.animate 是否启用切换动画
      * @param {boolean=} options.auto 是否自动循环切换
      * @param {boolean=} options.interval 自动循环切换间隔，单位毫秒
      * @param {boolean=} options.flex 是否自适应屏幕旋转
-     * @param {boolean=} options.index 初始位置
      * @param {boolean=} options.speed 回弹动画时长，单位毫秒
      * @param {boolean=} options.switchAt 切换阀值，单位像素
      */
@@ -388,7 +389,7 @@ define( function ( require, exports, module ) {
             var oldWidth = runtime.width;
             var width = styleNumber( this.get( 'main' ) );
 
-            if ( !isForce && width == runtime.width ) {
+            if ( !isForce && width == oldWidth ) {
                 return this;
             }
 
