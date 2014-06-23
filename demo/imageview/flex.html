@@ -48,7 +48,7 @@
             },
             {
                 'name': 'saber-ajax',
-                'location': '../dep/saber-ajax/0.1.4/src',
+                'location': '../dep/saber-ajax/0.1.3/src',
                 'main': 'ajax'
             },
             {
@@ -60,11 +60,6 @@
                 'name': 'hammer',
                 'location': '../dep/hammer/1.0.10/src',
                 'main': 'hammer'
-            },
-            {
-                'name': 'saber-string',
-                'location': '../dep/saber-string/0.3.0/src',
-                'main': 'main'
             }
         ]
     });
@@ -82,35 +77,16 @@
     <nav class="ui-bar" data-ui="subheader">
         <div class="ui-btns">
             <a href="./basic.html" class="ui-btn">基本</a>
-            <a href="./flex.html" class="ui-btn">转屏</a>
+            <a href="./flex.html" class="ui-btn" data-ui="active">转屏</a>
             <a href="./override.html" class="ui-btn">自定义</a>
             <a href="./setup.html" class="ui-btn">Setup</a>
-            <a href="./group.html" class="ui-btn" data-ui="active">分组</a>
+            <a href="./group.html" class="ui-btn">分组</a>
         </div>
     </nav>
 
     <div class="container">
-        <div class="ui-content" id="custom">
-            <figure>
-                <figcaption>黄浦江上的的卢浦大桥</figcaption>
-                <img data-role="image" src="http://img1.gtimg.com/sports/pics/hv1/26/36/1625/105674831.jpg" />
-                <img data-role="image" src="http://ygimg1.mnsfz.com/pic/yangguang/2014-5-30/1/10.jpg" />
-                <img data-role="image" src="http://img1.gtimg.com/sports/pics/hv1/26/36/1625/105674831.jpg" data-src="http://img.gaitu.com//eimg/200907160943575506.gif" />
-            </figure>
-
-            <figure>
-                <figcaption>2014巴西世界杯</figcaption>
-                <img data-role="image" src="http://img1.gtimg.com/sports/pics/hv1/26/36/1625/105674831.jpg" />
-                <img data-role="image" src="http://ygimg1.mnsfz.com/pic/yangguang/2014-5-12/1/2002131509443154443.jpg" />
-                <img data-role="image" src="http://img.gaitu.com//eimg/200907160943575506.gif" />
-            </figure>
-
-            <figure>
-                <figcaption>百度搜索</figcaption>
-                <img data-role="image" src="http://www.techdigest.tv/three-logo-thumb.jpg" data-src="http://ygimg1.mnsfz.com/pic/yangguang/2014-5-13/1/5483238720140323173013082.jpg" />
-                <img data-role="image" src="http://www.techdigest.tv/three-logo-thumb.jpg" data-src="http://ygimg1.mnsfz.com/pic/yangguang/2014-5-30/1/10.jpg" />
-                <img data-role="image" src="http://www.techdigest.tv/three-logo-thumb.jpg" data-src="http://www.techdigest.tv/three-logo-thumb.jpg" />
-            </figure>
+        <div class="demos">
+            <span id="showBtn" class="ui-btn" data-ui="success block" data-action="enable">显示</span>
         </div>
     </div>
 
@@ -122,32 +98,25 @@
             'saber-dom',
             'saber-widget',
             'saber-widget/ImageView',
-            'saber-widget/plugin/Masker'
+            'saber-widget/plugin/Masker',
+            'saber-widget/plugin/ImageViewFlex'
         ],
         function( Tap, dom, widget ) {
             Tap.mixin( document.body );
 
-            dom.g( 'custom' ).addEventListener( 'click', function ( ev ) {
-                var node = ev.target;
-                if ( dom.matches( node, 'img' ) ) {
-                    showImageView( node, node.parentNode );
-                }
-            } );
+            var images = [
+                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-12/1/2002131509443154443.jpg',
+                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-30/1/10.jpg',
+                'http://img.gaitu.com//eimg/200907160943575506.gif',
+                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-12/1/2002131509443154443.jpg',
+                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-13/1/5483238720140323173013082.jpg'
+            ];
 
-            iv = null;
-            function showImageView ( image, wrapper ) {
-                if ( !iv ) {
-                    // 首次初始化
-                    iv = widget.imageview( wrapper );
-                }
-                else {
-                    // 更新绑定容器
-                    iv.setup( wrapper );
-                }
+            iv = widget.imageview( { datasource: images, flex: true } );
 
-                iv.enable().to( image );
-            }
-
+            dom.g( 'showBtn' ).addEventListener( 'click', function ( ev ) {
+                iv.enable();
+            }, false );
         }
     );
     document.addEventListener( 'touchstart', function(){}, false );
