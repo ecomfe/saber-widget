@@ -15,23 +15,17 @@ exports.getLocations = function () {
     return [
         {
             location: /\/$/,
-            handler: home( 'index.html' )
+            handler: [
+                home( 'index.html' ),
+                livereload()
+            ]
         },
         {
-            location: /^\/redirect-local/,
-            handler: redirect('redirect-target', false)
-        },
-        {
-            location: /^\/redirect-remote/,
-            handler: redirect('http://www.baidu.com', false)
-        },
-        {
-            location: /^\/redirect-target/,
-            handler: content('redirectd!')
-        },
-        {
-            location: '/empty',
-            handler: empty()
+            location: /\.html($|\?)/,
+            handler: [
+                file(),
+                livereload()
+            ]
         },
         {
             location: /\.css($|\?)/,
