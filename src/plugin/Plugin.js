@@ -6,10 +6,10 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require, exports, module ) {
+define( function ( require ) {
 
-    var lang = require( 'saber-lang' );
-    var Emitter = require( 'saber-emitter' );
+    var bind = require( 'saber-lang/bind' );
+    var extend = require( 'saber-lang/extend' );
 
 
     /**
@@ -18,7 +18,8 @@ define( function ( require, exports, module ) {
      * @constructor
      * @exports Plugin
      * @class
-     * @mixes Emitter
+     * @mixes event
+     * @mixes state
      * @requires saber-lang
      * @requires saber-emitter
      * @fires Plugin#init
@@ -38,7 +39,7 @@ define( function ( require, exports, module ) {
          * @private
          * @type {Object}
          */
-        this.states = lang.extend(
+        this.states = extend(
 
             // `基类`默认属性集
             // 使用`extend`确保正确`mixin`子类构造函数中定义的默认状态
@@ -94,13 +95,13 @@ define( function ( require, exports, module ) {
          * @param {Object=} options 构造函数传入的配置参数
          */
         initOptions: function ( options ) {
-            this.options = lang.extend( {}, this.options, options );
+            this.options = extend( {}, this.options, options );
 
             if ( this.target.is( 'render' ) ) {
                 this.render();
             }
             else {
-                this.target.once( 'afterrender', lang.bind( this.render, this ) );
+                this.target.once( 'afterrender', bind( this.render, this ) );
             }
         },
 
@@ -257,45 +258,18 @@ define( function ( require, exports, module ) {
             }
 
             return this;
-        },
-
-
-
-        /**
-         * 插件是否处于指定状态
-         *
-         * @param {string} state 状态名
-         * @return {boolean} 包含指定状态返回`true`
-         */
-        is: function ( state ) {
-            return !!this.states[ state ];
-        },
-
-        /**
-         * 添加插件状态
-         *
-         * @public
-         * @param {string} state 状态名
-         */
-        addState: function ( state ) {
-            this.states[ state ] = !0;
-        },
-
-        /**
-         * 移除插件状态
-         *
-         * @public
-         * @param {string} state 状态名
-         */
-        removeState: function ( state ) {
-            delete this.states[ state ];
         }
 
     };
 
 
-    // 混入 `Emitter` 支持
-    Emitter.mixin( Plugin.prototype );
+
+    // 混入 `定义事件`、`状态管理` 支持
+    extend(
+        Plugin.prototype,
+        require( '../base/event' ),
+        require( '../base/state' )
+    );
 
 
     return Plugin;

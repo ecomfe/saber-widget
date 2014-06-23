@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="slider.css">
     <link rel="stylesheet" href="demo.css">
-    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-6-10/esl.js"></script>
+    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js"></script>
     <script>
     require.config({
         'paths': {},
@@ -47,13 +47,23 @@
             },
             {
                 'name': 'saber-ajax',
-                'location': '../dep/saber-ajax/0.1.3/src',
+                'location': '../dep/saber-ajax/0.1.4/src',
                 'main': 'ajax'
             },
             {
                 'name': 'saber-promise',
                 'location': '../dep/saber-promise/0.1.2/src',
                 'main': 'promise'
+            },
+            {
+                'name': 'hammer',
+                'location': '../dep/hammer/1.1.3/src',
+                'main': 'hammer'
+            },
+            {
+                'name': 'saber-string',
+                'location': '../dep/saber-string/0.3.0/src',
+                'main': 'main'
             }
         ]
     });

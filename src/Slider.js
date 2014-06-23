@@ -10,6 +10,7 @@ define( function ( require, exports, module ) {
 
     var lang = require( 'saber-lang' );
     var dom = require( 'saber-dom' );
+    var Hammer = require( 'hammer' );
     var Widget = require( './Widget' );
 
 
@@ -22,18 +23,19 @@ define( function ( require, exports, module ) {
      * @extends Widget
      * @requires saber-lang
      * @requires saber-dom
+     * @requires hammer
      * @fires Slider#resize
      * @fires Slider#change
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
+     * @param {number=} options.length 图片总数
+     * @param {number=} options.index 初始位置
      * @param {boolean=} options.animate 是否启用切换动画
      * @param {boolean=} options.auto 是否自动循环切换
      * @param {boolean=} options.interval 自动循环切换间隔，单位毫秒
      * @param {boolean=} options.flex 是否自适应屏幕旋转
-     * @param {boolean=} options.index 初始位置
      * @param {boolean=} options.speed 回弹动画时长，单位毫秒
-     * @param {boolean=} options.moveAt 移动侦测阀值，单位像素
      * @param {boolean=} options.switchAt 切换阀值，单位像素
      */
     function Slider( options ) {
@@ -60,7 +62,7 @@ define( function ( require, exports, module ) {
              *
              * @type {number}
              */
-            interval: { value: 2000 },
+            interval: { value: 4000 },
 
             /**
              * 是否自适应屏幕旋转
@@ -82,23 +84,15 @@ define( function ( require, exports, module ) {
              *
              * @type {number}
              */
-            speed: { value: 400 },
+            speed: { value: 300 },
 
             /**
-             * 移动侦测阀值，单位像素
-             * 当按下后`移动距离`超过此阀值时才`启动`切换动画
-             *
-             * @type {number}
-             */
-            moveAt: { value: 10 },
-
-            /**
-             * 切换阀值，单位像素
+             * 切换阀值，有效值为`0 ~ 1`的比例系数
              * 当`移动距离`超过此阀值时才进行`切换`，否则进行`回弹`
              *
              * @type {number}
              */
-            switchAt: { value: 30 },
+            switchAt: { value: 0.5 },
 
             /**
              * 轮播项总数
@@ -111,21 +105,6 @@ define( function ( require, exports, module ) {
 
                 getter: function () {
                     return this.runtime.length || 0;
-                }
-
-            },
-
-            /**
-             * 切换项包装元素
-             *
-             * @type {HTMLElement}
-             */
-            wrapper: {
-
-                readOnly: true,
-
-                getter: function () {
-                    return this.runtime.wrapper;
                 }
 
             }
@@ -189,69 +168,17 @@ define( function ( require, exports, module ) {
          * @override
          */
         initEvent: function () {
-            // 每次拖动开始时的X
-            var startX;
-            // 上次有效拖动的相对位移值
-            var diffX = 0;
-            // 上次有效拖动时计算后的X
-            var x = 0;
+            var events = 'release touch dragleft dragright swipeleft swiperight';
+            var runtime = this.runtime;
 
-            // 上次拖动完成后的左边距
-            this.runtime.x = 0;
+            runtime.hammer = new Hammer( runtime.wrapper, { dragLockToAxis: true } )
+                .on(
+                    events,
+                    runtime.handler = lang.bind( this._handleHammer, this )
+                );
 
-            this.addEvent( this.get( 'main' ), 'touchstart', function ( e ) {
-                if ( this.is( 'disable') ) {
-                    return;
-                }
-
-                this.pause();
-
-                startX = e.touches[ 0 ].pageX;
-                diffX = 0;
-            } );
-
-            // TODO: 防抖
-            this.addEvent( this.get( 'main' ), 'touchmove', function ( e ) {
-                if ( this.is( 'disable') ) {
-                    return;
-                }
-
-                diffX = e.touches[ 0 ].pageX - startX;
-
-                // 超过移动阀值，才进行移动，防止影响内部的点击
-                if ( Math.abs( diffX ) > this.get( 'moveAt' ) ) {
-                    e.preventDefault();
-
-                    x = this.runtime.x + diffX;
-
-                    this._move( x );
-                }
-            } );
-
-            this.addEvent( this.get( 'main' ), 'touchend', function ( e ) {
-                if ( this.is( 'disable') ) {
-                    return;
-                }
-
-                var diff = Math.abs( diffX );
-
-                // 超过移动阀值，才进行拖动结束后的修正，防止影响内部的点击
-                if ( diff > this.get( 'moveAt' ) ) {
-                    // update
-                    this.runtime.x = x;
-
-                    // 达到切换阀值，则根据滑动方向切换
-                    if ( diff > this.get( 'switchAt' ) ) {
-                        this.to( this.get( 'index' ) + ( diffX < 0 ? 1 : -1 ) );
-                    }
-                    // 未达到阀值，则回弹复位
-                    else {
-                        this.to( this.get( 'index' ) );
-                    }
-                }
-
-                // 恢复自动切换
-                this.resume();
+            this.on( 'beforedispose', function () {
+                runtime.hammer.off( events, runtime.handler );
             } );
         },
 
@@ -270,45 +197,207 @@ define( function ( require, exports, module ) {
 
             // `render` 阶段调用时,不传入 `changes`
             if ( !changes ) {
-                this._resize( this.runtime.width ).enable();
+                this._resize( true ).enable();
+                return;
             }
-            else {
-                // 启动切换属性变更
-                if ( changes.hasOwnProperty( 'auto' ) ) {
-                    // 因属性`auto`值已发生变化, 这里调用需要带上`true`参数强制执行
-                    this[ changes.auto[ 1 ] ? 'start' : 'stop' ]( true );
-                }
 
-                // `SliderFlex` 插件更新
-                if ( changes.hasOwnProperty( 'flex' ) ) {
-                    this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'SliderFlex', 'flex' );
-                }
+            // 启动切换属性变更
+            if ( changes.hasOwnProperty( 'auto' ) ) {
+                // 因属性`auto`值已发生变化, 这里调用需要带上`true`参数强制执行
+                this[ changes.auto[ 1 ] ? 'start' : 'stop' ]( true );
+            }
+
+            // `SliderFlex` 插件更新
+            if ( changes.hasOwnProperty( 'flex' ) ) {
+                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'SliderFlex', 'flex' );
             }
 
         },
 
+        /**
+         * 激活控件
+         *
+         * @override
+         * @fires Slider#enable
+         * @return {Slider} 当前实例
+         */
+        enable: function () {
+            // 先启动自动切换
+            if ( this.is( 'disable' ) && this.is( 'render' ) ) {
+                this.start();
 
+                // 禁用hammer
+                var hammer = this.runtime.hammer;
+                if ( hammer ) {
+                    hammer.enable( true );
+                }
+
+                // 屏幕旋转自适应插件
+                if ( this.get( 'flex' ) ) {
+                    this.enablePlugin( 'SliderFlex', 'flex' );
+                }
+            }
+
+            // 回归父类继续后续处理
+            Widget.prototype.enable.call( this );
+
+            return this;
+        },
+
+        /**
+         * 禁用控件
+         *
+         * @override
+         * @fires Slider#disable
+         * @return {Slider} 当前实例
+         */
+        disable: function () {
+            // 先停止自动切换
+            if ( !this.is( 'disable' ) && this.is( 'render' ) ) {
+                this.stop();
+
+                // 禁用hammer
+                var hammer = this.runtime.hammer;
+                if ( hammer ) {
+                    hammer.enable( false );
+                }
+
+                // 屏幕旋转自适应插件
+                if ( this.get( 'flex' ) ) {
+                    this.disablePlugin( 'SliderFlex' );
+                }
+            }
+
+            // 回归父类继续后续处理
+            Widget.prototype.disable.call( this );
+
+            return this;
+        },
+
+
+        /**
+         * hammer事件处理函数
+         *
+         * @private
+         * @param {Object} ev `hammer`的`event`对象
+         */
+        _handleHammer: function ( ev ) {
+            var gesture = ev.gesture;
+
+            // disable browser scrolling
+            gesture.preventDefault();
+
+
+            var runtime = this.runtime;
+            var width = runtime.width;
+            var index = this.get( 'index' );
+            var length = this.get( 'length' );
+
+            switch ( ev.type ) {
+                case 'touch':
+                    // 每次点击开始时，需先`临时`保存当前轮播状态并暂停, 以备结束后的恢复
+                    runtime.needResume = !this.is( 'pause' ) && !this.is( 'stop' );
+                    if ( runtime.needResume ) {
+                        this.pause();
+                    }
+
+                    break;
+
+                case 'dragright':
+                case 'dragleft':
+                    // stick to the finger
+                    var pane_offset = this._percent( index );
+                    var drag_offset = ( ( 100 / width ) * gesture.deltaX ) / length;
+
+                    // slow down at the first and last pane
+                    if( ( index === 0 && gesture.direction == 'right' ) ||
+                        ( index === length - 1 && gesture.direction == 'left' ) ) {
+                        drag_offset *= 0.4;
+                    }
+
+                    // switch without animate
+                    this._move( drag_offset + pane_offset );
+                    break;
+
+                case 'swipeleft':
+                    gesture.stopDetect();
+
+                    this.next();
+
+                    if ( runtime.needResume ) {
+                        this.resume();
+                    }
+
+                    break;
+
+                case 'swiperight':
+                    gesture.stopDetect();
+
+                    this.prev();
+
+                    if ( runtime.needResume ) {
+                        this.resume();
+                    }
+
+                    break;
+
+                case 'release':
+                    // 达到切换阀值，则根据滑动方向切换
+                    if ( Math.abs( gesture.deltaX ) > width * this.get( 'switchAt' ) ) {
+                        this[ gesture.direction == 'right' ? 'prev' : 'next' ]();
+                    }
+                    // 未达到, 则回弹
+                    else {
+                        this.to( index );
+                    }
+
+                    if ( runtime.needResume ) {
+                        this.resume();
+                    }
+
+                    break;
+            }
+        },
+
+        /**
+         * 计算指定位置的偏移百分比
+         *
+         * @private
+         * @param {number} index 位置索引
+         * @return {number} 偏移百分比
+         */
+        _percent: function ( index ) {
+            var length = this.get( 'length' );
+
+            // 防越界修正
+            index = Math.max( 0, Math.min( length - 1, index ) );
+
+            return - ( 100 / length ) * index;
+        },
 
         /**
          * 调整控件宽度
          *
          * @private
-         * @param {number=} width 指定的容器宽度
-         * 不传宽度，则仅在容器宽度变化时才重绘，反之，则强制重绘
+         * @param {boolean=} isForce 是否强制重绘计算
          * @fires Slider#resize
          * @return {Slider} 当前实例
          */
-        _resize: function ( width ) {
+        _resize: function ( isForce ) {
             var runtime = this.runtime;
 
-            if ( !width ) {
-                // 未指定宽度时，仅在容器宽度发生变化时才重绘
-                width = styleNumber( this.get( 'main' ) );
-                if ( width == runtime.width ) {
-                    return this;
-                }
+            var oldWidth = runtime.width;
+            var width = styleNumber( this.get( 'main' ) );
+
+            if ( !isForce && width == oldWidth ) {
+                return this;
             }
 
+            // 先更新
+            runtime.width = width;
+
+
+            // 重绘计算
             var items = dom.children( runtime.wrapper );
             var length = runtime.length = items.length;
 
@@ -318,8 +407,7 @@ define( function ( require, exports, module ) {
 
             styleNumber( runtime.wrapper, 'width', width * length );
 
-            var oldWidth = runtime.width;
-            runtime.width = width;
+
 
             /**
              * @event Slider#resize
@@ -349,21 +437,27 @@ define( function ( require, exports, module ) {
             }
 
             // 切换项不足时, 恢复到第一项目并暂停切换
-            if ( runtime.length < 2 ) {
+            if ( this.get( 'length' ) < 2 ) {
                 this.to( 0 ).pause();
                 return;
             }
 
-            // next
+            // 切换
             runtime.timer = setTimeout(
-                lang.bind( function () {
-                    var index = this.get( 'index' ) + 1;
-                    this.to( index < this.runtime.length ? index : 0 );
 
-                    // next
-                    this._loop();
-                }, this ),
+                lang.bind(
+
+                    function () {
+                        var next = this.get( 'index' ) + 1;
+                        this.to( next < this.get( 'length' ) ? next : 0 );
+                        this._loop();
+                    },
+
+                    this
+                ),
+
                 delay
+
             );
         },
 
@@ -371,76 +465,23 @@ define( function ( require, exports, module ) {
          * 切换移动
          *
          * @private
-         * @param {number} x X轴偏移量
+         * @param {number} percent X轴偏移百分比
          * @param {number=} speed 移动速度,单位毫秒
          */
-        _move: function ( x, speed ) {
+        _move: function ( percent, speed ) {
             var wrapper = this.runtime.wrapper;
 
             if ( this.get( 'animate' ) ) {
-                dom.setStyle( wrapper, 'transition-duration', ( speed || 0 ) + 'ms' );
+                dom.setStyle( wrapper, 'transition', 'all ' + ( speed || 0 ) + 'ms' );
             }
 
-            dom.setStyle(
-                wrapper,
-                'transform',
-                [
-                    'translateX(' + ( x || 0 ) + 'px)',
-                    'translateY(0)',
-                    'translateZ(0)'
-                ].join( ' ' )
-            );
-        },
-
-
-
-        /**
-         * 激活控件
-         *
-         * @override
-         * @fires Slider#enable
-         * @return {Slider} 当前实例
-         */
-        enable: function () {
-            // 先启动自动切换
-            if ( this.is( 'disable' ) && this.is( 'render' ) ) {
-                this.start();
-
-                // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.enablePlugin( 'SliderFlex', 'flex' );
-                }
-            }
-
-            // 回归父类继续后续处理
-            Widget.prototype.enable.call( this );
+            dom.setStyle( wrapper, 'transform', 'translate3d(' + percent + '%, 0, 0) scale3d(1, 1, 1)' );
 
             return this;
         },
 
-        /**
-         * 禁用控件
-         *
-         * @override
-         * @fires Slider#disable
-         * @return {Slider} 当前实例
-         */
-        disable: function () {
-            // 先停止自动切换
-            if ( !this.is( 'disable' ) && this.is( 'render' ) ) {
-                this.stop();
 
-                // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.disablePlugin( 'SliderFlex' );
-                }
-            }
 
-            // 回归父类继续后续处理
-            Widget.prototype.disable.call( this );
-
-            return this;
-        },
 
         /**
          * 数据同步
@@ -452,8 +493,17 @@ define( function ( require, exports, module ) {
         sync: function () {
             // 未渲染控件无需同步
             if ( this.is( 'render' ) ) {
+
+                // 1. 暂停轮播(如果正在轮播的话)
                 this.pause()
-                ._resize( this.runtime.width )
+
+                // 2. 重绘计算
+                ._resize( true )
+
+                // 3. 修正当前项的偏移比例
+                ._move( this._percent( this.get( 'index' ) ) )
+
+                // 4. 恢复轮播(如果刚才正在轮播的话)
                 .resume();
             }
 
@@ -515,7 +565,7 @@ define( function ( require, exports, module ) {
          * @public
          * @return {Slider} 当前实例
          */
-        resume: function () {
+        resume: function ( holdOriginState ) {
             if ( this.is( 'pause' ) ) {
                 this.removeState( 'pause' );
                 this._loop();
@@ -535,32 +585,29 @@ define( function ( require, exports, module ) {
          * @return {Slider} 当前实例
          */
         to: function ( index ) {
-            if ( this.is( 'disable' ) ) {
+            if ( this.is( 'disable') ) {
                 return this;
             }
 
-            var runtime = this.runtime;
-            var from = this.get( 'index' );
+            var current = this.get( 'index' );
 
-            // 防越界
-            index = Math.max( 0, Math.min( runtime.length - 1, index ) );
+            // 边界修复
+            index = Math.max( 0, Math.min( index, this.get( 'length' ) - 1 ) );
 
-            // 提前更新,以防不测- -
-            this.set( 'index', index );
+            // 切换
+            this._move( this._percent( index ), this.get( 'speed' ) );
 
-            // 更新计算X轴偏移
-            runtime.x = 0 - runtime.width * index;
+            // 回弹不触发事件
+            if ( current !== index ) {
+                // 更新
+                this.set( 'index', index );
 
-            this._move( runtime.x, this.get( 'speed' ) );
-
-            // 排除回弹
-            if ( from !== index ) {
                 /**
                  * @event Slider#change
                  * @param {number} from 原来显示项的位置
                  * @param {number} to 当前显示项的位置
                  */
-                this.emit( 'change', from, index );
+                this.emit( 'change', current, index );
             }
 
             return this;

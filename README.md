@@ -6,6 +6,9 @@
 ## Dependencies
 
 + [saber-lang](https://github.com/ecomfe/saber-lang)
++ [saber-dom](https://github.com/ecomfe/saber-dom)
++ [saber-string](https://github.com/ecomfe/saber-string)
++ [saber-emitter](https://github.com/ecomfe/saber-emitter)
 
 ## Usage
 
@@ -31,8 +34,8 @@ edp import saber-widget
 
 * [基类 Plugin](./doc/api-plugin.md)
 * [翻转自适应(轮播图) SliderFlex](./doc/api-plugin-sliderflex.md)
+* [翻转自适应(图片查看器) ImageViewFlex](./doc/api-plugin-imageviewflex.md)
 * [遮罩 Masker](./doc/api-plugin-masker.md)
-* [缩放 Zoom](./doc/api-plugin-zoom.md)
 
 ===
 

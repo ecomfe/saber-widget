@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="masker.css">
     <link rel="stylesheet" href="imageview.css">
     <link rel="stylesheet" href="demo.css">
-    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-6-10/esl.js"></script>
+    <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js"></script>
     <script>
     require.config({
         'paths': {},
@@ -48,13 +48,23 @@
             },
             {
                 'name': 'saber-ajax',
-                'location': '../dep/saber-ajax/0.1.3/src',
+                'location': '../dep/saber-ajax/0.1.4/src',
                 'main': 'ajax'
             },
             {
                 'name': 'saber-promise',
                 'location': '../dep/saber-promise/0.1.2/src',
                 'main': 'promise'
+            },
+            {
+                'name': 'hammer',
+                'location': '../dep/hammer/1.1.3/src',
+                'main': 'hammer'
+            },
+            {
+                'name': 'saber-string',
+                'location': '../dep/saber-string/0.3.0/src',
+                'main': 'main'
             }
         ]
     });
@@ -72,6 +82,7 @@
     <nav class="ui-bar" data-ui="subheader">
         <div class="ui-btns">
             <a href="./basic.html" class="ui-btn">基本</a>
+            <a href="./flex.html" class="ui-btn">转屏</a>
             <a href="./override.html" class="ui-btn" data-ui="active">自定义</a>
             <a href="./setup.html" class="ui-btn">Setup</a>
             <a href="./group.html" class="ui-btn">分组</a>
@@ -92,8 +103,7 @@
             'saber-dom',
             'saber-widget',
             'saber-widget/ImageView',
-            'saber-widget/plugin/Masker',
-            'saber-widget/plugin/Zoom'
+            'saber-widget/plugin/Masker'
         ],
         function( Tap, dom, widget ) {
             Tap.mixin( document.body );
@@ -108,9 +118,9 @@
 
             iv = widget.imageview( {
 
-                items: images,
+                datasource: images,
 
-                getToolbar: function () {
+                makeToolbar: function () {
                     return [
                         '<span data-role="close">返回</span>',
                         '<h1>No.' + ( this.get( 'index' ) + 1 ) + '</h1>'

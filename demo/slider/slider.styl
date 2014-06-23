@@ -22,14 +22,20 @@ ui-slider-base()
     -webkit-touch-callout: none
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
 
+    backface-visibility: hidden
+    transform: translate3d(0%, 0, 0) scale3d(1, 1, 1)
+    transform-style: preserve-3d
+
     [{$-role-attr}~=wrapper]
-        overflow: hidden
-        white-space: nowrap
-        transform: translateZ(0)
+        backface-visibility: hidden
+        transform: translate3d(0%, 0, 0) scale3d(1, 1, 1)
+        transform-style: preserve-3d
 
         [{$-role-attr}~=item]
             float: left
             box-sizing: border-box
+            // transform-style: preserve-3d;
+            // transform: translate3d(0, 0, 0);
 
 
 // variables
