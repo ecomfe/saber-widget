@@ -7,7 +7,8 @@
     { "name": "zfkun", "email": "zfkun@msn.com" }
   ],
   "contributors": [
-    { "name": "junmer", "email": "junemr@foxmail.com" }
+    { "name": "junmer", "email": "junemr@foxmail.com" },
+    { "name": "Firede", "email": "firede@firede.us" }
   ],
   "scripts": {
     "test": "./node_modules/.bin/phantomjs test/run-jasmine.js test/runner.html"
@@ -15,7 +16,8 @@
   "dependencies": {
     "saber-lang": "~0.4.0",
     "saber-dom": "~0.4.1",
-    "saber-emitter": "~0.5.0"
+    "saber-emitter": "~0.5.0",
+    "saber-string": "~0.3.0"
   },
   "devDependencies": {
     "phantomjs": "~1.9"
