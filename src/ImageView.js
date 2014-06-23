@@ -27,6 +27,9 @@ define( function ( require ) {
      * @fires ImageView#resize
      * @fires ImageView#change
      * @fires ImageView#zoom
+     * @fires ImageView#reset
+     * @fires ImageView#beforeload
+     * @fires ImageView#afterload
      * @param {Object=} options 初始化配置参数
      * @param {string=} options.id 控件标识
      * @param {HTMLElement=} options.main 控件主元素
@@ -553,24 +556,37 @@ define( function ( require ) {
          * 加载指定位置的图片
          *
          * @private
+         * @fires ImageView#beforeload
+         * @fires ImageView#afterload
          * @param {number} index 图片所在位置索引
          */
         _load: function ( index ) {
-            var node = dom.queryAll( '[data-role=item]', this.get( 'main' ) )[ index ];
-            var img = node ? dom.query( 'img', node ) : null;
+            var node = dom.queryAll( '[data-role=item]', this.runtime.wrapper )[ index ];
 
-            if ( !img ) {
-                img = document.createElement('img');
+            if ( !node || !dom.query( 'img', node ) ) {
+                var self = this;
+
+                /**
+                 * @event ImageView#beforeload
+                 * @param {number} index 图片位置索引
+                 */
+                self.emit( 'beforeload', index );
+
+                var img = document.createElement('img');
                 dom.hide( img );
 
-                img.src = this.get( 'datasource' )[ index ];
+                img.src = self.get( 'datasource' )[ index ];
 
-                var viewport = this.runtime.viewport;
-                var zoomScale = this.get( 'zoomScale' );
                 img.onload = function () {
                     this.onload = null;
-                    imageResizeToCenter( this, viewport, zoomScale );
+                    imageResizeToCenter( this, self.runtime.viewport, self.get( 'zoomScale' ) );
                     dom.show( this );
+
+                    /**
+                     * @event ImageView#afterload
+                     * @param {number} index 图片位置索引
+                     */
+                    self.emit( 'afterload', index );
                 };
 
                 node.appendChild( img );
