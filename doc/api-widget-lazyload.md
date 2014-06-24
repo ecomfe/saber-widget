@@ -9,7 +9,7 @@
 var widget = require( 'saber-widget' );
 require( 'saber-widget/LazyLoad' );
 
-var lazyload = widget.lazyload();
+var lazyload = widget.lazyLoad();
 
 lazyload.on( 'load', function ( ev, node ) {
     console.info( 'load', node );
