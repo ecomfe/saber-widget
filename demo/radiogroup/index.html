@@ -122,7 +122,7 @@
         function(dom, widget, fateData, customData) {
             // demo 1
             var menu = dom.query('.menu');
-            var menuGroup = widget.radiogroup(menu);
+            var menuGroup = widget.radioGroup(menu);
 
             menuGroup.on('valuechange', function(ev, oldValue, newValue) {
                 console.log('old value: ' + oldValue + ', new value: ' + newValue);
@@ -137,7 +137,7 @@
 
             // demo 2
             var fate = dom.query('.fate');
-            var fateGroup = widget.radiogroup( fate, {
+            var fateGroup = widget.radioGroup( fate, {
                 datasource: fateData,
                 value: 12
             });
@@ -158,7 +158,7 @@
                     + '</div>';
             }
 
-            var customGroup = widget.radiogroup( custom, {
+            var customGroup = widget.radioGroup( custom, {
                 datasource: customData,
                 value: 15,
                 getItemHtml: getCustomItemHtml
