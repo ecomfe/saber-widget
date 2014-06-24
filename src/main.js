@@ -220,9 +220,9 @@ define( function ( require ) {
             components[ type ] = component;
 
             // 增加注册控件快捷初始化方式(自动渲染)
-            // 生成规则: 以控件类型名**小写**为方法名
-            // 如: `Slider`控件对应生成 `.slider( main, options )`
-            main[ type.toLowerCase() ] = function ( element, options ) {
+            // 生成规则: 以控件类型名**首字母小写**为方法名
+            // 如: `ImageView`控件对应生成 `.imageView( main, options )`
+            main[ type.charAt( 0 ).toLowerCase() + type.slice( 1 ) ] = function ( element, options ) {
                 if ( require( 'saber-lang/type' ).isPlainObject( element ) ) {
                     options = element || {};
                 }

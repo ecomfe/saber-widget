@@ -29,6 +29,7 @@ edp import saber-widget
 * [轮播图 Slider](./doc/api-widget-slider.md)
 * [图片查看器 ImageView](./doc/api-widget-imageview.md)
 * [搜索建议 Suggestion](./doc/api-widget-suggestion.md)
+* [单选组 RadioGroup](./doc/api-widget-radiogroup.md)
 
 ### 插件
 
