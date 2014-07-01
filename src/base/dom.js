@@ -294,7 +294,13 @@ define( function ( require ) {
         }
     }
 
-
+    /**
+     * 触发全局DOM元素上的事件队列
+     *
+     * @inner
+     * @param {HTMLElement} element 触发事件的全局DOM元素
+     * @param {Object} ev 事件信息对象
+     */
     function triggerGlobalDOMEvent ( element, ev ) {
         var queue = getGlobalEventPool( element );
 
