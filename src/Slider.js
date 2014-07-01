@@ -283,9 +283,12 @@ define( function ( require, exports, module ) {
          */
         _handleHammer: function ( ev ) {
             var gesture = ev.gesture;
+            var type = ev.type;
 
-            // disable browser scrolling
-            gesture.preventDefault();
+            // 禁用滚动(因`Slider`仅横向移动,这里需排除垂直方向从而提高体验)
+            if ( 'touch' !== type ) {
+                gesture.preventDefault();
+            }
 
 
             var runtime = this.runtime;
@@ -293,7 +296,7 @@ define( function ( require, exports, module ) {
             var index = this.get( 'index' );
             var length = this.get( 'length' );
 
-            switch ( ev.type ) {
+            switch ( type ) {
                 case 'touch':
                     // 每次点击开始时，需先`临时`保存当前轮播状态并暂停, 以备结束后的恢复
                     runtime.needResume = !this.is( 'pause' ) && !this.is( 'stop' );
