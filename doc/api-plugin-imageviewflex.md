@@ -10,7 +10,7 @@ var widget = require( 'saber-widget' );
 require( 'saber-widget/plugin/ImageViewFlex' );
 require( 'saber-widget/ImageView' );
 
-var iv = widget.imageview( element, { flex: true } );
+var iv = widget.imageView( element, { flex: true } );
 console.info( iv.plugin( 'ImageViewFlex' ) );
 ```
 

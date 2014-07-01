@@ -10,7 +10,7 @@ var widget = require( 'saber-widget' );
 require( 'saber-widget/plugin/Masker' );
 require( 'saber-widget/ImageView' );
 
-var imageview = widget.imageview( element );
+var imageview = widget.imageView( element );
 console.info( imageview.get( 'items' ) );
 ```
 
