@@ -84,8 +84,7 @@ define( function ( require ) {
         //   * 若是`全局DOM事件`，则由 `globalEventPool` 来管理，然后 控件自身 仅做一下 `handler` 的引用备份
         //   * 若是`非全局DOM事件`，则由 控件自身 独立管理，与 `globalEventPool` 无关
 
-        // DOM事件监听器池
-        var handlers;
+
 
 
 
@@ -93,27 +92,28 @@ define( function ( require ) {
         var globalPool = getGlobalEventPool( element );
 
         if ( globalPool ) {
-            handlers = globalPool[ type ];
+            // 全局DOM事件池
+            var widgets = globalPool[ type ];
 
             // 监听器队列初始化
-            if ( !handlers ) {
-                handlers = globalPool[ type ] = [];
+            if ( !widgets ) {
+                widgets = globalPool[ type ] = [];
 
                 // 生成主监听器
-                handlers.handler = bind( triggerDOMEvent, null, this, element );
+                widgets.handler = bind( triggerGlobalDOMEvent, null, element );
 
                 // 需对 `resize` 和 `scroll` 事件增加`防抖`处理
                 if ( 'resize' === type || 'scroll' === type ) {
-                    handlers.handler = debounce( handlers.handler, 150 );
+                    widgets.handler = debounce( widgets.handler, 150 );
                 }
 
                 // 绑定主监听器到DOM
-                element.addEventListener( type, handlers.handler, false );
+                element.addEventListener( type, widgets.handler, false );
             }
 
             // 滤重
-            if ( handlers.indexOf( handler ) < 0 ) {
-                handlers.push( handler );
+            if ( widgets.indexOf( this ) < 0 ) {
+                widgets.push( this );
             }
         }
 
@@ -121,7 +121,7 @@ define( function ( require ) {
 
 
         // 2. 接着, 由控件自身来处理. 若上面检测为 `全局DOM事件`，则仅对 `handler` 做下引用备份即可
-        handlers = events[ type ];
+        var handlers = events[ type ];
 
         // 监听器队列初始化
         if ( !handlers ) {
@@ -162,44 +162,45 @@ define( function ( require ) {
         }
 
 
-        // 全局DOM事件监听器池
-        var globalPool = getGlobalEventPool( element );
 
-        // 监听器池
+        // 控件上的监听器池
         var queue = events[ type ];
+        var i;
 
-        if ( !handler ) {
-            // 若是 `全局DOM事件`, 则需从控件上的队列进行遍历对比移除
-            if ( globalPool && globalPool[ type ] ) {
-                queue.forEach(
-                    function ( fn ) {
-                        var index = this.indexOf( fn );
-                        if ( index >= 0 ) {
-                            this.splice( index, 1 );
-                        }
-                    },
-                    globalPool[ type ]
-                );
-            }
-
-            // 清理控件上的相关队列
-            if ( !globalPool ) {
-                element.removeEventListener( type, queue.handler, false );
-            }
-
-            queue.length = 0;
-            delete events[ type ];
-        }
-        else {
-            // 从控件的队列中移除
-            var i = queue.indexOf( handler );
+        if ( handler ) {
+            i = queue.indexOf( handler );
             if ( i >= 0 ) {
                 queue.splice( i, 1 );
             }
+        }
+        else {
+            queue.length = 0;
+        }
 
-            // 从全局DOM事件的队列中移除
+
+
+        // 检测是否全局DOM事件 并 获取对应的队列池
+        var globalPool = getGlobalEventPool( element );
+
+        // 队列已空, 则需要清理相关队列
+        if ( !queue.length ) {
+            // 清理控件上的队列
+            if ( queue.handler ) {
+                element.removeEventListener( type, queue.handler, false );
+            }
+            queue.length = 0;
+            delete events[ type ];
+
+            // 检测元素`element`是否还有相关的队列。若没有，则直接清理掉在 `domEvents` 中的节点
+            if ( 'node' === Object.keys( events ).join( '' ) ) {
+                events = null;
+                delete this.domEvents[ element[ DOM_EVENTS_KEY ] ];
+            }
+
+
+            // 清理全局监听器池的队列
             if ( globalPool && globalPool[ type ] ) {
-                i = globalPool[ type ].indexOf( handler );
+                i = globalPool[ type ].indexOf( this );
                 if ( i >= 0 ) {
                     globalPool[ type ].splice( i, 1 );
                 }
@@ -207,11 +208,12 @@ define( function ( require ) {
         }
 
 
-        // 若是`全局DOM事件`, 需检测池子是否已空. 若是, 则立即清理掉主监听器.
-        if ( globalPool) {
+        // 若是`全局DOM事件`, 需检测全局池是否已空并清理.
+        if ( globalPool ) {
             queue = globalPool[ type ];
             if ( queue && !queue.length ) {
-                element.removeEventListener( type, globalPool[ type ].handler, false );
+                element.removeEventListener( type, queue.handler, false );
+                queue.length = 0;
                 delete globalPool[ type ];
             }
         }
@@ -280,18 +282,8 @@ define( function ( require ) {
      * @param {Object} ev 事件信息对象
      */
     function triggerDOMEvent ( widget, element, ev ) {
-        // 先尝试检测是否属于 `全局DOM事件`
-        var queue = getGlobalEventPool( element );
+        var queue = widget.domEvents[ element[ DOM_EVENTS_KEY ] ][ ev.type ];
 
-        // 根据检测结果，获取对应的`监听器队列`
-        if ( queue ) {
-            queue = queue[ ev.type ];
-        }
-        else {
-            queue = widget.domEvents[ ev.currentTarget[ DOM_EVENTS_KEY ] ][ ev.type ];
-        }
-
-        // 若队列存在, 则按顺序逐一调用
         if ( queue ) {
             queue.forEach(
                 function ( fn ) {
@@ -300,6 +292,23 @@ define( function ( require ) {
                 widget
             );
         }
+    }
+
+    /**
+     * 触发全局DOM元素上的事件队列
+     *
+     * @inner
+     * @param {HTMLElement} element 触发事件的全局DOM元素
+     * @param {Object} ev 事件信息对象
+     */
+    function triggerGlobalDOMEvent ( element, ev ) {
+        var queue = getGlobalEventPool( element );
+
+        queue = queue ? queue[ ev.type ] : [];
+
+        queue.forEach( function ( widget ) {
+            triggerDOMEvent( widget, element, ev );
+        } );
     }
 
 
