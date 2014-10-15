@@ -169,7 +169,8 @@
             customGroup.on('valuechange', function () {
                 var value = this.get('value');
                 var item = this.getItemByValue(value);
-                console.log(value, item);
+                var count = dom.query('.count', item).innerHTML;
+                console.log('Value: ' + value + ', Count: ' + count);
             });
         }
     );

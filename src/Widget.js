@@ -51,7 +51,12 @@ define( function ( require ) {
         this.attrs = extend(
 
             // `基类`默认属性集
-            // 使用`extend`确保正确`mixin`子类构造函数中定义的默认属性
+            {},
+
+            // `子类`默认属性集
+            this.attrs || {},
+
+            // 公共属性集
             {
                 /**
                  * 控件类型标识
@@ -96,10 +101,7 @@ define( function ( require ) {
 
                 }
 
-            },
-
-            // `子类`默认属性集
-            this.attrs
+            }
 
         );
 
