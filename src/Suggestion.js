@@ -226,7 +226,7 @@ define(function (require) {
 
         _getSugRenderer: function () {
 
-            var tplWrapper = '<ul data-role="ul">{#list}<ul>';
+            var tplWrapper = '<ul data-role="ul">{#list}</ul>';
 
             function highlight (target, query) {
                 return target.replace(query, '<em>' + query + '</em>' );
