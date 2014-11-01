@@ -93,6 +93,7 @@
             var linkageMenu3 = widget.linkageMenu(
                 document.getElementById('menu3'),
                 {
+                    // 数据源
                     datasource: [
                         {
                             name: '北京',
@@ -149,6 +150,8 @@
                             ]
                         }
                     ],
+                    // 默认选中值
+                    // 如果不传的话，非最后一级的菜单会默认选中第一个
                     values: [1, 11, 112]
                 }
             );
