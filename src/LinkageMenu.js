@@ -299,27 +299,32 @@ define(
             },
 
             _changeHandler: function(e) {
-                var li = e.target;
-                while (li) {
-                    if (li.tagName.toLowerCase() === 'li') {
+                var el = e.target;
+                // 设置一个标志吧
+                var founded = false;
+                // 找到最外层main元素为止
+                while (el && el !== this.main) {
+                    if (el.tagName === 'LI') {
+                        founded = true;
                         break;
                     }
-                    li = li.parentNode;
+                    el = el.parentNode;
                 }
-                if (!li || dom.hasClass(li, 'linkage-disabled')) {
+                // 如果没有找到li元素或者li元素置灰，则不处理
+                if (!founded || dom.hasClass(el, 'linkage-disabled')) {
                     return false;
                 }
                 // 删除选中项
                 var cur = dom.query('.linkage-item-cur', this.main);
 
                 cur && dom.removeClass(cur, 'linkage-item-cur');
-                dom.addClass(li, 'linkage-item-cur');
+                dom.addClass(el, 'linkage-item-cur');
 
                 // 更新数据
-                var value = li.getAttribute('data-value');
+                var value = el.getAttribute('data-value');
                 this.value = ensureValueType(value);
 
-                this.uniqueValue = li.getAttribute('data-unique-value');
+                this.uniqueValue = el.getAttribute('data-unique-value');
                 this.emit(
                     'change', 
                     {
