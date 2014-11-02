@@ -395,6 +395,8 @@ define(
             // 单向链表
             this.runtime.linkedList = null;
 
+            this._linkageItemChangeHandler = lang.bind(this._linkageItemChangeHandler, this);
+
             var values = this.get('values');
             var uniqueValues = this.get('uniqueValues');
             var tree = this.runtime.tree;
@@ -425,7 +427,7 @@ define(
                 }
                 p = linkageItem;
 
-                linkageItem.on('change', lang.bind(this._linkageItemChangeHandler, this));
+                linkageItem.on('change', this._linkageItemChangeHandler);
                 fragment.appendChild(linkageItem.main);
                 prevValue = uniqueValue;
             }
