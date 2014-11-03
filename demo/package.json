@@ -11,17 +11,17 @@
         "loaderAutoConfig": "js,htm,html,tpl,vm,phtml",
         "loaderUrl": "http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js",
         "dependencies": {
-            "saber-lang": "0.x",
-            "saber-emitter": "0.x",
-            "saber-dom": "0.x",
-            "saber-matchmedia": "0.x",
-            "saber-tap": "0.x",
-            "saber-ajax": "0.x",
-            "saber-promise": "0.x",
+            "saber-lang": "~1.0.0",
+            "saber-emitter": "~1.0.0",
+            "saber-dom": "~1.0.0",
+            "saber-matchmedia": "~1.0.0",
+            "saber-tap": "~1.0.0",
+            "saber-ajax": "~1.0.0",
+            "saber-promise": "~1.0.0",
             "hammer": "1.x",
-            "saber-string": "0.x",
-            "saber-scroll": "0.x",
-            "saber-run": "0.x"
+            "saber-string": "~1.0.0",
+            "saber-scroll": "~1.0.0",
+            "saber-run": "~1.0.0"
         }
     },
     "dependencies": {
