@@ -1,7 +1,7 @@
-# ImageView
+ImageView
+===
 
 图片查看器控件。
-
 
 ## Usage
 
@@ -14,56 +14,50 @@ var imageview = widget.imageView( element );
 console.info( imageview.get( 'items' ) );
 ```
 
-## Constructor
+## API
 
-```js
-new ImageView({
-    
-});
-```
+### Methods
 
-## Methods
-
-### enable()
+#### enable()
 
 激活控件
 
-### disable()
+#### disable()
 
 禁用控件
 
-### setup(main)
+#### setup(main)
 
 更新数据源为目标元素内的图片
 
 * **main** `{HTMLElement}` 目标容器元素
 
-### to(index[, isForce])
+#### to(index[, isForce])
 
 切换到指定项
 
 * **index** `{number|HTMLImageElement}` 目标项的位置或目标图片元素
 * **isForce** `{boolean}` 是否强制切换
 
-### prev()
+#### prev()
 
 切换到上一项
 
-### next()
+#### next()
 
 切换到下一项
 
-### zoom(scale)
+#### zoom(scale)
 
 缩放指定位置的图片
 
 * **scale** `{Number}` 当前的缩放比例
 
-### reset()
+#### reset()
 
 还原缩放
 
-## Events
+### Events
 
 * **event** `{Object}` 事件封装
 	* **type** `{string}` 事件类型
@@ -71,14 +65,14 @@ new ImageView({
 
 基础事件请参考[Widget#Events](./api-widget.md#events)事件
 
-### resize
+#### resize
 
-### change
+#### change
 
-### zoom
+#### zoom
 
-### reset
+#### reset
 
-### beforeload
+#### beforeload
 
-### afterload
+#### afterload

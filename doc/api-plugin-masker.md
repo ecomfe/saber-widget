@@ -1,4 +1,5 @@
-# Masker
+Masker
+===
 
 遮罩插件。
 
@@ -9,8 +10,4 @@
 var widget = require( 'saber-widget' );
 require( 'saber-widget/plugin/Masker' );
 ```
-
-## API
-
-TODO
 

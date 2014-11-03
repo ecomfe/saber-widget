@@ -1,4 +1,5 @@
-# LazyLoad
+LazyLoad
+===
 
 懒加载控件。
 
@@ -20,8 +21,10 @@ lazyload.on( 'complete', function () {
 });
 ```
 
-## Methods
+## API
 
-### refresh()
+### Methods
+
+#### refresh()
 
 强制重新获取懒加载元素

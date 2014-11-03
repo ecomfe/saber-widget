@@ -1,5 +1,5 @@
-# Masker
-
+Masker
+===
 图片查看器翻转自适应插件。
 
 
@@ -13,8 +13,4 @@ require( 'saber-widget/ImageView' );
 var iv = widget.imageView( element, { flex: true } );
 console.info( iv.plugin( 'ImageViewFlex' ) );
 ```
-
-## API
-
-TODO
 

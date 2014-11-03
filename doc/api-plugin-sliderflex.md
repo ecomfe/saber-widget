@@ -1,5 +1,5 @@
-# Masker
-
+Masker
+===
 轮播图翻转自适应插件。
 
 
@@ -13,8 +13,3 @@ require( 'saber-widget/Slider' );
 var slider = widget.slider( element );
 console.info( slider.plugin( 'SliderFlex' ) );
 ```
-
-## API
-
-TODO
-

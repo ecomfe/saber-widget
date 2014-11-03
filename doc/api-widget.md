@@ -1,4 +1,5 @@
-# Widget
+Widget
+===
 
 UI控件的基类。提供了`控件`的如生命周期、状态控制、属性操作、DOM事件等等一系列通用功能。
 
@@ -16,32 +17,34 @@ new Widget({
 	* **id** `{string}` 控件标识
 	* **main** `{HTMLElement}` 控件主元素
 
-## Methods
+## API
 
-### disable()
+### Methods
+
+#### disable()
 
 禁用控件
 
 * _return_ `{Widget}`
 
-### disablePlugin(pluginName) 
+#### disablePlugin(pluginName) 
 
 禁用插件
 
 * **pluginName** `{string}` 插件名称
 * _return_ `{Widget}`
 
-### dispose()
+#### dispose()
 
 销毁控件
 
-### enable() 
+#### enable() 
 
 启用控件
 
 * _return_ `{Widget}` 
 
-### enablePlugin(pluginName[, optionNameopt])
+#### enablePlugin(pluginName[, optionNameopt])
 
 激活插件
 
@@ -50,7 +53,7 @@ new Widget({
 * _return_ `{Widget}` 
 
 
-### plugin(pluginName)
+#### plugin(pluginName)
 
 获取控件激活的指定插件
 
@@ -58,22 +61,22 @@ new Widget({
 * _return_ `{Plugin}` 
 
 
-## Events
+### Events
 
 * **event** `{Object}` 事件封装
 	* **type** `{string}` 事件类型
 	* **target** `{Widget}` 触发事件的控件对象
 
-### afterdispose
+#### afterdispose
 
-### afterrender
+#### afterrender
 
-### beforedispose
+#### beforedispose
 
-### beforerender
+#### beforerender
 
-### disable
+#### disable
 
-### enable
+#### enable
 
-### init
+#### init

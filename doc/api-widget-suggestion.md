@@ -1,4 +1,5 @@
-# Suggestion
+Suggestion
+===
 
 搜索建议控件。
 
@@ -15,12 +16,14 @@ sug.on( 'request', function ( ev, data ) {
 } );
 ```
 
-## Methods
+## API
 
-### show()
+### Methods
+
+#### show()
 
 显示推荐列表
 
-### hide()
+#### hide()
 
 隐藏推荐列表

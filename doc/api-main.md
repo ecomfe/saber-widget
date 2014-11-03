@@ -1,5 +1,5 @@
-# main
-
+main
+===
 控件主模块。提供`控件`及`控件实例`的管理功能。
 
 
@@ -10,30 +10,32 @@ var widget = require( 'saber-widget' );
 widget.add(someWidget);
 ```
 
-## Methods
+## API
 
-### config(info)
+### Methods
+
+#### config(info)
 
 配置控件库全局配置
 
 * **info** `{Object}` 控件库配置信息对象
 
 
-### getConfig(name)
+#### getConfig(name)
 
 获取配置项
 
 * **nama** `{string}` 配置项名称
 * _return_ `{Object}` 配置项值
 
-### getGUID([prefix])
+#### getGUID([prefix])
 
 生成全局唯一id
 
 * **prefix** `{string}` prefix 前缀
 * _return_ `{string}` 新唯一id字符串
 
-### dispose(widget)
+#### dispose(widget)
 
 清理已初始化的控件实例
 
@@ -42,47 +44,47 @@ widget.add(someWidget);
 	* 传入`控件实例`时,销毁之
 	* 传入`DOM元素`时,销毁`DOM元素`内的所有控件
 
-### find(element)
+#### find(element)
 
 获取指定DOM元素内的所有控件实例
 
 * **element** `{HTMLElement}` 被检索的DOM元素
 * _return_ `{Array.<Widget>}` 查找到的控件实例
 
-### add(widget)
+#### add(widget)
 
 存储控件实例
 
 * **widget** `{Widget}` 待加控件实例
 
-### remove(widget)
+#### remove(widget)
 
 移除控件实例
 
 * **widget** `{Widget}` 待移除控件实例
 
-### get(id)
+#### get(id)
 
 通过id获取控件实例
 
 * **id** `{string}` 控件id
 * _return_ `{Widget}` 根据id获取的控件实例
 
-### register(component)
+#### register(component)
 
 注册控件类
 通过类的`prototype.type`识别控件类型信息
 
 * **component** `{Function}` 控件类
 
-### registerPlugin(plugin)
+#### registerPlugin(plugin)
 
 注册插件类
 通过类的`prototype.type`识别插件类型信息
 
 * **plugin** `{Function}` 插件类
 
-### enablePlugin(widget[, pluginName, options])
+#### enablePlugin(widget[, pluginName, options])
 
 启用插件
 
@@ -91,7 +93,7 @@ widget.add(someWidget);
 * **options** `{Object}` 插件配置项
 
 
-### disablePlugin(widget[, pluginName])
+#### disablePlugin(widget[, pluginName])
 
 禁用插件
 
@@ -99,7 +101,7 @@ widget.add(someWidget);
 * **pluginName** `{String|Array}` pluginName 待禁用插件名
 	* 单个禁用传入插件名, 批量禁用传入数组, 全部禁用不传入
 
-### disposePlugin(widget[, pluginName])
+#### disposePlugin(widget[, pluginName])
 
 * **widget** `{Widget}` 目标控件实例
 * **pluginName** `{String|Array}` pluginName 待销毁插件名

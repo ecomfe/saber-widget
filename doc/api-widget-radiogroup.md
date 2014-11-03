@@ -1,5 +1,5 @@
-# RadioGroup
-
+RadioGroup
+===
 单选组控件。
 
 
@@ -19,32 +19,33 @@ group.on( 'click', function ( ev, oldValue, newValue ) {
     console.log( 'selected value: ' + newValue );
 });
 ```
+## API
 
-## Methods
+### Methods
 
-### initOptions(options)
+#### initOptions(options)
 
 初始化控件选项
 
 * **options** `{Object}` 选项
 
-### syncValue(value)
+#### syncValue(value)
 
 设置选中项
 
 * **value** `{*}` 
 
-### getItemByValue(value)
+#### getItemByValue(value)
 
 根据值获取选项元素
 
 * **value** `{HTMLElement}` 选项元素 
 
-### repaint()
+#### repaint()
 
 重绘控件
 
-## Events
+### Events
 
 请参考[Widget#Events](./api-widget.md#events)事件
 
