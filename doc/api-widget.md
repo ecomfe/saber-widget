@@ -4,7 +4,76 @@ UI控件的基类。提供了`控件`的如生命周期、状态控制、属性�
 
 **控件基类，禁止实例化**
 
-## API
+## Constructor
+```js
+new Widget({
+	id: 'id',
+	main: document.getElementById('dom')
+});
+```
 
-TODO
+* **options** `{Object}` 初始化配置参数
+	* **id** `{string}` 控件标识
+	* **main** `{HTMLElement}` 控件主元素
 
+## Methods
+
+### disable()
+
+禁用控件
+
+* _return_ `{Widget}`
+
+### disablePlugin(pluginName) 
+
+禁用插件
+
+* **pluginName** `{string}` 插件名称
+* _return_ `{Widget}`
+
+### dispose()
+
+销毁控件
+
+### enable() 
+
+启用控件
+
+* _return_ `{Widget}` 
+
+### enablePlugin(pluginName[, optionNameopt])
+
+激活插件
+
+* **pluginName** `{string}` 插件名称
+* **optionName** `{string}` 插件初始化配置名
+* _return_ `{Widget}` 
+
+
+### plugin(pluginName)
+
+获取控件激活的指定插件
+
+* **pluginName** `{string}` 插件名称
+* _return_ `{Plugin}` 
+
+
+## Events
+
+* **event** `{Object}` 事件封装
+	* **type** `{string}` 事件类型
+	* **target** `{Widget}` 触发事件的控件对象
+
+### afterdispose
+
+### afterrender
+
+### beforedispose
+
+### beforerender
+
+### disable
+
+### enable
+
+### init

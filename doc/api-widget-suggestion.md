@@ -15,7 +15,12 @@ sug.on( 'request', function ( ev, data ) {
 } );
 ```
 
-## API
+## Methods
 
-TODO
+### show()
 
+显示推荐列表
+
+### hide()
+
+隐藏推荐列表

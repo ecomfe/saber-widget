@@ -20,7 +20,8 @@ lazyload.on( 'complete', function () {
 });
 ```
 
-## API
+## Methods
 
-TODO
+### refresh()
 
+强制重新获取懒加载元素

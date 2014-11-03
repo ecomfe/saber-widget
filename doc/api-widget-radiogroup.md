@@ -20,7 +20,33 @@ group.on( 'click', function ( ev, oldValue, newValue ) {
 });
 ```
 
-## API
+## Methods
 
-TODO
+### initOptions(options)
+
+初始化控件选项
+
+* **options** `{Object}` 选项
+
+### syncValue(value)
+
+设置选中项
+
+* **value** `{*}` 
+
+### getItemByValue(value)
+
+根据值获取选项元素
+
+* **value** `{HTMLElement}` 选项元素 
+
+### repaint()
+
+重绘控件
+
+## Events
+
+请参考[Widget#Events](./api-widget.md#events)事件
+
+
 
