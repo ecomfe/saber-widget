@@ -2,11 +2,10 @@ main
 ===
 控件主模块。提供`控件`及`控件实例`的管理功能。
 
-
 ## Usage
 
-``` javascript
-var widget = require( 'saber-widget' );
+```js
+var widget = require('saber-widget');
 widget.add(someWidget);
 ```
 
@@ -40,9 +39,9 @@ widget.add(someWidget);
 清理已初始化的控件实例
 
 * **widget** `{string|Widget|HTMLElement}` widget 控件实例或控件实例id或DOM元素，不传则销毁全部
-	* 传入`控件id`时,销毁`id`对应的控件
-	* 传入`控件实例`时,销毁之
-	* 传入`DOM元素`时,销毁`DOM元素`内的所有控件
+    * 传入`控件id`时,销毁`id`对应的控件
+    * 传入`控件实例`时,销毁之
+    * 传入`DOM元素`时,销毁`DOM元素`内的所有控件
 
 #### find(element)
 
@@ -99,10 +98,10 @@ widget.add(someWidget);
 
 * **widget** `{Widget}` 目标控件实例
 * **pluginName** `{String|Array}` pluginName 待禁用插件名
-	* 单个禁用传入插件名, 批量禁用传入数组, 全部禁用不传入
+    * 单个禁用传入插件名, 批量禁用传入数组, 全部禁用不传入
 
 #### disposePlugin(widget[, pluginName])
 
 * **widget** `{Widget}` 目标控件实例
 * **pluginName** `{String|Array}` pluginName 待销毁插件名
-	* 单个删除传入插件名, 批量删除传入数组, 全部删除不传入
+    * 单个删除传入插件名, 批量删除传入数组, 全部删除不传入

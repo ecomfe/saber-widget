@@ -1,12 +1,13 @@
-# LinkageMenu
+LinkageMenu
+===
 
 联动菜单
 
 ## Usage
 
-``` javascript
-var widget = require( 'saber-widget' );
-require( 'saber-widget/LinkageMenu' );
+```js
+var widget = require('saber-widget');
+require('saber-widget/LinkageMenu');
 
 var menu = widget.linkageMenu(
     main,
@@ -79,5 +80,5 @@ var menu = widget.linkageMenu(
 );
 menu.on('select', function(ev, data) {
     console.log(data);
-} );
+});
 ```

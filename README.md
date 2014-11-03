@@ -3,19 +3,11 @@ saber-widget [![Build Status](https://travis-ci.org/ecomfe/saber-widget.png)](ht
 
 适合移动端的UI组件库。
 
+## Installation
 
-## Dependencies
+通过 [`edp`](https://github.com/ecomfe/edp) 引入模块：
 
-+ [saber-lang](https://github.com/ecomfe/saber-lang)
-+ [saber-dom](https://github.com/ecomfe/saber-dom)
-+ [saber-string](https://github.com/ecomfe/saber-string)
-+ [saber-emitter](https://github.com/ecomfe/saber-emitter)
-
-## Usage
-
-通过[`edp`](https://github.com/ecomfe/edp)导入
-
-```
+```sh
 edp import saber-widget
 ```
 
@@ -38,7 +30,3 @@ edp import saber-widget
 * [翻转自适应(轮播图) SliderFlex](./doc/api-plugin-sliderflex.md)
 * [翻转自适应(图片查看器) ImageViewFlex](./doc/api-plugin-imageviewflex.md)
 * [遮罩 Masker](./doc/api-plugin-masker.md)
-
-===
-
-[![Saber](https://f.cloud.github.com/assets/157338/1485433/aeb5c72a-4714-11e3-87ae-7ef8ae66e605.png)](http://ecomfe.github.io/saber)

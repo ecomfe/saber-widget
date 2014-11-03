@@ -6,16 +6,17 @@ UI控件的基类。提供了`控件`的如生命周期、状态控制、属性�
 **控件基类，禁止实例化**
 
 ## Constructor
+
 ```js
 new Widget({
-	id: 'id',
-	main: document.getElementById('dom')
+    id: 'id',
+    main: document.getElementById('dom')
 });
 ```
 
 * **options** `{Object}` 初始化配置参数
-	* **id** `{string}` 控件标识
-	* **main** `{HTMLElement}` 控件主元素
+    * **id** `{string}` 控件标识
+    * **main** `{HTMLElement}` 控件主元素
 
 ## API
 
@@ -60,12 +61,11 @@ new Widget({
 * **pluginName** `{string}` 插件名称
 * _return_ `{Plugin}` 
 
-
 ### Events
 
 * **event** `{Object}` 事件封装
-	* **type** `{string}` 事件类型
-	* **target** `{Widget}` 触发事件的控件对象
+    * **type** `{string}` 事件类型
+    * **target** `{Widget}` 触发事件的控件对象
 
 #### afterdispose
 

@@ -5,13 +5,13 @@ ImageView
 
 ## Usage
 
-``` javascript
-var widget = require( 'saber-widget' );
-require( 'saber-widget/plugin/Masker' );
-require( 'saber-widget/ImageView' );
+```js
+var widget = require('saber-widget');
+require('saber-widget/plugin/Masker');
+require('saber-widget/ImageView');
 
-var imageview = widget.imageView( element );
-console.info( imageview.get( 'items' ) );
+var imageview = widget.imageView(element);
+console.info(imageview.get('items'));
 ```
 
 ## API
@@ -60,8 +60,8 @@ console.info( imageview.get( 'items' ) );
 ### Events
 
 * **event** `{Object}` 事件封装
-	* **type** `{string}` 事件类型
-	* **target** `{Widget}` 触发事件的控件对象
+    * **type** `{string}` 事件类型
+    * **target** `{Widget}` 触发事件的控件对象
 
 基础事件请参考[Widget#Events](./api-widget.md#events)事件
 
