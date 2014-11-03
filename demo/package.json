@@ -19,7 +19,9 @@
             "saber-ajax": "0.x",
             "saber-promise": "0.x",
             "hammer": "1.x",
-            "saber-string": "0.x"
+            "saber-string": "0.x",
+            "saber-scroll": "0.x",
+            "saber-run": "0.x"
         }
     },
     "dependencies": {
