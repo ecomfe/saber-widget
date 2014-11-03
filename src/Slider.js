@@ -6,12 +6,12 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require, exports, module ) {
+define(function (require, exports, module) {
 
-    var lang = require( 'saber-lang' );
-    var dom = require( 'saber-dom' );
-    var Hammer = require( 'hammer' );
-    var Widget = require( './Widget' );
+    var lang = require('saber-lang');
+    var dom = require('saber-dom');
+    var Hammer = require('hammer');
+    var Widget = require('./Widget');
 
 
     /**
@@ -38,7 +38,7 @@ define( function ( require, exports, module ) {
      * @param {boolean=} options.speed 回弹动画时长，单位毫秒
      * @param {boolean=} options.switchAt 切换阀值，单位像素
      */
-    function Slider( options ) {
+    function Slider(options) {
 
 
         this.attrs = {
@@ -48,21 +48,21 @@ define( function ( require, exports, module ) {
              *
              * @type {boolean}
              */
-            animate: { value: true },
+            animate: {value: true},
 
             /**
              * 是否自动循环切换
              *
              * @type {boolean}
              */
-            auto: { value: true, repaint: true },
+            auto: {value: true, repaint: true},
 
             /**
              * 自动循环切换间隔，单位毫秒
              *
              * @type {number}
              */
-            interval: { value: 4000 },
+            interval: {value: 4000},
 
             /**
              * 是否自适应屏幕旋转
@@ -70,21 +70,21 @@ define( function ( require, exports, module ) {
              *
              * @type {boolean}
              */
-            flex: { value: false, repaint: true },
+            flex: {value: false, repaint: true},
 
             /**
              * 初始位置
              *
              * @type {number}
              */
-            index: { value: 0 },
+            index: {value: 0},
 
             /**
              * 回弹动画时长，单位毫秒
              *
              * @type {number}
              */
-            speed: { value: 300 },
+            speed: {value: 300},
 
             /**
              * 切换阀值，有效值为`0 ~ 1`的比例系数
@@ -92,7 +92,7 @@ define( function ( require, exports, module ) {
              *
              * @type {number}
              */
-            switchAt: { value: 0.5 },
+            switchAt: {value: 0.5},
 
             /**
              * 轮播项总数
@@ -126,7 +126,7 @@ define( function ( require, exports, module ) {
 
         // **MUST**最后调用父类的构造函数
         // 由于子类的`attrs`、`states`等需要与父类的对应默认值进行`mixin`
-        Widget.apply( this, arguments );
+        Widget.apply(this, arguments);
     }
 
 
@@ -146,15 +146,15 @@ define( function ( require, exports, module ) {
          * @override
          */
         initDom: function () {
-            var main = this.get( 'main' );
-            var wrapper = dom.query( '[data-role=wrapper]', main ) || dom.children( main )[ 0 ];
+            var main = this.get('main');
+            var wrapper = dom.query('[data-role=wrapper]', main) || dom.children(main)[ 0 ];
 
             // 确保 `data-role` 设置正确
-            if ( wrapper) {
-                dom.setData( wrapper, 'role', 'wrapper' );
-                dom.children( wrapper ).forEach(
-                    function ( item ) {
-                        dom.setData( item, 'role', 'item' );
+            if (wrapper) {
+                dom.setData(wrapper, 'role', 'wrapper');
+                dom.children(wrapper).forEach(
+                    function (item) {
+                        dom.setData(item, 'role', 'item');
                     }
                 );
             }
@@ -171,15 +171,15 @@ define( function ( require, exports, module ) {
             var events = 'release touch dragleft dragright swipeleft swiperight';
             var runtime = this.runtime;
 
-            runtime.hammer = new Hammer( runtime.wrapper, { dragLockToAxis: true } )
+            runtime.hammer = new Hammer(runtime.wrapper, {dragLockToAxis: true})
                 .on(
-                    events,
-                    runtime.handler = lang.bind( this._handleHammer, this )
-                );
+                events,
+                runtime.handler = lang.bind(this._handleHammer, this)
+            );
 
-            this.on( 'beforedispose', function () {
-                runtime.hammer.off( events, runtime.handler );
-            } );
+            this.on('beforedispose', function () {
+                runtime.hammer.off(events, runtime.handler);
+            });
         },
 
         /**
@@ -191,25 +191,25 @@ define( function ( require, exports, module ) {
          * 每个**属性变更对象**结构如下
          * `属性名`：[ `变更前的值`, `变更后的值` ]
          */
-        repaint: function ( changes ) {
+        repaint: function (changes) {
             // 先处理父类的重绘
-            Widget.prototype.repaint.call( this, changes );
+            Widget.prototype.repaint.call(this, changes);
 
             // `render` 阶段调用时,不传入 `changes`
-            if ( !changes ) {
-                this._resize( true ).enable();
+            if (!changes) {
+                this._resize(true).enable();
                 return;
             }
 
             // 启动切换属性变更
-            if ( changes.hasOwnProperty( 'auto' ) ) {
+            if (changes.hasOwnProperty('auto')) {
                 // 因属性`auto`值已发生变化, 这里调用需要带上`true`参数强制执行
-                this[ changes.auto[ 1 ] ? 'start' : 'stop' ]( true );
+                this[ changes.auto[ 1 ] ? 'start' : 'stop' ](true);
             }
 
             // `SliderFlex` 插件更新
-            if ( changes.hasOwnProperty( 'flex' ) ) {
-                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'SliderFlex', 'flex' );
+            if (changes.hasOwnProperty('flex')) {
+                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]('SliderFlex', 'flex');
             }
 
         },
@@ -223,23 +223,23 @@ define( function ( require, exports, module ) {
          */
         enable: function () {
             // 先启动自动切换
-            if ( this.is( 'disable' ) && this.is( 'render' ) ) {
+            if (this.is('disable') && this.is('render')) {
                 this.start();
 
                 // 禁用hammer
                 var hammer = this.runtime.hammer;
-                if ( hammer ) {
-                    hammer.enable( true );
+                if (hammer) {
+                    hammer.enable(true);
                 }
 
                 // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.enablePlugin( 'SliderFlex', 'flex' );
+                if (this.get('flex')) {
+                    this.enablePlugin('SliderFlex', 'flex');
                 }
             }
 
             // 回归父类继续后续处理
-            Widget.prototype.enable.call( this );
+            Widget.prototype.enable.call(this);
 
             return this;
         },
@@ -253,23 +253,23 @@ define( function ( require, exports, module ) {
          */
         disable: function () {
             // 先停止自动切换
-            if ( !this.is( 'disable' ) && this.is( 'render' ) ) {
+            if (!this.is('disable') && this.is('render')) {
                 this.stop();
 
                 // 禁用hammer
                 var hammer = this.runtime.hammer;
-                if ( hammer ) {
-                    hammer.enable( false );
+                if (hammer) {
+                    hammer.enable(false);
                 }
 
                 // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.disablePlugin( 'SliderFlex' );
+                if (this.get('flex')) {
+                    this.disablePlugin('SliderFlex');
                 }
             }
 
             // 回归父类继续后续处理
-            Widget.prototype.disable.call( this );
+            Widget.prototype.disable.call(this);
 
             return this;
         },
@@ -281,26 +281,26 @@ define( function ( require, exports, module ) {
          * @private
          * @param {Object} ev `hammer`的`event`对象
          */
-        _handleHammer: function ( ev ) {
+        _handleHammer: function (ev) {
             var gesture = ev.gesture;
             var type = ev.type;
 
             // 禁用滚动(因`Slider`仅横向移动,这里需排除垂直方向从而提高体验)
-            if ( 'touch' !== type ) {
+            if ('touch' !== type) {
                 gesture.preventDefault();
             }
 
 
             var runtime = this.runtime;
             var width = runtime.width;
-            var index = this.get( 'index' );
-            var length = this.get( 'length' );
+            var index = this.get('index');
+            var length = this.get('length');
 
-            switch ( type ) {
+            switch (type) {
                 case 'touch':
                     // 每次点击开始时，需先`临时`保存当前轮播状态并暂停, 以备结束后的恢复
-                    runtime.needResume = !this.is( 'pause' ) && !this.is( 'stop' );
-                    if ( runtime.needResume ) {
+                    runtime.needResume = !this.is('pause') && !this.is('stop');
+                    if (runtime.needResume) {
                         this.pause();
                     }
 
@@ -309,17 +309,17 @@ define( function ( require, exports, module ) {
                 case 'dragright':
                 case 'dragleft':
                     // stick to the finger
-                    var pane_offset = this._percent( index );
-                    var drag_offset = ( ( 100 / width ) * gesture.deltaX ) / length;
+                    var paneOffset = this._percent(index);
+                    var dragOffset = ((100 / width) * gesture.deltaX) / length;
 
                     // slow down at the first and last pane
-                    if( ( index === 0 && gesture.direction == 'right' ) ||
-                        ( index === length - 1 && gesture.direction == 'left' ) ) {
-                        drag_offset *= 0.4;
+                    if ((index === 0 && gesture.direction === 'right') ||
+                        (index === length - 1 && gesture.direction === 'left')) {
+                        dragOffset *= 0.4;
                     }
 
                     // switch without animate
-                    this._move( drag_offset + pane_offset );
+                    this._move(dragOffset + paneOffset);
                     break;
 
                 case 'swipeleft':
@@ -327,7 +327,7 @@ define( function ( require, exports, module ) {
 
                     this.next();
 
-                    if ( runtime.needResume ) {
+                    if (runtime.needResume) {
                         this.resume();
                     }
 
@@ -338,7 +338,7 @@ define( function ( require, exports, module ) {
 
                     this.prev();
 
-                    if ( runtime.needResume ) {
+                    if (runtime.needResume) {
                         this.resume();
                     }
 
@@ -346,15 +346,15 @@ define( function ( require, exports, module ) {
 
                 case 'release':
                     // 达到切换阀值，则根据滑动方向切换
-                    if ( Math.abs( gesture.deltaX ) > width * this.get( 'switchAt' ) ) {
-                        this[ gesture.direction == 'right' ? 'prev' : 'next' ]();
+                    if (Math.abs(gesture.deltaX) > width * this.get('switchAt')) {
+                        this[ gesture.direction === 'right' ? 'prev' : 'next' ]();
                     }
                     // 未达到, 则回弹
                     else {
-                        this.to( index );
+                        this.to(index);
                     }
 
-                    if ( runtime.needResume ) {
+                    if (runtime.needResume) {
                         this.resume();
                     }
 
@@ -369,13 +369,13 @@ define( function ( require, exports, module ) {
          * @param {number} index 位置索引
          * @return {number} 偏移百分比
          */
-        _percent: function ( index ) {
-            var length = this.get( 'length' );
+        _percent: function (index) {
+            var length = this.get('length');
 
             // 防越界修正
-            index = Math.max( 0, Math.min( length - 1, index ) );
+            index = Math.max(0, Math.min(length - 1, index));
 
-            return - ( 100 / length ) * index;
+            return -(100 / length) * index;
         },
 
         /**
@@ -386,13 +386,13 @@ define( function ( require, exports, module ) {
          * @fires Slider#resize
          * @return {Slider} 当前实例
          */
-        _resize: function ( isForce ) {
+        _resize: function (isForce) {
             var runtime = this.runtime;
 
             var oldWidth = runtime.width;
-            var width = styleNumber( this.get( 'main' ) );
+            var width = styleNumber(this.get('main'));
 
-            if ( !isForce && width == oldWidth ) {
+            if (!isForce && width === oldWidth) {
                 return this;
             }
 
@@ -401,15 +401,14 @@ define( function ( require, exports, module ) {
 
 
             // 重绘计算
-            var items = dom.children( runtime.wrapper );
+            var items = dom.children(runtime.wrapper);
             var length = runtime.length = items.length;
 
-            for ( var i = 0; i < length; i++ ) {
-                styleNumber( items[ i ], 'width', width );
+            for (var i = 0; i < length; i++) {
+                styleNumber(items[ i ], 'width', width);
             }
 
-            styleNumber( runtime.wrapper, 'width', width * length );
-
+            styleNumber(runtime.wrapper, 'width', width * length);
 
 
             /**
@@ -417,7 +416,7 @@ define( function ( require, exports, module ) {
              * @param {number} from 上一次的切换项宽度,单位像素
              * @param {number} to 当前的切换项宽度,单位像素
              */
-            this.emit( 'resize', oldWidth, width );
+            this.emit('resize', oldWidth, width);
 
             return this;
         },
@@ -428,31 +427,29 @@ define( function ( require, exports, module ) {
          * @private
          * @param {boolean=} isStop 是否停止
          */
-        _loop: function ( isStop ) {
+        _loop: function (isStop) {
             var runtime = this.runtime;
-            var delay = this.get( 'interval' );
+            var delay = this.get('interval');
 
-            runtime.timer = clearTimeout( runtime.timer );
+            runtime.timer = clearTimeout(runtime.timer);
 
             // 已停止 或 间隔时长异常 则终止切换
-            if ( isStop || !delay || delay < 0 ) {
+            if (isStop || !delay || delay < 0) {
                 return;
             }
 
             // 切换项不足时, 恢复到第一项目并暂停切换
-            if ( this.get( 'length' ) < 2 ) {
-                this.to( 0 ).pause();
+            if (this.get('length') < 2) {
+                this.to(0).pause();
                 return;
             }
 
             // 切换
             runtime.timer = setTimeout(
-
                 lang.bind(
-
                     function () {
-                        var next = this.get( 'index' ) + 1;
-                        this.to( next < this.get( 'length' ) ? next : 0 );
+                        var next = this.get('index') + 1;
+                        this.to(next < this.get('length') ? next : 0);
                         this._loop();
                     },
 
@@ -460,7 +457,6 @@ define( function ( require, exports, module ) {
                 ),
 
                 delay
-
             );
         },
 
@@ -471,19 +467,17 @@ define( function ( require, exports, module ) {
          * @param {number} percent X轴偏移百分比
          * @param {number=} speed 移动速度,单位毫秒
          */
-        _move: function ( percent, speed ) {
+        _move: function (percent, speed) {
             var wrapper = this.runtime.wrapper;
 
-            if ( this.get( 'animate' ) ) {
-                dom.setStyle( wrapper, 'transition', 'all ' + ( speed || 0 ) + 'ms' );
+            if (this.get('animate')) {
+                dom.setStyle(wrapper, 'transition', 'all ' + (speed || 0) + 'ms');
             }
 
-            dom.setStyle( wrapper, 'transform', 'translate3d(' + percent + '%, 0, 0) scale3d(1, 1, 1)' );
+            dom.setStyle(wrapper, 'transform', 'translate3d(' + percent + '%, 0, 0) scale3d(1, 1, 1)');
 
             return this;
         },
-
-
 
 
         /**
@@ -495,19 +489,19 @@ define( function ( require, exports, module ) {
          */
         sync: function () {
             // 未渲染控件无需同步
-            if ( this.is( 'render' ) ) {
+            if (this.is('render')) {
 
                 // 1. 暂停轮播(如果正在轮播的话)
                 this.pause()
 
-                // 2. 重绘计算
-                ._resize( true )
+                    // 2. 重绘计算
+                    ._resize(true)
 
-                // 3. 修正当前项的偏移比例
-                ._move( this._percent( this.get( 'index' ) ) )
+                    // 3. 修正当前项的偏移比例
+                    ._move(this._percent(this.get('index')))
 
-                // 4. 恢复轮播(如果刚才正在轮播的话)
-                .resume();
+                    // 4. 恢复轮播(如果刚才正在轮播的话)
+                    .resume();
             }
 
             return this;
@@ -521,9 +515,9 @@ define( function ( require, exports, module ) {
          * @param {boolean} isForce 是否强制启动
          * @return {Slider} 当前实例
          */
-        start: function ( isForce ) {
-            if ( this.is( 'stop' ) && ( isForce || this.get( 'auto' ) ) ) {
-                this.removeState( 'stop' );
+        start: function (isForce) {
+            if (this.is('stop') && (isForce || this.get('auto'))) {
+                this.removeState('stop');
                 this._loop();
             }
 
@@ -537,10 +531,10 @@ define( function ( require, exports, module ) {
          * @param {boolean} isForce 是否强制停止
          * @return {Slider} 当前实例
          */
-        stop: function ( isForce ) {
-            if ( !this.is( 'stop' ) && ( isForce || this.get( 'auto' ) ) ) {
-                this.addState( 'stop' );
-                this._loop( true );
+        stop: function (isForce) {
+            if (!this.is('stop') && (isForce || this.get('auto'))) {
+                this.addState('stop');
+                this._loop(true);
             }
 
             return this;
@@ -553,9 +547,9 @@ define( function ( require, exports, module ) {
          * @return {Slider} 当前实例
          */
         pause: function () {
-            if ( !this.is( 'pause' ) && !this.is( 'stop' ) ) {
-                this.addState( 'pause' );
-                this._loop( true );
+            if (!this.is('pause') && !this.is('stop')) {
+                this.addState('pause');
+                this._loop(true);
             }
 
             return this;
@@ -568,15 +562,14 @@ define( function ( require, exports, module ) {
          * @public
          * @return {Slider} 当前实例
          */
-        resume: function ( holdOriginState ) {
-            if ( this.is( 'pause' ) ) {
-                this.removeState( 'pause' );
+        resume: function (holdOriginState) {
+            if (this.is('pause')) {
+                this.removeState('pause');
                 this._loop();
             }
 
             return this;
         },
-
 
 
         /**
@@ -587,30 +580,30 @@ define( function ( require, exports, module ) {
          * @fires Slider#change
          * @return {Slider} 当前实例
          */
-        to: function ( index ) {
-            if ( this.is( 'disable') ) {
+        to: function (index) {
+            if (this.is('disable')) {
                 return this;
             }
 
-            var current = this.get( 'index' );
+            var current = this.get('index');
 
             // 边界修复
-            index = Math.max( 0, Math.min( index, this.get( 'length' ) - 1 ) );
+            index = Math.max(0, Math.min(index, this.get('length') - 1));
 
             // 切换
-            this._move( this._percent( index ), this.get( 'speed' ) );
+            this._move(this._percent(index), this.get('speed'));
 
             // 回弹不触发事件
-            if ( current !== index ) {
+            if (current !== index) {
                 // 更新
-                this.set( 'index', index );
+                this.set('index', index);
 
                 /**
                  * @event Slider#change
                  * @param {number} from 原来显示项的位置
                  * @param {number} to 当前显示项的位置
                  */
-                this.emit( 'change', current, index );
+                this.emit('change', current, index);
             }
 
             return this;
@@ -623,7 +616,7 @@ define( function ( require, exports, module ) {
          * @return {Slider} 当前实例
          */
         prev: function () {
-            return this.to( this.get( 'index' ) - 1 );
+            return this.to(this.get('index') - 1);
         },
 
         /**
@@ -633,15 +626,14 @@ define( function ( require, exports, module ) {
          * @return {Slider} 当前实例
          */
         next: function () {
-            return this.to( this.get( 'index' ) + 1 );
+            return this.to(this.get('index') + 1);
         }
 
     };
 
-    lang.inherits( Slider, Widget );
+    lang.inherits(Slider, Widget);
 
-    require( './main' ).register( Slider );
-
+    require('./main').register(Slider);
 
 
     /**
@@ -654,17 +646,17 @@ define( function ( require, exports, module ) {
      * @param {number=} val 样式值(不含单位),传入时则为设置样式
      * @return {number=} 没有传入`val`参数时返回获取到的值，否则返回`undefined`
      */
-    function styleNumber ( node, name, val ) {
+    function styleNumber(node, name, val) {
         name = name || 'width';
 
-        if ( arguments.length > 2 ) {
-            return dom.setStyle( node, name, ( parseInt( val, 10 ) || 0 ) + 'px' );
+        if (arguments.length > 2) {
+            return dom.setStyle(node, name, (parseInt(val, 10) || 0) + 'px');
         }
 
-        return parseInt( dom.getStyle( node, name ), 10 ) || 0;
+        return parseInt(dom.getStyle(node, name), 10) || 0;
     }
 
 
     return Slider;
 
-} );
+});

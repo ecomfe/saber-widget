@@ -6,9 +6,9 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var Plugin = require( './Plugin' );
+    var Plugin = require('./Plugin');
 
 
     /**
@@ -22,8 +22,8 @@ define( function ( require ) {
      * @param {ImageView} imageview 图片查看器控件实例
      * @param {Object=} options 插件配置项
      */
-    var ImageViewFlex = function( imageview, options ) {
-        Plugin.apply( this, arguments );
+    var ImageViewFlex = function (imageview, options) {
+        Plugin.apply(this, arguments);
     };
 
     ImageViewFlex.prototype = {
@@ -44,11 +44,11 @@ define( function ( require ) {
         initEvent: function () {
             var imageview = this.target;
 
-            this.onRepaint = require( 'saber-lang' ).bind( this.repaint, this );
+            this.onRepaint = require('saber-lang').bind(this.repaint, this);
 
             // 添加屏幕旋转变化监听
-            imageview.addEvent( window, 'resize', this.onRepaint );
-            imageview.addEvent( window, 'orientationchange', this.onRepaint );
+            imageview.addEvent(window, 'resize', this.onRepaint);
+            imageview.addEvent(window, 'orientationchange', this.onRepaint);
         },
 
         /**
@@ -56,12 +56,12 @@ define( function ( require ) {
          *
          * @override
          */
-        clearEvent: function() {
+        clearEvent: function () {
             var imageview = this.target;
 
             // 移除屏幕旋转变化监听
-            imageview.removeEvent( window, 'resize', this.onRepaint );
-            imageview.removeEvent( window, 'orientationchange', this.onRepaint );
+            imageview.removeEvent(window, 'resize', this.onRepaint);
+            imageview.removeEvent(window, 'orientationchange', this.onRepaint);
 
             this.onRepaint = null;
         },
@@ -72,26 +72,26 @@ define( function ( require ) {
          * @public
          */
         repaint: function () {
-            if ( this.is( 'disable' ) ) {
+            if (this.is('disable')) {
                 return;
             }
 
             var imageview = this.target;
 
-            if ( imageview.is( 'disable' ) ) {
+            if (imageview.is('disable')) {
                 return;
             }
 
             // 重绘尺寸 & 重新切换一下使新尺寸立即生效
-            imageview._resize().to( imageview.get( 'index' ) );
+            imageview._resize().to(imageview.get('index'));
         }
 
     };
 
-    require( 'saber-lang' ).inherits( ImageViewFlex, Plugin );
+    require('saber-lang').inherits(ImageViewFlex, Plugin);
 
-    require( '../main' ).registerPlugin( ImageViewFlex );
+    require('../main').registerPlugin(ImageViewFlex);
 
     return ImageViewFlex;
 
-} );
+});

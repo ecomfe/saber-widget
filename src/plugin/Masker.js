@@ -6,11 +6,10 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var dom = require( 'saber-dom' );
-    var Plugin = require( './Plugin' );
-
+    var dom = require('saber-dom');
+    var Plugin = require('./Plugin');
 
 
     /**
@@ -25,8 +24,8 @@ define( function ( require ) {
      * @param {Widget} widget 控件实例
      * @param {Object=} options 插件配置项
      */
-    var Masker = function( widget, options ) {
-        Plugin.apply( this, arguments );
+    var Masker = function (widget, options) {
+        Plugin.apply(this, arguments);
     };
 
     Masker.prototype = {
@@ -63,19 +62,19 @@ define( function ( require ) {
          * @override
          */
         initDom: function () {
-            var main = this.main = document.createElement( 'div' );
+            var main = this.main = document.createElement('div');
             main.className = 'ui-masker';
             main.innerHTML = '<div data-role="wrapper"></div>';
-            dom.hide( main );
+            dom.hide(main);
 
             // 为方便使用
             this.wrapper = main.firstChild;
 
             // 移动目标控件主元素到遮罩控件容器中
-            this.wrapper.appendChild( this.target.get( 'main' ) );
+            this.wrapper.appendChild(this.target.get('main'));
 
             // 挂载到DOM树
-            document.body.appendChild( main );
+            document.body.appendChild(main);
         },
 
         /**
@@ -86,10 +85,10 @@ define( function ( require ) {
         initEvent: function () {
             var self = this;
 
-            if ( self.options.autoClose ) {
-                this.target.addEvent( this.main, 'click', this.onClose = function ( ev ) {
+            if (self.options.autoClose) {
+                this.target.addEvent(this.main, 'click', this.onClose = function (ev) {
                     self.disable();
-                } );
+                });
             }
         },
 
@@ -99,8 +98,8 @@ define( function ( require ) {
          * @protected
          */
         clearEvent: function () {
-            if ( this.onClose ) {
-                this.target.removeEvent( this.main, 'click', this.onClose );
+            if (this.onClose) {
+                this.target.removeEvent(this.main, 'click', this.onClose);
                 this.onClose = null;
             }
         },
@@ -112,9 +111,9 @@ define( function ( require ) {
          * @override
          */
         enable: function () {
-            dom.show( this.main );
+            dom.show(this.main);
 
-            Plugin.prototype.disable.call( this );
+            Plugin.prototype.disable.call(this);
 
             return this;
         },
@@ -125,19 +124,19 @@ define( function ( require ) {
          * @override
          */
         disable: function () {
-            dom.hide( this.main );
+            dom.hide(this.main);
 
-            Plugin.prototype.disable.call( this );
+            Plugin.prototype.disable.call(this);
 
             return this;
         }
 
     };
 
-    require( 'saber-lang' ).inherits( Masker, Plugin );
+    require('saber-lang').inherits(Masker, Plugin);
 
-    require( '../main' ).registerPlugin( Masker );
+    require('../main').registerPlugin(Masker);
 
     return Masker;
 
-} );
+});

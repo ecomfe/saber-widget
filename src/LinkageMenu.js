@@ -4,7 +4,7 @@
  */
 
 define(
-    function(require) {
+    function (require) {
         var lang = require('saber-lang');
         var string = require('saber-string');
         var Widget = require('./Widget');
@@ -12,9 +12,9 @@ define(
 
         /**
          * 确保数据类型
-         * 
+         *
          * @inner
-         * @return {number|string} 
+         * @return {number|string}
          */
         function ensureValueType(value) {
             if (value === undefined) {
@@ -30,7 +30,7 @@ define(
 
         /**
          * 简易多叉树
-         * 
+         *
          * @param {Object} source 数据源
          *
          *  ```
@@ -72,12 +72,12 @@ define(
              * 广度优先搜索，获取指定value的节点，有坑：
              *
              * 1. 不同层级的value有可能相同，怎么处理？用uniqueValue？
-             * 
+             *
              * @public
-             * @param {string|number} value 
-             * @return {Object} 
+             * @param {string|number} value
+             * @return {Object}
              */
-            getNode: function(value) {
+            getNode: function (value) {
                 var current = {};
                 var root = this._root;
 
@@ -114,27 +114,29 @@ define(
 
             /**
              * 获取树的深度
-             * 
+             *
              * @public
-             * @return {number} 
+             * @return {number}
              */
-            getDepth: function() {
+            getDepth: function () {
                 return this._depth;
             },
 
             // TODO: 更新数据源
-            update: function(source) {},
+            update: function (source) {
+            },
 
             /**
              * 预处理数据，添加level、uniqueValue等属性；计算深度...
-             * 
+             *
              * @private
              */
-            _preprocess: function() {
+            _preprocess: function () {
                 var depth = -1;
 
                 // 深度优先搜索
                 var tag = [];
+
                 function dfs(node, deep) {
                     tag.push(node.value);
                     // 添加level
@@ -169,7 +171,7 @@ define(
 
         /**
          * 单级菜单项
-         * 
+         *
          * @constructor
          */
         function LinkageItem(options) {
@@ -200,10 +202,10 @@ define(
 
             /**
              * 渲染菜单
-             * 
+             *
              * @public
              */
-            render: function(data) {
+            render: function (data) {
                 data = data || [];
 
                 if (!data.length) {
@@ -218,11 +220,11 @@ define(
                     this.uniqueValue = data[0].uniqueValue;
                     this.value = data[0].value;
                 }
-                 
+
                 var html = [];
-                var tpl = '' 
-                    + '<li class="${className}" data-value="${value}" data-unique-value="${uniqueValue}">' 
-                    +   '<span>${name}</span>' 
+                var tpl = ''
+                    + '<li class="${className}" data-value="${value}" data-unique-value="${uniqueValue}">'
+                    + '<span>${name}</span>'
                     + '</li>';
 
                 for (var i = 0, len = data.length; i < len; i++) {
@@ -263,11 +265,11 @@ define(
 
             /**
              * 判断value/uniqueValue是否在data中
-             * 
+             *
              * @public
-             * @return {boolean} 
+             * @return {boolean}
              */
-            exist: function(key) {
+            exist: function (key) {
                 var v = this[key];
 
                 if (v === null) {
@@ -287,10 +289,10 @@ define(
 
             /**
              * 滚动到当前选中元素上
-             * 
+             *
              * @public
              */
-            scrollToCurrent: function() {
+            scrollToCurrent: function () {
                 var cur = dom.query('.linkage-item-cur', this.ul);
 
                 if (cur) {
@@ -298,7 +300,7 @@ define(
                 }
             },
 
-            _changeHandler: function(e) {
+            _changeHandler: function (e) {
                 var el = e.target;
                 // 设置一个标志吧
                 var founded = false;
@@ -326,9 +328,9 @@ define(
 
                 this.uniqueValue = el.getAttribute('data-unique-value');
                 this.emit(
-                    'change', 
+                    'change',
                     {
-                        target: this, 
+                        target: this,
                         type: 'change'
                     },
                     {
@@ -337,7 +339,7 @@ define(
                 );
             },
 
-            dispose: function() {
+            dispose: function () {
                 this.main.removeEventListener('click', this._changeHandler);
                 this.main = null;
                 this.ul = null;
@@ -349,7 +351,7 @@ define(
 
         /**
          * 联动菜单
-         * 
+         *
          * @constructor
          */
         function LinkageMenu(options) {
@@ -360,7 +362,7 @@ define(
 
                 values: {
                     value: [],
-                    setter: function(values) {
+                    setter: function (values) {
                         // 计算uniqueValues
                         var uniqueValues = [];
                         var values = values.slice(0);
@@ -388,10 +390,10 @@ define(
 
         /**
          * 初始化dom结构
-         * 
+         *
          * @public
          */
-        LinkageMenu.prototype.initDom = function() {
+        LinkageMenu.prototype.initDom = function () {
             this.main.className = 'linkage-menu';
 
             var datasource = this.get('datasource');
@@ -443,14 +445,15 @@ define(
             this.main.appendChild(fragment);
         };
 
-        LinkageMenu.prototype.initEvent = function() {};
+        LinkageMenu.prototype.initEvent = function () {
+        };
 
         /**
          * 处理单个菜单
-         * 
+         *
          * @private
          */
-        LinkageMenu.prototype._linkageItemChangeHandler = function(e, data) {
+        LinkageMenu.prototype._linkageItemChangeHandler = function (e, data) {
             var linkageItem = e.target;
             if (linkageItem.next === null) {
                 var values = [];
@@ -470,12 +473,12 @@ define(
 
         /**
          * 联动
-         * 
+         *
          * @private
          */
-        LinkageMenu.prototype._linkage = function(linkageItem) {
+        LinkageMenu.prototype._linkage = function (linkageItem) {
             while (linkageItem && linkageItem.next) {
-                var node = this.runtime.tree.getNode(linkageItem.uniqueValue); 
+                var node = this.runtime.tree.getNode(linkageItem.uniqueValue);
                 var nextLinkage = linkageItem.next;
                 nextLinkage.render(node.children);
                 linkageItem = nextLinkage;

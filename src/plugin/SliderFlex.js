@@ -6,9 +6,9 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var Plugin = require( './Plugin' );
+    var Plugin = require('./Plugin');
 
 
     /**
@@ -22,8 +22,8 @@ define( function ( require ) {
      * @param {Slider} slider 轮播图控件实例
      * @param {Object=} options 插件配置项
      */
-    var SliderFlex = function( slider, options ) {
-        Plugin.apply( this, arguments );
+    var SliderFlex = function (slider, options) {
+        Plugin.apply(this, arguments);
     };
 
     SliderFlex.prototype = {
@@ -44,11 +44,11 @@ define( function ( require ) {
         initEvent: function () {
             var slider = this.target;
 
-            this.onRepaint = require( 'saber-lang' ).bind( this.repaint, this );
+            this.onRepaint = require('saber-lang').bind(this.repaint, this);
 
             // 添加屏幕旋转变化监听
-            slider.addEvent( window, 'resize', this.onRepaint );
-            slider.addEvent( window, 'orientationchange', this.onRepaint );
+            slider.addEvent(window, 'resize', this.onRepaint);
+            slider.addEvent(window, 'orientationchange', this.onRepaint);
         },
 
         /**
@@ -56,12 +56,12 @@ define( function ( require ) {
          *
          * @override
          */
-        clearEvent: function() {
+        clearEvent: function () {
             var slider = this.target;
 
             // 移除屏幕旋转变化监听
-            slider.removeEvent( window, 'resize', this.onRepaint );
-            slider.removeEvent( window, 'orientationchange', this.onRepaint );
+            slider.removeEvent(window, 'resize', this.onRepaint);
+            slider.removeEvent(window, 'orientationchange', this.onRepaint);
 
             this.onRepaint = null;
         },
@@ -72,39 +72,39 @@ define( function ( require ) {
          * @public
          */
         repaint: function () {
-            if ( this.is( 'disable' ) ) {
+            if (this.is('disable')) {
                 return;
             }
 
             var slider = this.target;
 
-            if ( slider.is( 'disable' ) ) {
+            if (slider.is('disable')) {
                 return;
             }
 
             // 若控件已处于暂停状态，则需要保持状态，防止重绘后产生意外恢复的问题
-            var isSliderPaused = slider.is( 'pause' );
+            var isSliderPaused = slider.is('pause');
 
             // 处理前，若控件是暂停状态，这里就不需要暂停了 (其实调了也会被忽略~)
-            if ( !isSliderPaused ) {
+            if (!isSliderPaused) {
                 slider.pause();
             }
 
             // 重绘尺寸 & 重新切换一下使新尺寸立即生效
-            slider._resize().to( slider.get( 'index' ) );
+            slider._resize().to(slider.get('index'));
 
             // 处理前，若控件是暂停状态，这里就不需要恢复了
-            if ( !isSliderPaused ) {
+            if (!isSliderPaused) {
                 slider.resume();
             }
         }
 
     };
 
-    require( 'saber-lang' ).inherits( SliderFlex, Plugin );
+    require('saber-lang').inherits(SliderFlex, Plugin);
 
-    require( '../main' ).registerPlugin( SliderFlex );
+    require('../main').registerPlugin(SliderFlex);
 
     return SliderFlex;
 
-} );
+});

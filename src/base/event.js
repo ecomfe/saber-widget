@@ -6,9 +6,9 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var Emitter = require( 'saber-emitter' );
+    var Emitter = require('saber-emitter');
 
 
     /**
@@ -22,7 +22,7 @@ define( function ( require ) {
 
 
     // 混入 `Emitter` 支持
-    Emitter.mixin( exports );
+    Emitter.mixin(exports);
 
     /**
      * 触发自定义事件
@@ -31,7 +31,7 @@ define( function ( require ) {
      *
      * @override
      * @param {string} type 事件名
-     * @param {...*} * 传递给监听器的参数，可以有多个
+     * @param {...args=} args 传递给监听器的参数，可以有多个
      * @example
      * // 很多类型事件监听的场景下，可共享同一个 handler 简化代码
      * var handler = function( ev ) {
@@ -44,25 +44,24 @@ define( function ( require ) {
      * b.set( 'content', 'foo' );
      * @return {Emitter}
      */
-    exports.emit = function ( type ) {
+    exports.emit = function (type) {
         // 构造事件参数对象
-        var ev = { type: type, target: this };
+        var ev = {type: type, target: this};
 
         // 构造新调用参数序列
-        var args = [ ev ].concat( Array.prototype.slice.call( arguments, 1 ) );
+        var args = [ev].concat(Array.prototype.slice.call(arguments, 1));
 
         // 先调用直接写在实例上的 "onxxx"
         var handler = this[ 'on' + type ];
-        if ( 'function' === typeof handler ) {
-            handler.apply( this, args );
+        if ('function' === typeof handler) {
+            handler.apply(this, args);
         }
 
         // 最终回到 `Emitter` 的 `emit` 方法
         // 使用调整后的新参数序列:
         // `type`, `ev`, `args`...
-        Emitter.prototype.emit.apply( this, [ type ].concat( args ) );
+        Emitter.prototype.emit.apply(this, [type].concat(args));
     };
-
 
 
     return exports;

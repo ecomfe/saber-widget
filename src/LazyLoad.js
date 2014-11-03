@@ -6,12 +6,12 @@
  * @author junmer(junemr@foxmail.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var lang = require( 'saber-lang' );
-    var dom = require( 'saber-dom' );
-    var Widget = require( './Widget' );
-    var debounce = require( 'saber-lang/function/debounce' );
+    var lang = require('saber-lang');
+    var dom = require('saber-dom');
+    var Widget = require('./Widget');
+    var debounce = require('saber-lang/function/debounce');
 
     /**
      * LazyLoad 控件
@@ -27,7 +27,7 @@ define( function ( require ) {
      * @fires LazyLoad#complete
      * @param {Object=} options 初始化配置参数
      */
-    function LazyLoad( options ) {
+    function LazyLoad(options) {
 
         this.attrs = {
 
@@ -36,7 +36,7 @@ define( function ( require ) {
              *
              * @type {string}
              */
-            attribute: { value: 'data-original' },
+            attribute: {value: 'data-original'},
 
             /**
              * 触发事件
@@ -44,14 +44,14 @@ define( function ( require ) {
              *
              * @type {string}
              */
-            events: { value: 'scroll touchmove resize orientationchange' },
+            events: {value: 'scroll touchmove resize orientationchange'},
 
             /**
              * 是否启用动画
              *
              * @type {boolean}
              */
-            animate: { value: false },
+            animate: {value: false},
 
 
             /**
@@ -59,7 +59,7 @@ define( function ( require ) {
              *
              * @type {number}
              */
-            range: { value: 100 },
+            range: {value: 100},
 
 
             /**
@@ -72,7 +72,7 @@ define( function ( require ) {
                     'data:image/png;base64,',
                     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8',
                     'YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC'
-                ].join( '' )
+                ].join('')
             }
 
 
@@ -93,7 +93,7 @@ define( function ( require ) {
 
         // **MUST**最后调用父类的构造函数
         // 由于子类的`attrs`、`states`等需要与父类的对应默认值进行`mixin`
-        Widget.apply( this, arguments );
+        Widget.apply(this, arguments);
     }
 
 
@@ -114,17 +114,17 @@ define( function ( require ) {
          */
         initDom: function () {
 
-            this.container = this.get( 'main' );
+            this.container = this.get('main');
 
-            this.main = this.get( 'main' ) || document.body;
+            this.main = this.get('main') || document.body;
 
             this.elements = this._filterElements();
 
             // 初始化占位图片
-            if ( this.get( 'placeholder' ) ) {
+            if (this.get('placeholder')) {
                 this.elements.forEach(
-                    function ( el ) {
-                        el.src = this.get( 'placeholder' );
+                    function (el) {
+                        el.src = this.get('placeholder');
                     },
                     this
                 );
@@ -141,14 +141,14 @@ define( function ( require ) {
 
             var me = this;
 
-            this.get( 'events' )
-                .split( ' ' )
+            this.get('events')
+                .split(' ')
                 .forEach(
-                    function ( evt ) {
-                        // 绑定事件
-                        me.addEvent( me.container || window, evt, me._update );
-                    }
-                );
+                function (evt) {
+                    // 绑定事件
+                    me.addEvent(me.container || window, evt, me._update);
+                }
+            );
 
             // 初始化, 先来一次
             this._update();
@@ -163,7 +163,7 @@ define( function ( require ) {
          */
         _filterElements: function () {
 
-            return dom.queryAll( '[' + this.get('attribute') + ']', this.main );
+            return dom.queryAll('[' + this.get('attribute') + ']', this.main);
 
         },
 
@@ -174,7 +174,7 @@ define( function ( require ) {
          */
         refresh: function () {
             this.elements = this._filterElements();
-            this.removeState( 'complete' );
+            this.removeState('complete');
         },
 
         /**
@@ -183,31 +183,31 @@ define( function ( require ) {
          * @private
          * @param  {HTMLElemnt} el 需要加载的元素
          */
-        _loadElement: function ( el ) {
+        _loadElement: function (el) {
 
             // 动画
-            if ( this.get( 'animate' ) ) {
+            if (this.get('animate')) {
 
-                dom.setStyle( el, 'opacity', 0 );
+                dom.setStyle(el, 'opacity', 0);
 
-                dom.setStyle( el, 'transition', 'opacity .5s linear 0s' );
+                dom.setStyle(el, 'transition', 'opacity .5s linear 0s');
 
-                this.addEvent( el, 'load', function () {
+                this.addEvent(el, 'load', function () {
 
-                    dom.setStyle( el, 'opacity', 1 );
+                    dom.setStyle(el, 'opacity', 1);
 
                 });
 
             }
 
             // 替换真实地址
-            var original = el.getAttribute( this.get( 'attribute' ) );
+            var original = el.getAttribute(this.get('attribute'));
 
-            if ( el.tagName.toUpperCase() === 'IMG' ) {
+            if (el.tagName.toUpperCase() === 'IMG') {
                 el.src = original;
             }
             else {
-                dom.setStyle( el, 'background-image', 'url(' + original + ')' );
+                dom.setStyle(el, 'background-image', 'url(' + original + ')');
             }
 
             /**
@@ -216,7 +216,7 @@ define( function ( require ) {
              * @event LazyLoad#load
              * @param {HTMLElement} el 目标元素
              */
-            this.emit( 'load', el );
+            this.emit('load', el);
         },
 
         /**
@@ -231,15 +231,15 @@ define( function ( require ) {
                 // 此处简单粗暴的 处理了 加载完成逻辑
                 // 后期如果 有性能瓶颈 会考虑 维护一个状态队列
                 this.elements = this.elements.filter(
-                    function ( el ) {
+                    function (el) {
 
-                        if ( el ) {
+                        if (el) {
 
-                            if( ! el.parentNode ) {
+                            if (!el.parentNode) {
                                 return false;
                             }
-                            else if( isElementInViewport( el, me.container, me.get( 'range' ) ) ) {
-                                me._loadElement( el );
+                            else if (isElementInViewport(el, me.container, me.get('range'))) {
+                                me._loadElement(el);
                                 return false;
                             }
 
@@ -257,14 +257,14 @@ define( function ( require ) {
                  *
                  * @event LazyLoad#change
                  */
-                this.emit( 'change' );
+                this.emit('change');
 
                 // 队列空了
-                if ( !this.is( 'complete' ) && !this.elements.length ) {
+                if (!this.is('complete') && !this.elements.length) {
 
-                    this.addState( 'complete' );
+                    this.addState('complete');
 
-                     /**
+                    /**
                      * 触发加载完毕事件
                      * ----------------
                      * 考虑到 有可能 图片是异步加载的
@@ -272,7 +272,7 @@ define( function ( require ) {
                      *
                      * @event LazyLoad#complete
                      */
-                    this.emit( 'complete' );
+                    this.emit('complete');
 
                 }
 
@@ -292,7 +292,7 @@ define( function ( require ) {
      * @param  {number}  range     值域
      * @return {Boolean}           结果
      */
-    function isElementInViewport ( ele, container, range ) {
+    function isElementInViewport(ele, container, range) {
 
         range = range || 0;
 
@@ -314,8 +314,8 @@ define( function ( require ) {
         var pos;
         var cRect;
 
-        if ( container ) {
-            pos = dom.position( ele, container );
+        if (container) {
+            pos = dom.position(ele, container);
             cRect = container.getBoundingClientRect();
         }
         else {
@@ -323,14 +323,14 @@ define( function ( require ) {
             cRect = getViewRect();
         }
 
-        // console.log( pos.top, range, cRect.height );
+        // console.log{pos.top, range, cRect.height};
 
-        return ( pos.top > 0 )
-            ? ( pos.top - range < cRect.height )      // 下
-            : ( pos.top + range > 0 )                 // 上
-            && ( pos.left > 0 )
-            ? ( pos.left - range < cRect.width )      // 右
-            : ( pos.left + range > 0 );               // 左
+        return (pos.top > 0)
+            ? (pos.top - range < cRect.height)      // 下
+            : (pos.top + range > 0)                 // 上
+                  && (pos.left > 0)
+                   ? (pos.left - range < cRect.width)      // 右
+                   : (pos.left + range > 0);               // 左
 
     }
 
@@ -340,11 +340,11 @@ define( function ( require ) {
      * @inner
      * @return {object} size object
      */
-    function getViewRect () {
+    function getViewRect() {
 
         var win = window;
         var doc = document;
-        var client = doc.compatMode == 'BackCompat' ? doc.body : doc.documentElement;
+        var client = doc.compatMode === 'BackCompat' ? doc.body : doc.documentElement;
 
         return {
             top: 0,
@@ -363,11 +363,11 @@ define( function ( require ) {
      */
     LazyLoad.isElementInViewport = isElementInViewport;
 
-    lang.inherits( LazyLoad, Widget );
+    lang.inherits(LazyLoad, Widget);
 
-    require( './main' ).register( LazyLoad );
+    require('./main').register(LazyLoad);
 
 
     return LazyLoad;
 
-} );
+});

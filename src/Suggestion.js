@@ -8,11 +8,11 @@
 
 define(function (require) {
 
-    var lang        = require('saber-lang');
-    var dom         = require('saber-dom');
-    var ajax        = require('saber-ajax');
-    var Resolver    = require('saber-promise');
-    var Widget      = require('./Widget');
+    var lang = require('saber-lang');
+    var dom = require('saber-dom');
+    var ajax = require('saber-ajax');
+    var Resolver = require('saber-promise');
+    var Widget = require('./Widget');
 
     /**
      * 搜索建议控件
@@ -97,7 +97,7 @@ define(function (require) {
              *
              * @type {boolean}
              */
-            autoClose:  {
+            autoClose: {
                 value: true
             }
 
@@ -141,35 +141,35 @@ define(function (require) {
 
             var me = this;
 
-            var main = me.get( 'main' );
+            var main = me.get('main');
 
             // init sug
-            if ( !me.get( 'sug' ) ) {
+            if (!me.get('sug')) {
 
                 var sugEle = document.createElement('div');
 
-                dom.setData( sugEle, 'role', 'sug' );
+                dom.setData(sugEle, 'role', 'sug');
 
-                main.appendChild( sugEle );
+                main.appendChild(sugEle);
 
-                me.set( 'sug', sugEle );
+                me.set('sug', sugEle);
 
             }
 
             // init input
-            me.get( 'input' ) || me.set( 'input', dom.query( '[data-role=input]', main ) );
+            me.get('input') || me.set('input', dom.query('[data-role=input]', main));
 
             // 关闭 autocomplete
-            var inputEle = me.get( 'input' );
-            if ( inputEle ) {
-                inputEle.setAttribute( 'autocomplete', 'off' );
+            var inputEle = me.get('input');
+            if (inputEle) {
+                inputEle.setAttribute('autocomplete', 'off');
             }
 
             // init button
-            me.get( 'search' ) || me.set( 'search', dom.query( '[data-role=search]', main ) );
+            me.get('search') || me.set('search', dom.query('[data-role=search]', main));
 
             // init reset
-            me.get( 'reset' ) || me.set( 'reset', dom.query( '[data-role=reset]', main ) );
+            me.get('reset') || me.set('reset', dom.query('[data-role=reset]', main));
 
 
         },
@@ -182,13 +182,13 @@ define(function (require) {
         initEvent: function () {
             var me = this;
 
-            var input = me.get( 'input' );
+            var input = me.get('input');
 
-            me.addEvent( input, 'input', lang.bind( me.getSug, this ) );
+            me.addEvent(input, 'input', lang.bind(me.getSug, this));
 
-            me.get( 'sugRenderer' ) || me.set( 'sugRenderer', me._getSugRenderer() );
+            me.get('sugRenderer') || me.set('sugRenderer', me._getSugRenderer());
 
-            var reset = me.get( 'reset' );
+            var reset = me.get('reset');
 
             if (reset) {
                 me.addEvent(reset, 'click', function () {
@@ -197,9 +197,9 @@ define(function (require) {
                 });
             }
 
-            me.addEvent( me.get( 'sug' ), 'click', function (ev) {
-                me.emit( 'select', ev );
-            } );
+            me.addEvent(me.get('sug'), 'click', function (ev) {
+                me.emit('select', ev);
+            });
 
         },
 
@@ -228,25 +228,25 @@ define(function (require) {
 
             var tplWrapper = '<ul data-role="ul">{#list}</ul>';
 
-            function highlight (target, query) {
-                return target.replace(query, '<em>' + query + '</em>' );
+            function highlight(target, query) {
+                return target.replace(query, '<em>' + query + '</em>');
             }
 
-            return function( data ) {
+            return function (data) {
 
                 var ret = [];
                 var query = data.q;
                 var rows = data.s;
 
                 for (var key in rows) {
-                    ret.push( ''
-                        + '<li data-key="' + rows[key] + '" >'
-                        + highlight(rows[key], query)
-                        + '</li>'
+                    ret.push(''
+                            + '<li data-key="' + rows[key] + '" >'
+                            + highlight(rows[key], query)
+                            + '</li>'
                     );
                 }
 
-                return tplWrapper.replace( '{#list}', ret.join( '' ) );
+                return tplWrapper.replace('{#list}', ret.join(''));
             };
 
         },
@@ -255,9 +255,9 @@ define(function (require) {
 
             var me = this;
 
-            var renderer = me.get( 'sugRenderer' );
+            var renderer = me.get('sugRenderer');
 
-            me.get( 'sug' ).innerHTML = renderer(data);
+            me.get('sug').innerHTML = renderer(data);
 
             me.show();
 
@@ -273,21 +273,21 @@ define(function (require) {
 
             var me = this;
 
-            var url = me.get( 'source' );
-            var param = me.get( 'param' );
-            var value = me.get( 'input' ).value;
+            var url = me.get('source');
+            var param = me.get('param');
+            var value = me.get('input').value;
 
             url += (url.indexOf('?') > -1 ? '&' : '?') + param + '=' + value;
 
 
-            var handler = me.get( 'request' );
+            var handler = me.get('request');
 
             // 传入 request
-            if ( handler ) {
+            if (handler) {
                 return handler(url);
             }
             // jsonp
-            else if ( me.get('jsonp') ) {
+            else if (me.get('jsonp')) {
                 handler = jsonp(url, {
                     key: me.get('jsonp')
                 });
@@ -305,10 +305,14 @@ define(function (require) {
         // 历史记录 相关方法
         // todo 抽成plugin
 
-        initHistory: function () {},
-        getHistory: function () {},
-        setHistory: function () {},
-        clearHistory: function () {},
+        initHistory: function () {
+        },
+        getHistory: function () {
+        },
+        setHistory: function () {
+        },
+        clearHistory: function () {
+        },
 
         /**
          * 显示 推荐列表
@@ -319,13 +323,13 @@ define(function (require) {
 
             var me = this;
 
-            if ( !me.is( 'show' ) ) {
+            if (!me.is('show')) {
 
-                dom.show( me.get( 'sug' ) );
+                dom.show(me.get('sug'));
 
-                me.addState( 'show' );
+                me.addState('show');
 
-                me.emit( 'show' );
+                me.emit('show');
 
             }
 
@@ -342,13 +346,13 @@ define(function (require) {
 
             var me = this;
 
-            if ( me.is( 'show' ) ) {
+            if (me.is('show')) {
 
-                dom.hide( me.get( 'sug' ) );
+                dom.hide(me.get('sug'));
 
-                me.removeState( 'show' );
+                me.removeState('show');
 
-                me.emit( 'hide' );
+                me.emit('hide');
 
             }
 
@@ -370,18 +374,18 @@ define(function (require) {
     function jsonp(url, options) {
 
         // init options
-        options                 = options || {};
+        options = options || {};
         // options.data            = options.data || {};
-        options.key             = options.key || 'callback';
+        options.key = options.key || 'callback';
 
         // init var
-        var resolver            = new Resolver();
-        var callbackName        = 'S_CB_' + Math.random().toString(12).substr(2);
-        var script              = document.createElement( 'script' );
+        var resolver = new Resolver();
+        var callbackName = 'S_CB_' + Math.random().toString(12).substr(2);
+        var script = document.createElement('script');
         // var data                = options.data;
         // data[options.key]       = callbackName;
 
-        url                     = url + '&' + options.key + '=' + callbackName;
+        url = url + '&' + options.key + '=' + callbackName;
 
         // // set url
         // var params = [];
@@ -395,9 +399,11 @@ define(function (require) {
             return function (res) {
                 try {
                     resolver.resolve(res);
-                } catch (e) {
+                }
+                catch (e) {
                     resolver.reject(e);
-                } finally {
+                }
+                finally {
                     window[callbackName] = null;
                     delete window[callbackName];
                     if (script) {
@@ -411,8 +417,8 @@ define(function (require) {
         // send
         script.src = url;
         script.async = true;
-        var parent = document.getElementsByTagName( 'head' )[ 0 ] || document.body;
-        parent.appendChild( script );
+        var parent = document.getElementsByTagName('head')[ 0 ] || document.body;
+        parent.appendChild(script);
         parent = null;
 
         // return promise
@@ -420,9 +426,9 @@ define(function (require) {
 
     }
 
-    lang.inherits( Suggestion, Widget );
+    lang.inherits(Suggestion, Widget);
 
-    require( './main' ).register( Suggestion );
+    require('./main').register(Suggestion);
 
 
     return Suggestion;

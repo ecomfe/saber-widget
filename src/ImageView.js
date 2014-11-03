@@ -6,12 +6,12 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var lang = require( 'saber-lang' );
-    var dom = require( 'saber-dom' );
-    var Hammer = require( 'hammer' );
-    var Widget = require( './Widget' );
+    var lang = require('saber-lang');
+    var dom = require('saber-dom');
+    var Hammer = require('hammer');
+    var Widget = require('./Widget');
 
 
     /**
@@ -43,7 +43,7 @@ define( function ( require ) {
      * @param {boolean=} options.speed 回弹动画时长，单位毫秒
      * @param {boolean=} options.switchAt 切换阀值，单位像素
      */
-    function ImageView( options ) {
+    function ImageView(options) {
 
         this.attrs = {
 
@@ -52,21 +52,21 @@ define( function ( require ) {
              *
              * @type {boolean}
              */
-            animate: { value: true },
+            animate: {value: true},
 
             /**
              * 回弹动画时长，单位毫秒
              *
              * @type {number}
              */
-            speed: { value: 200 },
+            speed: {value: 200},
 
             /**
              * 图片附加缩放比例
              *
              * @type {Object}
              */
-            zoomScale: { value: 0.88 },
+            zoomScale: {value: 0.88},
 
             /**
              * 切换阀值，有效值为`0 ~ 1`的比例系数
@@ -74,28 +74,28 @@ define( function ( require ) {
              *
              * @type {number}
              */
-            switchAt: { value: 0.5 },
+            switchAt: {value: 0.5},
 
             /**
              * 图片列表
              *
              * @type {Array<string>}
              */
-            datasource: { value: [], repaint: true },
+            datasource: {value: [], repaint: true},
 
             /**
              * 初始位置
              *
              * @type {number}
              */
-            index: { value: 0 },
+            index: {value: 0},
 
             /**
              * 是否显示工具栏
              *
              * @type {boolean}
              */
-            toolbar: { value: true, repaint: true },
+            toolbar: {value: true, repaint: true},
 
             /**
              * 是否自适应屏幕旋转
@@ -103,7 +103,7 @@ define( function ( require ) {
              *
              * @type {boolean}
              */
-            flex: { value: false, repaint: true },
+            flex: {value: false, repaint: true},
 
             /**
              * 是否全屏模式
@@ -114,9 +114,9 @@ define( function ( require ) {
 
                 value: false,
 
-                setter: function ( isFull ) {
-                    this.toggleState( 'full', isFull );
-                    dom.toggleClass( this.main, 'full', isFull );
+                setter: function (isFull) {
+                    this.toggleState('full', isFull);
+                    dom.toggleClass(this.main, 'full', isFull);
                 }
 
             },
@@ -131,7 +131,7 @@ define( function ( require ) {
                 readOnly: true,
 
                 getter: function () {
-                    return this.get( 'datasource' ).length;
+                    return this.get('datasource').length;
                 }
 
             }
@@ -141,7 +141,7 @@ define( function ( require ) {
 
         // **MUST**最后调用父类的构造函数
         // 由于子类的`attrs`、`states`等需要与父类的对应默认值进行`mixin`
-        Widget.apply( this, arguments );
+        Widget.apply(this, arguments);
     }
 
 
@@ -164,10 +164,10 @@ define( function ( require ) {
             var runtime = this.runtime;
 
             // 可视窗口尺寸
-            runtime.viewport = { width: window.innerWidth, height: window.innerHeight };
+            runtime.viewport = {width: window.innerWidth, height: window.innerHeight};
 
             // 指定了主元素, 则认为是 `setup` 模式, 忽略 `datasource` 属性并扫描主元素内图片源生成 `datasource` 属性
-            if ( this.main ) {
+            if (this.main) {
                 // 因 `setup` 模式下，`this.main` 稍后会被覆盖掉
                 // 这里存到运行时, 方便在 `initEvent` 时初始化点击事件
                 runtime.setup = this.main;
@@ -175,44 +175,44 @@ define( function ( require ) {
                 // 扫描 `main` 元素内需加入的图片
                 this.set(
                     'datasource',
-                    dom.queryAll( '[data-role=image]', this.main ).map(
-                        function ( image, index ) {
+                    dom.queryAll('[data-role=image]', this.main).map(
+                        function (image, index) {
                             // 顺便加个标志属性, 为点击交互使用
-                            dom.setData( image, 'imageview', index );
+                            dom.setData(image, 'imageview', index);
 
-                            return dom.getData( image, 'src' ) || image.getAttribute( 'src' );
+                            return dom.getData(image, 'src') || image.getAttribute('src');
                         }
                     )
                 );
             }
 
             // 主元素
-            var main = this.main = document.createElement( 'div' );
+            var main = this.main = document.createElement('div');
             main.className = 'ui-imageview';
-            dom.hide( main );
+            dom.hide(main);
 
             // 检测下是否需要立即全屏 (可能初始化配置设置了`full`: true)
             // XXX: 虽然 `full` 的 `setter` 内有此逻辑，但是考虑 `init` 阶段 DOM构建还未完成，这里需要单独处理
-            if ( this.is( 'full' ) ) {
-                dom.addClass( main, 'full' );
+            if (this.is('full')) {
+                dom.addClass(main, 'full');
             }
 
             // 工具栏
-            var toolbar = runtime.toolbar = document.createElement( 'div' );
-            dom.setData( toolbar, 'role', 'toolbar' );
+            var toolbar = runtime.toolbar = document.createElement('div');
+            dom.setData(toolbar, 'role', 'toolbar');
             toolbar.innerHTML = this.makeToolbar();
-            main.appendChild( toolbar );
+            main.appendChild(toolbar);
 
             // 容器
-            var wrapper = runtime.wrapper = document.createElement( 'div' );
-            dom.setData( wrapper, 'role', 'wrapper' );
-            main.appendChild( wrapper );
+            var wrapper = runtime.wrapper = document.createElement('div');
+            dom.setData(wrapper, 'role', 'wrapper');
+            main.appendChild(wrapper);
 
             // 初始化图片列表
-            this.get( 'datasource' ).forEach( this._append, this );
+            this.get('datasource').forEach(this._append, this);
 
             // 挂载到DOM流
-            document.body.appendChild( main );
+            document.body.appendChild(main);
         },
 
         /**
@@ -227,43 +227,43 @@ define( function ( require ) {
 
             // hammer
             var events = 'release pinchin pinchout drag swipeleft swiperight tap doubletap';
-            runtime.hammer = new Hammer( runtime.wrapper, { dragLockToAxis: true } )
+            runtime.hammer = new Hammer(runtime.wrapper, {dragLockToAxis: true})
                 .on(
-                    events,
-                    runtime.handler = lang.bind( this._handleHammer, this )
-                );
-            this.on( 'beforedispose', function () {
-                runtime.hammer.off( events, runtime.handler );
-            } );
+                events,
+                runtime.handler = lang.bind(this._handleHammer, this)
+            );
+            this.on('beforedispose', function () {
+                runtime.hammer.off(events, runtime.handler);
+            });
 
 
             // `setup` 模式构建， 则需增加点击交互
-            if ( runtime.setup ) {
-                this.addEvent( runtime.setup, 'click', function ( ev ) {
-                    if ( dom.matches( ev.target, '[data-imageview]' ) ) {
-                        var index = dom.getData( ev.target, 'imageview' );
-                        if ( index ) {
-                            this.enable().to( index | 0 );
+            if (runtime.setup) {
+                this.addEvent(runtime.setup, 'click', function (ev) {
+                    if (dom.matches(ev.target, '[data-imageview]')) {
+                        var index = dom.getData(ev.target, 'imageview');
+                        if (index) {
+                            this.enable().to(index | 0);
                         }
                     }
-                } );
+                });
             }
 
             // 工具栏
-            if ( this.get( 'toolbar' ) ) {
+            if (this.get('toolbar')) {
                 // 点击交互
-                this.addEvent( runtime.toolbar, 'touchstart', function ( ev ) {
+                this.addEvent(runtime.toolbar, 'touchstart', function (ev) {
                     ev.preventDefault();
 
-                    if ( dom.matches( ev.target, '[data-role=close]' ) ) {
+                    if (dom.matches(ev.target, '[data-role=close]')) {
                         this.disable();
                     }
-                } );
+                });
 
                 // 内容同步
-                this.on( 'change', function ( ev, from, to ) {
+                this.on('change', function (ev, from, to) {
                     this.runtime.toolbar.innerHTML = this.makeToolbar();
-                } );
+                });
             }
 
         },
@@ -277,36 +277,36 @@ define( function ( require ) {
          * 每个**属性变更对象**结构如下
          * `属性名`：[ `变更前的值`, `变更后的值` ]
          */
-        repaint: function ( changes ) {
+        repaint: function (changes) {
             // 先处理父类的重绘
-            Widget.prototype.repaint.call( this, changes );
+            Widget.prototype.repaint.call(this, changes);
 
             // `render` 阶段调用时,不传入 `changes`
-            if ( !changes ) {
-                this._resize( true ).to( this.get( 'index' ), true );
+            if (!changes) {
+                this._resize(true).to(this.get('index'), true);
                 return;
             }
 
             // 数据源变更
-            if ( changes.hasOwnProperty( 'datasource' ) ) {
-                var isEnabled = !this.is( 'disable' );
+            if (changes.hasOwnProperty('datasource')) {
+                var isEnabled = !this.is('disable');
 
-                if ( isEnabled ) {
+                if (isEnabled) {
                     this.disable();
                 }
 
                 this.runtime.wrapper.innerHTML = '';
 
-                changes.datasource[ 1 ].forEach( this._append, this );
+                changes.datasource[ 1 ].forEach(this._append, this);
 
-                if ( isEnabled ) {
-                    this.enable().to( 0 );
+                if (isEnabled) {
+                    this.enable().to(0);
                 }
             }
 
             // `ImageViewFlex` 插件更新
-            if ( changes.hasOwnProperty( 'flex' ) ) {
-                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]( 'ImageViewFlex', 'flex' );
+            if (changes.hasOwnProperty('flex')) {
+                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]('ImageViewFlex', 'flex');
             }
         },
 
@@ -318,20 +318,20 @@ define( function ( require ) {
          * @return {ImageView} 当前实例
          */
         enable: function () {
-            if ( this.is( 'render' ) ) {
+            if (this.is('render')) {
                 // 启用插件 遮罩 & 缩放
-                this.enablePlugin( 'Masker' ).enablePlugin( 'Zoom' );
+                this.enablePlugin('Masker').enablePlugin('Zoom');
 
                 // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.enablePlugin( 'ImageViewFlex', 'flex' );
+                if (this.get('flex')) {
+                    this.enablePlugin('ImageViewFlex', 'flex');
                 }
 
                 // 显示主元素
-                dom.show( this.main );
+                dom.show(this.main);
             }
 
-            Widget.prototype.enable.call( this );
+            Widget.prototype.enable.call(this);
 
             return this;
         },
@@ -344,24 +344,23 @@ define( function ( require ) {
          * @return {ImageView} 当前实例
          */
         disable: function () {
-            if ( this.is( 'render' ) ) {
+            if (this.is('render')) {
                 // 启用插件 遮罩 & 缩放
-                this.disablePlugin( 'Masker' ).disablePlugin( 'Zoom' );
+                this.disablePlugin('Masker').disablePlugin('Zoom');
 
                 // 屏幕旋转自适应插件
-                if ( this.get( 'flex' ) ) {
-                    this.disablePlugin( 'ImageViewFlex' );
+                if (this.get('flex')) {
+                    this.disablePlugin('ImageViewFlex');
                 }
 
                 // 隐藏主元素
-                dom.hide( this.main );
+                dom.hide(this.main);
             }
 
-            Widget.prototype.disable.call( this );
+            Widget.prototype.disable.call(this);
 
             return this;
         },
-
 
 
         /**
@@ -370,39 +369,39 @@ define( function ( require ) {
          * @private
          * @param {Object} ev `hammer`的`event`对象
          */
-        _handleHammer: function ( ev ) {
+        _handleHammer: function (ev) {
             var gesture = ev.gesture;
 
             // disable browser scrolling
             gesture.preventDefault();
 
 
-            var isZoom = this.is( 'zoom' );
+            var isZoom = this.is('zoom');
             var runtime = this.runtime;
             var viewportWidth = runtime.viewport.width;
-            var index = this.get( 'index' );
+            var index = this.get('index');
 
-            switch ( ev.type ) {
+            switch (ev.type) {
                 case 'drag':
                     var direction = gesture.direction;
 
-                    if ( isZoom ) {
-                        this._drag( gesture.deltaX, gesture.deltaY );
+                    if (isZoom) {
+                        this._drag(gesture.deltaX, gesture.deltaY);
                     }
-                    else if ( 'left' === direction || 'right' === direction ) {
-                        var length = this.get( 'length' );
+                    else if ('left' === direction || 'right' === direction) {
+                        var length = this.get('length');
 
                         // stick to the finger
-                        var drag_offset = ( ( 100 / viewportWidth ) * gesture.deltaX ) / length;
+                        var dragOffset = ((100 / viewportWidth) * gesture.deltaX) / length;
 
                         // slow down at the first and last pane
-                        if( ( index === 0 && direction == 'right' ) ||
-                            ( index === length - 1 && direction == 'left' ) ) {
-                            drag_offset *= 0.4;
+                        if ((index === 0 && direction === 'right') ||
+                            (index === length - 1 && direction === 'left')) {
+                            dragOffset *= 0.4;
                         }
 
                         // switch without animate
-                        this._move( this._percent( index ) + drag_offset );
+                        this._move(this._percent(index) + dragOffset);
                     }
 
                     break;
@@ -410,7 +409,7 @@ define( function ( require ) {
                 case 'swipeleft':
                     gesture.stopDetect();
 
-                    if ( !isZoom ) {
+                    if (!isZoom) {
                         this.next();
                     }
 
@@ -419,14 +418,14 @@ define( function ( require ) {
                 case 'swiperight':
                     gesture.stopDetect();
 
-                    if ( !isZoom ) {
+                    if (!isZoom) {
                         this.prev();
                     }
 
                     break;
 
                 case 'tap':
-                    this.set( 'full', !this.is( 'full' ) );
+                    this.set('full', !this.is('full'));
                     break;
 
                 case 'doubletap':
@@ -435,21 +434,21 @@ define( function ( require ) {
                     break;
 
                 case 'pinchin':
-                    this.zoom( runtime.scale - gesture.scale * 0.2 );
+                    this.zoom(runtime.scale - gesture.scale * 0.2);
                     // gesture.stopDetect();
                     gesture.stopPropagation();
                     break;
 
                 case 'pinchout':
-                    this.zoom( runtime.scale + gesture.scale * 0.2 );
+                    this.zoom(runtime.scale + gesture.scale * 0.2);
                     // gesture.stopDetect();
                     gesture.stopPropagation();
                     break;
 
                 case 'release':
-                    if ( isZoom ) {
+                    if (isZoom) {
                         // 只关注单点触摸
-                        if ( gesture.touches.length > 1 ) {
+                        if (gesture.touches.length > 1) {
                             // 如果刚才是多点，这里需要停止继续检测
                             // 以免因还有触摸点未释放而触发 `drag`
                             gesture.stopDetect();
@@ -462,12 +461,12 @@ define( function ( require ) {
                     }
                     else {
                         // 达到切换阀值，则根据滑动方向切换
-                        if ( Math.abs( gesture.deltaX ) > viewportWidth * this.get( 'switchAt' ) ) {
-                            this[ gesture.direction == 'right' ? 'prev' : 'next' ]();
+                        if (Math.abs(gesture.deltaX) > viewportWidth * this.get('switchAt')) {
+                            this[ gesture.direction === 'right' ? 'prev' : 'next' ]();
                         }
                         // 未达到, 则回弹
                         else {
-                            this.to( index );
+                            this.to(index);
                         }
                     }
 
@@ -482,13 +481,13 @@ define( function ( require ) {
          * @param {number} index 位置索引
          * @return {number} 偏移百分比
          */
-        _percent: function ( index ) {
-            var length = this.get( 'length' );
+        _percent: function (index) {
+            var length = this.get('length');
 
             // 防越界修正
-            index = Math.max( 0, Math.min( length - 1, index ) );
+            index = Math.max(0, Math.min(length - 1, index));
 
-            return - ( 100 / length ) * index;
+            return -(100 / length) * index;
         },
 
         /**
@@ -499,12 +498,12 @@ define( function ( require ) {
          * @fires ImageView#resize
          * @return {ImageView} 当前实例
          */
-        _resize: function ( isForce ) {
+        _resize: function (isForce) {
             var runtime = this.runtime;
             var oldViewport = runtime.viewport;
-            var viewport = { width: window.innerWidth, height: window.innerHeight };
+            var viewport = {width: window.innerWidth, height: window.innerHeight};
 
-            if ( !isForce && viewport.width == oldViewport.width && viewport.height === oldViewport.height ) {
+            if (!isForce && viewport.width === oldViewport.width && viewport.height === oldViewport.height) {
                 return this;
             }
 
@@ -513,21 +512,20 @@ define( function ( require ) {
 
 
             // 重绘计算
-            var zoomScale = this.get( 'zoomScale' );
-            dom.children( runtime.wrapper ).forEach(
-                function ( node ) {
-                    styleNumber( node, 'width', viewport.width );
+            var zoomScale = this.get('zoomScale');
+            dom.children(runtime.wrapper).forEach(
+                function (node) {
+                    styleNumber(node, 'width', viewport.width);
 
                     // 修正图片缩放
-                    var img = dom.query( 'img', node );
-                    if ( img ) {
-                        imageResizeToCenter( img, viewport, zoomScale );
+                    var img = dom.query('img', node);
+                    if (img) {
+                        imageResizeToCenter(img, viewport, zoomScale);
                     }
                 }
             );
 
-            styleNumber( runtime.wrapper, 'width', viewport.width * this.get( 'length' ) );
-
+            styleNumber(runtime.wrapper, 'width', viewport.width * this.get('length'));
 
 
             /**
@@ -535,7 +533,7 @@ define( function ( require ) {
              * @param {Object} from 容器旧尺寸信息
              * @param {Object} to 容器新尺寸信息
              */
-            this.emit( 'resize', oldViewport, viewport );
+            this.emit('resize', oldViewport, viewport);
 
             return this;
         },
@@ -546,10 +544,10 @@ define( function ( require ) {
          * @public
          * @param {string} image 图片绝对地址
          */
-        _append: function ( image ) {
-            var item = document.createElement( 'div' );
-            dom.setData( item, 'role', 'item' );
-            this.runtime.wrapper.appendChild( item );
+        _append: function (image) {
+            var item = document.createElement('div');
+            dom.setData(item, 'role', 'item');
+            this.runtime.wrapper.appendChild(item);
         },
 
         /**
@@ -560,36 +558,36 @@ define( function ( require ) {
          * @fires ImageView#afterload
          * @param {number} index 图片所在位置索引
          */
-        _load: function ( index ) {
-            var node = dom.queryAll( '[data-role=item]', this.runtime.wrapper )[ index ];
+        _load: function (index) {
+            var node = dom.queryAll('[data-role=item]', this.runtime.wrapper)[ index ];
 
-            if ( !node || !dom.query( 'img', node ) ) {
+            if (!node || !dom.query('img', node)) {
                 var self = this;
 
                 /**
                  * @event ImageView#beforeload
                  * @param {number} index 图片位置索引
                  */
-                self.emit( 'beforeload', index );
+                self.emit('beforeload', index);
 
                 var img = document.createElement('img');
-                dom.hide( img );
+                dom.hide(img);
 
-                img.src = self.get( 'datasource' )[ index ];
+                img.src = self.get('datasource')[ index ];
 
                 img.onload = function () {
                     this.onload = null;
-                    imageResizeToCenter( this, self.runtime.viewport, self.get( 'zoomScale' ) );
-                    dom.show( this );
+                    imageResizeToCenter(this, self.runtime.viewport, self.get('zoomScale'));
+                    dom.show(this);
 
                     /**
                      * @event ImageView#afterload
                      * @param {number} index 图片位置索引
                      */
-                    self.emit( 'afterload', index );
+                    self.emit('afterload', index);
                 };
 
-                node.appendChild( img );
+                node.appendChild(img);
             }
         },
 
@@ -600,35 +598,35 @@ define( function ( require ) {
          * @param {number} percent X轴偏移百分比
          * @param {number=} speed 移动速度,单位毫秒
          */
-        _move: function ( percent, speed ) {
+        _move: function (percent, speed) {
             var wrapper = this.runtime.wrapper;
 
-            if ( this.get( 'animate' ) ) {
-                dom.setStyle( wrapper, 'transition', 'all ' + ( speed || 0 ) + 'ms' );
+            if (this.get('animate')) {
+                dom.setStyle(wrapper, 'transition', 'all ' + (speed || 0) + 'ms');
             }
 
-            dom.setStyle( wrapper, 'transform', 'translate3d(' + percent + '%, 0, 0) scale3d(1, 1, 1)' );
+            dom.setStyle(wrapper, 'transform', 'translate3d(' + percent + '%, 0, 0) scale3d(1, 1, 1)');
 
             return this;
         },
 
-        _drag: function ( x, y, speed ) {
+        _drag: function (x, y, speed) {
             var runtime = this.runtime;
             var scale = runtime.scale;
-            var img = this._image( this.get( 'index' ) );
+            var img = this._image(this.get('index'));
 
             speed = speed || 0;
             x = runtime.dragX + x;
             y = runtime.dragY + y;
 
-            if ( this.get( 'animate' ) ) {
-                dom.setStyle( img, 'transition', 'all ' + speed + 'ms' );
+            if (this.get('animate')) {
+                dom.setStyle(img, 'transition', 'all ' + speed + 'ms');
             }
 
             dom.setStyle(
                 img,
                 'transform',
-                'translate3d(' + x + 'px, ' + y + 'px, 0) scale3d(' + scale + ', ' + scale + ', 1)'
+                    'translate3d(' + x + 'px, ' + y + 'px, 0) scale3d(' + scale + ', ' + scale + ', 1)'
             );
         },
 
@@ -639,9 +637,9 @@ define( function ( require ) {
          * @param {number} index 图片所在位置索引
          * @return {?HTMLElement} 获取到的图片元素, 失败返回`null`
          */
-        _image: function ( index ) {
+        _image: function (index) {
             return dom.query(
-                '[data-role=item]:nth-child(' + ( index + 1 ) + ') img',
+                    '[data-role=item]:nth-child(' + (index + 1) + ') img',
                 this.runtime.wrapper
             );
         },
@@ -653,24 +651,24 @@ define( function ( require ) {
          *
          * @param {HTMLElement} main 目标容器元素
          */
-        setup: function ( main ) {
-            if ( main && main !== this.runtime.setup ) {
+        setup: function (main) {
+            if (main && main !== this.runtime.setup) {
                 // 更新关联构建区域
                 this.runtime.setup = main;
 
                 // 扫描 `main` 元素内需加入的图片
                 this.set(
                     'datasource',
-                    dom.queryAll( '[data-role=image]', main ).map(
-                        function ( image, index ) {
-                            dom.setData( image, 'imageview', index );
-                            return dom.getData( image, 'src' ) || image.getAttribute( 'src' );
+                    dom.queryAll('[data-role=image]', main).map(
+                        function (image, index) {
+                            dom.setData(image, 'imageview', index);
+                            return dom.getData(image, 'src') || image.getAttribute('src');
                         }
                     )
                 );
 
                 // DOM结构可能被覆盖了，这里强制重绘一次以防万一
-                this._resize( true );
+                this._resize(true);
             }
         },
 
@@ -683,8 +681,8 @@ define( function ( require ) {
         makeToolbar: function () {
             return [
                 '<span data-role="close">关闭</span>',
-                '<h1>' + ( this.get( 'index' ) + 1 ) + ' of ' + this.get( 'length' ) + '</h1>'
-            ].join( '' );
+                    '<h1>' + (this.get('index') + 1) + ' of ' + this.get('length') + '</h1>'
+            ].join('');
         },
 
         /**
@@ -696,16 +694,16 @@ define( function ( require ) {
          * @fires ImageView#change
          * @return {ImageView} 当前实例
          */
-        to: function ( index, isForce ) {
-            if ( !isForce && this.is( 'disable' ) ) {
+        to: function (index, isForce) {
+            if (!isForce && this.is('disable')) {
                 return this;
             }
 
             // XXX: 节省点, 这里不严格判断是否`图片元素`了
-            if ( 'number' !== typeof index ) {
-                index = dom.getData( index, 'imageview' );
+            if ('number' !== typeof index) {
+                index = dom.getData(index, 'imageview');
 
-                if ( !index ) {
+                if (!index) {
                     return this;
                 }
 
@@ -713,36 +711,35 @@ define( function ( require ) {
             }
 
             // 若当前缩放状态，需先还原
-            if ( this.is( 'zoom' ) ) {
+            if (this.is('zoom')) {
                 this.reset();
             }
 
 
-
-            var current = this.get( 'index' );
+            var current = this.get('index');
 
             // 边界修复
-            index = Math.max( 0, Math.min( index, this.get( 'length' ) - 1 ) );
+            index = Math.max(0, Math.min(index, this.get('length') - 1));
 
             // 切换
-            this._move( this._percent( index ), this.get( 'speed' ) );
+            this._move(this._percent(index), this.get('speed'));
 
             // 回弹不触发事件
-            if ( current !== index ) {
+            if (current !== index) {
                 // 更新
-                this.set( 'index', index );
+                this.set('index', index);
 
                 /**
                  * @event ImageView#change
                  * @param {number} from 原来显示项的位置
                  * @param {number} to 当前显示项的位置
                  */
-                this.emit( 'change', current, index );
+                this.emit('change', current, index);
             }
 
 
             // 加载当前项的图片
-            this._load( index );
+            this._load(index);
 
             return this;
         },
@@ -754,7 +751,7 @@ define( function ( require ) {
          * @return {ImageView} 当前实例
          */
         prev: function () {
-            return this.to( this.get( 'index' ) - 1 );
+            return this.to(this.get('index') - 1);
         },
 
         /**
@@ -764,7 +761,7 @@ define( function ( require ) {
          * @return {ImageView} 当前实例
          */
         next: function () {
-            return this.to( this.get( 'index' ) + 1 );
+            return this.to(this.get('index') + 1);
         },
 
         /**
@@ -773,30 +770,30 @@ define( function ( require ) {
          * @public
          * @fires ImageView#zoom
          */
-        zoom: function ( scale ) {
-            if ( !scale && this.is( 'zoom' ) ) {
+        zoom: function (scale) {
+            if (!scale && this.is('zoom')) {
                 return this;
             }
 
-            if ( scale && ( scale < 0.7 || scale > 3 ) ) {
+            if (scale && (scale < 0.7 || scale > 3)) {
                 return this;
             }
 
-            this.addState( 'zoom' );
+            this.addState('zoom');
 
             var runtime = this.runtime;
             runtime.scale = scale || 2;
             runtime.dragX = runtime.dragX || 0;
             runtime.dragY = runtime.dragY || 0;
 
-            this._drag( 0, 0, this.get( 'speed' ) );
+            this._drag(0, 0, this.get('speed'));
 
 
             /**
              * @event ImageView#zoom
              * @param {number} scale 当前的缩放比例
              */
-            this.emit( 'zoom', runtime.scale );
+            this.emit('zoom', runtime.scale);
         },
 
         /**
@@ -806,11 +803,11 @@ define( function ( require ) {
          * @fires ImageView#reset
          */
         reset: function () {
-            if ( !this.is( 'zoom' ) ) {
+            if (!this.is('zoom')) {
                 return this;
             }
 
-            this.removeState( 'zoom' );
+            this.removeState('zoom');
 
 
             var runtime = this.runtime;
@@ -818,21 +815,20 @@ define( function ( require ) {
             runtime.dragX = 0;
             runtime.dragY = 0;
 
-            this._drag( 0, 0, this.get( 'speed' ) );
+            this._drag(0, 0, this.get('speed'));
 
 
             /**
              * @event ImageView#reset
              */
-            this.emit( 'reset' );
+            this.emit('reset');
         }
 
     };
 
-    lang.inherits( ImageView, Widget );
+    lang.inherits(ImageView, Widget);
 
-    require( './main' ).register( ImageView );
-
+    require('./main').register(ImageView);
 
 
     /**
@@ -844,20 +840,20 @@ define( function ( require ) {
      * @param {Object} size 参考尺寸, 包括 `width` 和 `height`
      * @param {number} scale 附加缩放比例
      */
-    function imageResizeToCenter ( img, size, scale ) {
+    function imageResizeToCenter(img, size, scale) {
         var w = img.naturalWidth || img.width;
         var h = img.naturalHeight || img.height;
         var sw = size.width;
         var sh = size.height;
 
         // 先以宽为基准缩放
-        if ( w > sw ) {
+        if (w > sw) {
             h *= sw / w;
             w = sw;
         }
 
         // 再以高为基准缩放
-        if ( h > sh ) {
+        if (h > sh) {
             w *= sh / h;
             h = sh;
         }
@@ -867,13 +863,13 @@ define( function ( require ) {
         h *= scale;
 
 
-        styleNumber( img, 'width', w );
-        styleNumber( img, 'height', h );
+        styleNumber(img, 'width', w);
+        styleNumber(img, 'height', h);
 
 
         // 高度不足, 需垂直居中（水平居中CSS已处理了）
-        if ( h < sh ) {
-            styleNumber( img, 'margin-top', Math.round( Math.max( ( sh - h ) / 2, 0 ) ) );
+        if (h < sh) {
+            styleNumber(img, 'margin-top', Math.round(Math.max((sh - h) / 2, 0)));
         }
     }
 
@@ -888,18 +884,17 @@ define( function ( require ) {
      * @param {number=} val 样式值(不含单位),传入时则为设置样式
      * @return {number=} 没有传入`val`参数时返回获取到的值，否则返回`undefined`
      */
-    function styleNumber ( node, name, val ) {
+    function styleNumber(node, name, val) {
         name = name || 'width';
 
-        if ( arguments.length > 2 ) {
-            return dom.setStyle( node, name, ( parseInt( val, 10 ) || 0 ) + 'px' );
+        if (arguments.length > 2) {
+            return dom.setStyle(node, name, (parseInt(val, 10) || 0) + 'px');
         }
 
-        return parseInt( dom.getStyle( node, name ), 10 ) || 0;
+        return parseInt(dom.getStyle(node, name), 10) || 0;
     }
-
 
 
     return ImageView;
 
-} );
+});

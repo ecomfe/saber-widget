@@ -6,10 +6,10 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var bind = require( 'saber-lang/bind' );
-    var extend = require( 'saber-lang/extend' );
+    var bind = require('saber-lang/bind');
+    var extend = require('saber-lang/extend');
 
 
     /**
@@ -32,7 +32,7 @@ define( function ( require ) {
      * @param {Widget} widget 控件实例
      * @param {Object=} options 插件配置项
      */
-    var Plugin = function( widget, options ) {
+    var Plugin = function (widget, options) {
         /**
          * 插件状态集
          *
@@ -40,7 +40,6 @@ define( function ( require ) {
          * @type {Object}
          */
         this.states = extend(
-
             // `基类`默认属性集
             // 使用`extend`确保正确`mixin`子类构造函数中定义的默认状态
             {
@@ -52,7 +51,6 @@ define( function ( require ) {
 
             // `子类`默认属性集
             this.states
-
         );
 
         /**
@@ -64,10 +62,10 @@ define( function ( require ) {
         this.target = widget;
 
         // 初始化配置
-        this.initOptions( options );
+        this.initOptions(options);
 
         // 更新状态
-        this.addState( 'init' );
+        this.addState('init');
 
         /**
          * @event Widget#init
@@ -75,7 +73,7 @@ define( function ( require ) {
          * @param {string} ev.type 事件类型
          * @param {Widget} ev.target 触发事件的插件对象
          */
-        this.emit( 'init' );
+        this.emit('init');
     };
 
     Plugin.prototype = {
@@ -94,14 +92,14 @@ define( function ( require ) {
          * @protected
          * @param {Object=} options 构造函数传入的配置参数
          */
-        initOptions: function ( options ) {
-            this.options = extend( {}, this.options, options );
+        initOptions: function (options) {
+            this.options = extend({}, this.options, options);
 
-            if ( this.target.is( 'render' ) ) {
+            if (this.target.is('render')) {
                 this.render();
             }
             else {
-                this.target.once( 'afterrender', bind( this.render, this ) );
+                this.target.once('afterrender', bind(this.render, this));
             }
         },
 
@@ -110,21 +108,24 @@ define( function ( require ) {
          *
          * @protected
          */
-        initDom: function () {},
+        initDom: function () {
+        },
 
         /**
          * 初始化所有事件监听
          *
          * @protected
          */
-        initEvent: function () {},
+        initEvent: function () {
+        },
 
         /**
          * 清理所有事件监听
          *
          * @protected
          */
-        clearEvent: function () {},
+        clearEvent: function () {
+        },
 
         /**
          * 销毁插件
@@ -134,14 +135,14 @@ define( function ( require ) {
          * @fires Plugin#afterdispose
          */
         dispose: function () {
-            if ( !this.is( 'dispose' ) ) {
+            if (!this.is('dispose')) {
                 /**
                  * @event Plugin#beforedispose
                  * @param {Object} ev 事件参数对象
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'beforedispose' );
+                this.emit('beforedispose');
 
                 // 清理相关事件
                 this.clearEvent();
@@ -155,13 +156,13 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'afterdispose' );
+                this.emit('afterdispose');
 
                 // 清理自定义事件
                 this.off();
 
                 // 更新状态
-                this.addState( 'dispose' );
+                this.addState('dispose');
             }
         },
 
@@ -172,8 +173,8 @@ define( function ( require ) {
          * @fires Plugin#enable
          */
         enable: function () {
-            if ( this.is( 'disable' ) ) {
-                this.removeState( 'disable' );
+            if (this.is('disable')) {
+                this.removeState('disable');
 
                 /**
                  * @event Plugin#enable
@@ -181,7 +182,7 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'enable' );
+                this.emit('enable');
             }
 
             return this;
@@ -194,8 +195,8 @@ define( function ( require ) {
          * @fires Plugin#disable
          */
         disable: function () {
-            if ( !this.is( 'disable' ) ) {
-                this.addState( 'disable' );
+            if (!this.is('disable')) {
+                this.addState('disable');
 
                 /**
                  * @event Plugin#disable
@@ -203,7 +204,7 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'disable' );
+                this.emit('disable');
             }
 
             return this;
@@ -214,7 +215,8 @@ define( function ( require ) {
          *
          * @protected
          */
-        repaint: function () {},
+        repaint: function () {
+        },
 
         /**
          * 渲染控件
@@ -224,10 +226,10 @@ define( function ( require ) {
          * @fires Plugin#afterrender
          */
         render: function () {
-            var rendered = this.is( 'render' );
+            var rendered = this.is('render');
 
-            if ( !rendered ) {
-                this.addState( 'render' );
+            if (!rendered) {
+                this.addState('render');
 
                 /**
                  * @event Plugin#beforerender
@@ -235,7 +237,7 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'beforerender' );
+                this.emit('beforerender');
 
                 // DOM初始化
                 this.initDom();
@@ -247,14 +249,14 @@ define( function ( require ) {
             // DOM重绘
             this.repaint();
 
-            if ( !rendered ) {
+            if (!rendered) {
                 /**
                  * @event Plugin#afterrender
                  * @param {Object} ev 事件参数对象
                  * @param {string} ev.type 事件类型
                  * @param {Plugin} ev.target 触发事件的插件对象
                  */
-                this.emit( 'afterrender' );
+                this.emit('afterrender');
             }
 
             return this;
@@ -263,15 +265,14 @@ define( function ( require ) {
     };
 
 
-
     // 混入 `定义事件`、`状态管理` 支持
     extend(
         Plugin.prototype,
-        require( '../base/event' ),
-        require( '../base/state' )
+        require('../base/event'),
+        require('../base/state')
     );
 
 
     return Plugin;
 
-} );
+});

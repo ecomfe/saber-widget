@@ -6,10 +6,10 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
+define(function (require) {
 
-    var extend = require( 'saber-lang/extend' );
-    var main = require( './main' );
+    var extend = require('saber-lang/extend');
+    var main = require('./main');
 
 
     /**
@@ -39,7 +39,7 @@ define( function ( require ) {
      * @param {HTMLElement=} options.main 控件主元素
      * @param {*=} options.* 其余初始化参数由各控件自身决定
      */
-    var Widget = function ( options ) {
+    var Widget = function (options) {
         options = options || {};
 
         /**
@@ -49,12 +49,11 @@ define( function ( require ) {
          * @type {Object}
          */
         this.attrs = extend(
-
             // `基类`默认属性集
             {},
 
             // `子类`默认属性集
-            this.attrs || {},
+                this.attrs || {},
 
             // 公共属性集
             {
@@ -102,7 +101,6 @@ define( function ( require ) {
                 }
 
             }
-
         );
 
         /**
@@ -112,7 +110,6 @@ define( function ( require ) {
          * @type {Object}
          */
         this.states = extend(
-
             // `基类`默认属性集
             // 使用`extend`确保正确`mixin`子类构造函数中定义的默认状态
             {
@@ -124,7 +121,6 @@ define( function ( require ) {
 
             // `子类`默认属性集
             this.states
-
         );
 
         /**
@@ -138,20 +134,20 @@ define( function ( require ) {
 
         // **只读**的**核心**属性需提前处理
         this.id = options.id || main.getGUID();
-        this.main = require( 'saber-dom' ).query( options.main );
+        this.main = require('saber-dom').query(options.main);
 
         // 初始化后立即从`options`里移除，以免`initOptions`触发`set`操作并抛异常
         delete options.id;
         delete options.main;
 
         // 初始化配置
-        this.initOptions( options );
+        this.initOptions(options);
 
         // 存储实例
-        main.add( this );
+        main.add(this);
 
         // 更新状态
-        this.addState( 'init' );
+        this.addState('init');
 
         /**
          * @event Widget#init
@@ -159,7 +155,7 @@ define( function ( require ) {
          * @param {string} ev.type 事件类型
          * @param {Widget} ev.target 触发事件的控件对象
          */
-        this.emit( 'init' );
+        this.emit('init');
     };
 
     Widget.prototype = {
@@ -183,16 +179,16 @@ define( function ( require ) {
          * @param {HTMLElement=} options.main 控件主元素
          * @param {*=} options.* 其余初始化参数由各控件自身决定
          */
-        initOptions: function ( options ) {
+        initOptions: function (options) {
 
             // 过滤 `onxxx` 形式参数并自动化绑定
             // 过滤 `public` 方法重载
-            options = processEventHandlerAndOverrideMethod.call( this, options );
+            options = processEventHandlerAndOverrideMethod.call(this, options);
 
             // 这里做了下对象克隆，以防各种不可预知的覆盖错误
-            this.options = extend( {}, options );
+            this.options = extend({}, options);
 
-            this.set( this.options );
+            this.set(this.options);
         },
 
         /**
@@ -200,14 +196,16 @@ define( function ( require ) {
          *
          * @protected
          */
-        initDom: function () {},
+        initDom: function () {
+        },
 
         /**
          * 初始化DOM相关事件，仅在第一次渲染时调用
          *
          * @protected
          */
-        initEvent: function () {},
+        initEvent: function () {
+        },
 
         /**
          * 渲染控件
@@ -217,16 +215,16 @@ define( function ( require ) {
          * @fires Widget#afterrender
          */
         render: function () {
-            var rendered = this.is( 'render' );
+            var rendered = this.is('render');
 
-            if ( !rendered ) {
+            if (!rendered) {
                 /**
                  * @event Widget#beforerender
                  * @param {Object} ev 事件参数对象
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'beforerender' );
+                this.emit('beforerender');
 
                 // DOM初始化
                 this.initDom();
@@ -235,22 +233,22 @@ define( function ( require ) {
                 this.initEvent();
 
                 // 为控件主元素添加控件实例标识属性
-                this.get( 'main' ).setAttribute( main.getConfig( 'instanceAttr' ), this.get( 'id' ) );
+                this.get('main').setAttribute(main.getConfig('instanceAttr'), this.get('id'));
 
-                this.addState( 'render' );
+                this.addState('render');
             }
 
             // DOM重绘
             this.repaint();
 
-            if ( !rendered ) {
+            if (!rendered) {
                 /**
                  * @event Widget#afterrender
                  * @param {Object} ev 事件参数对象
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'afterrender' );
+                this.emit('afterrender');
             }
 
             return this;
@@ -265,7 +263,8 @@ define( function ( require ) {
          * 每个**属性变更对象**结构如下
          * `属性名`：[ `变更前的值`, `变更后的值` ]
          */
-        repaint: function () {},
+        repaint: function () {
+        },
 
         /**
          * 销毁控件
@@ -275,14 +274,14 @@ define( function ( require ) {
          * @fires Widget#afterdispose
          */
         dispose: function () {
-            if ( !this.is( 'dispose' ) ) {
+            if (!this.is('dispose')) {
                 /**
                  * @event Widget#beforedispose
                  * @param {Object} ev 事件参数对象
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'beforedispose' );
+                this.emit('beforedispose');
 
                 // 先禁用控件
                 this.disable();
@@ -294,10 +293,10 @@ define( function ( require ) {
                 this.clearEvents();
 
                 // 清理实例存储
-                main.remove( this );
+                main.remove(this);
 
                 // 清除已激活插件
-                main.disposePlugin( this );
+                main.disposePlugin(this);
 
                 /**
                  * @event Widget#afterdispose
@@ -305,16 +304,16 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'afterdispose' );
+                this.emit('afterdispose');
 
                 // 清理自定义事件
                 this.off();
 
                 // 更新状态
-                this.addState( 'dispose' );
+                this.addState('dispose');
 
                 // 移除控件主元素实例标识属性
-                this.main.removeAttribute( main.getConfig( 'instanceAttr' ) );
+                this.main.removeAttribute(main.getConfig('instanceAttr'));
 
                 // 释放主元素引用
                 this.main = null;
@@ -329,8 +328,8 @@ define( function ( require ) {
          * @return {Widget} 当前实例
          */
         enable: function () {
-            if ( this.is( 'disable' ) ) {
-                this.removeState( 'disable' );
+            if (this.is('disable')) {
+                this.removeState('disable');
 
                 /**
                  * @event Widget#enable
@@ -338,7 +337,7 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'enable' );
+                this.emit('enable');
             }
 
             return this;
@@ -352,8 +351,8 @@ define( function ( require ) {
          * @return {Widget} 当前实例
          */
         disable: function () {
-            if ( !this.is( 'disable' ) ) {
-                this.addState( 'disable' );
+            if (!this.is('disable')) {
+                this.addState('disable');
 
                 /**
                  * @event Widget#disable
@@ -361,7 +360,7 @@ define( function ( require ) {
                  * @param {string} ev.type 事件类型
                  * @param {Widget} ev.target 触发事件的控件对象
                  */
-                this.emit( 'disable' );
+                this.emit('disable');
             }
 
             return this;
@@ -374,8 +373,8 @@ define( function ( require ) {
          * @param {string} pluginName 插件名称
          * @return {?Plugin} 插件实例
          */
-        plugin: function ( pluginName ) {
-            return ( this.plugins || {} )[ pluginName ];
+        plugin: function (pluginName) {
+            return (this.plugins || {})[ pluginName ];
         },
 
         /**
@@ -385,11 +384,11 @@ define( function ( require ) {
          * @param {string=} optionName 插件初始化配置名
          * @return {Widget} 当前控件实例
          */
-        enablePlugin: function ( pluginName, optionName ) {
+        enablePlugin: function (pluginName, optionName) {
             main.enablePlugin(
                 this,
                 pluginName,
-                ( this.options.plugin || {} )[ optionName || pluginName.toLowerCase() ]
+                (this.options.plugin || {})[ optionName || pluginName.toLowerCase() ]
             );
             return this;
         },
@@ -400,25 +399,22 @@ define( function ( require ) {
          * @param {string} pluginName 插件名称
          * @return {Widget} 当前控件实例
          */
-        disablePlugin: function ( pluginName ) {
-            main.disablePlugin( this, pluginName );
+        disablePlugin: function (pluginName) {
+            main.disablePlugin(this, pluginName);
             return this;
         }
 
     };
 
 
-
     // 扩展 `自定义事件`、`状态`、`属性`、`DOM事件` 支持
     extend(
         Widget.prototype,
-        require( './base/event' ),
-        require( './base/state' ),
-        require( './base/attribute' ),
-        require( './base/dom' )
+        require('./base/event'),
+        require('./base/state'),
+        require('./base/attribute'),
+        require('./base/dom')
     );
-
-
 
 
     /**
@@ -429,23 +425,23 @@ define( function ( require ) {
      * @param {Object} options 配置对象
      * @return {Object} 过滤掉`事件监听`和`重载方法`属性的配置对象
      */
-    function processEventHandlerAndOverrideMethod( options ) {
+    function processEventHandlerAndOverrideMethod(options) {
         var key, val;
-        for ( key in options ) {
-            if ( !options.hasOwnProperty( key ) ) {
+        for (key in options) {
+            if (!options.hasOwnProperty(key)) {
                 continue;
             }
 
             val = options[ key ];
 
             // 自定义事件添加
-            if ( /^on[A-Z]/.test( key ) && isFunction( val ) ) {
+            if (/^on[A-Z]/.test(key) && isFunction(val)) {
                 // 移除on前缀，并转换第3个字符为小写，得到事件类型
-                this.on( key.charAt( 2 ).toLowerCase() + key.slice( 3 ), val );
+                this.on(key.charAt(2).toLowerCase() + key.slice(3), val);
                 delete options[ key ];
             }
             // `public`方法重载
-            else if ( isFunction( this[ key ] ) && isFunction( val ) ) {
+            else if (isFunction(this[ key ]) && isFunction(val)) {
                 this[ key ] = val;
                 delete options[ key ];
             }
@@ -455,7 +451,6 @@ define( function ( require ) {
     }
 
 
-
     /**
      * 判断变量是否是函数
      *
@@ -463,12 +458,11 @@ define( function ( require ) {
      * @param {*} obj 目标变量
      * @return {boolean}
      */
-    function isFunction ( obj ) {
+    function isFunction(obj) {
         return 'function' === typeof obj;
     }
 
 
-
     return Widget;
 
-} );
+});

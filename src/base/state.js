@@ -6,11 +6,7 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define( function ( require ) {
-
-    var extend = require( 'saber-lang/extend' );
-    var Type = require( 'saber-lang/type' );
-
+define(function (require) {
 
     /**
      * 状态管理
@@ -28,7 +24,7 @@ define( function ( require ) {
      * @param {string} state 状态名
      * @return {boolean} 包含指定状态返回`true`
      */
-    exports.is = function ( state ) {
+    exports.is = function (state) {
         return !!this.states[ state ];
     };
 
@@ -38,7 +34,7 @@ define( function ( require ) {
      * @public
      * @param {string} state 状态名
      */
-    exports.addState = function ( state ) {
+    exports.addState = function (state) {
         this.states[ state ] = !0;
     };
 
@@ -48,7 +44,7 @@ define( function ( require ) {
      * @public
      * @param {string} state 状态名
      */
-    exports.removeState = function ( state ) {
+    exports.removeState = function (state) {
         delete this.states[ state ];
     };
 
@@ -59,11 +55,10 @@ define( function ( require ) {
      * @param {string} state 状态名
      * @param {boolean=} isForce 强制指定添加或删除, 传入`true`则添加, 反之则删除
      */
-    exports.toggleState = function ( state, isForce ) {
-        isForce = 'boolean' === typeof isForce ? isForce : !this.is( state );
-        this[ isForce ? 'addState' : 'removeState' ]( state );
+    exports.toggleState = function (state, isForce) {
+        isForce = 'boolean' === typeof isForce ? isForce : !this.is(state);
+        this[ isForce ? 'addState' : 'removeState' ](state);
     };
-
 
 
     return exports;
