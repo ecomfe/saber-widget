@@ -117,7 +117,9 @@ define(
                 if (percent >= 1) {
                     this._endInterval();
                     // 上传超时
-                    this._failHandler({state: FailState.TIMEOUT});
+                    this._failHandler({
+                        state: FailState.TIMEOUT
+                    });
                 }
                 else {
                     this._progress(percent);
@@ -228,17 +230,22 @@ define(
                         }
                         else {
                             // 后台提示的信息
-                            return this._failHandler(
-                                {state: FailState.BACKENDFAIL, error: json.statusInfo}
-                            );
+                            return this._failHandler({
+                                state: FailState.BACKENDFAIL, error: json.statusInfo
+                            });
                         }
                     }
                     catch (ex) {
-                        return this._failHandler({state: FailState.PARSEERROR, statusCode: xhr.status});
+                        return this._failHandler({
+                            state: FailState.PARSEERROR, statusCode: xhr.status
+                        });
                     }
                 }
                 else {
-                    this._failHandler({state: FailState.PARSEERROR, statusCode: xhr.status});
+                    this._failHandler({
+                        state: FailState.PARSEERROR, 
+                        statusCode: xhr.status
+                    });
                 }
             },
 
@@ -332,7 +339,9 @@ define(
                 var info = this.getInfo();
                 // 作为可配置项
                 if (info.size >= this.limit * 1024 * 1024) {
-                    return this._failHandler({state: FailState.LIMIT});
+                    return this._failHandler({
+                        state: FailState.LIMIT
+                    });
                 }
 
                 this._startHandler();
@@ -393,7 +402,7 @@ define(
                 var xhr = this._prepareXMLHttpRequest();
                 var boundary = this._getBoundary();
 
-                xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + this._boundary);
+                xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
 
                 var formdata = this._buildFormData(info);
                 if (xhr.sendAsBinary) {
@@ -488,11 +497,16 @@ define(
                             this._doneHandler(res.data);
                         }
                         else {
-                            this._failHandler({state: FailState.BACKENDFAIL, error: res.statusInfo});
+                            this._failHandler({
+                                state: FailState.BACKENDFAIL, 
+                                error: res.statusInfo
+                            });
                         }
                     } 
                     catch (ex) {
-                        this._failHandler({state: FailState.PARSEERROR});
+                        this._failHandler({
+                            state: FailState.PARSEERROR
+                        });
                     }
                 }
             },
