@@ -27,6 +27,14 @@ exports.getLocations = function () {
                 livereload()
             ]
         },
+        // edp内置的php handler接收不了文件
+        // 所以这里使用了node-phpcgi
+        {
+            location: /\.php($|\?)/,
+            handler: [
+                phpcgi()
+            ]
+        },
         {
             location: /\.css($|\?)/,
             handler: [
@@ -60,6 +68,8 @@ exports.getLocations = function () {
         }
     ];
 };
+
+global.phpcgi = require('node-phpcgi').phpHandlerForEdp;
 
 exports.injectResource = function ( res ) {
     for ( var key in res ) {

@@ -29,5 +29,8 @@
         "rider-ui": "~0.1.1"
     },
     "author": "zfkun@msn.com",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "node-phpcgi": "^0.2.5"
+    }
 }
