@@ -25,6 +25,12 @@ edp import saber-widget
 * [单选组 RadioGroup](./doc/api-widget-radiogroup.md)
 * [文件上传 FileUpload](./doc/api-widget-fileupload.md)
 
+__注：__ 如果需要使用 [轮播图(Slider)](./doc/api-widget-slider.md) 与 [图片查看器(ImageView)](./doc/api-widget-imageview.md) 请手动引入额外依赖 [hammer](http://hammerjs.github.io/)(&gt;= 2.0.4)，可以使用以下命令引入：
+
+```sh
+edp import hammer
+```
+
 ### 插件
 
 * [基类 Plugin](./doc/api-plugin.md)
