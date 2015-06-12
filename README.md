@@ -23,6 +23,7 @@ edp import saber-widget
 * [图片查看器 ImageView](./doc/api-widget-imageview.md)
 * [搜索建议 Suggestion](./doc/api-widget-suggestion.md)
 * [单选组 RadioGroup](./doc/api-widget-radiogroup.md)
+* [文件上传 FileUpload](./doc/api-widget-fileupload.md)
 
 ### 插件
 
