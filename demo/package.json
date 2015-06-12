@@ -18,7 +18,7 @@
             "saber-tap": "~1.0.0",
             "saber-ajax": "~1.0.0",
             "saber-promise": "~1.0.0",
-            "hammer": "1.x",
+            "hammer": "~2.0.0",
             "saber-string": "~1.0.0",
             "saber-scroll": "~1.0.0",
             "saber-run": "~1.0.0"
@@ -29,5 +29,8 @@
         "rider-ui": "~0.1.1"
     },
     "author": "zfkun@msn.com",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "node-phpcgi": "^0.2.5"
+    }
 }

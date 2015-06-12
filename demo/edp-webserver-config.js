@@ -1,5 +1,6 @@
 var epr = require( 'edp-provider-rider' );
 var riderUI = require( 'rider-ui' );
+var phpcgi = require('node-phpcgi/edp');
 
 exports.stylus = epr.stylus;
 
@@ -25,6 +26,15 @@ exports.getLocations = function () {
             handler: [
                 file(),
                 livereload()
+            ]
+        },
+        // edp内置的php handler接收不了文件
+        // 所以这里使用了node-phpcgi
+        // 方便别人使用demo
+        {
+            location: /\.php($|\?)/,
+            handler: [
+                phpcgi()
             ]
         },
         {

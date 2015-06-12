@@ -2,15 +2,8 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>ImageView - Saber Widget Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-    <link rel="stylesheet" href="masker.css">
-    <link rel="stylesheet" href="imageview.css">
-    <link rel="stylesheet" href="demo.css">
+    <title>FileUpload</title>
     <script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js"></script>
     <script>
     require.config({
@@ -80,61 +73,57 @@
     });
     </script>
 
+    <link rel="stylesheet" href="demo.css">
 </head>
 
 <body>
-    <nav class="ui-bar" data-ui="primary header">
-        <a href="./" class="ui-btn" data-ui="primary">← 返回</a>
-        <h1 data-ui="title">ImageView - Saber UI</h1>
-        <a href="https://github.com/ecomfe/saber-widget" class="ui-btn" data-ui="primary">主页</a>
-    </nav>
-
-    <nav class="ui-bar" data-ui="subheader">
-        <div class="ui-btns">
-            <a href="./basic.html" class="ui-btn">基本</a>
-            <a href="./flex.html" class="ui-btn" data-ui="active">转屏</a>
-            <a href="./override.html" class="ui-btn">自定义</a>
-            <a href="./setup.html" class="ui-btn">Setup</a>
-            <a href="./group.html" class="ui-btn">分组</a>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="demos">
-            <span id="showBtn" class="ui-btn" data-ui="success block" data-action="enable">显示</span>
-        </div>
-    </div>
-
-
-    <script>
-    require(
+<nav class="ui-bar" data-ui="primary header">
+    <a href="../" class="ui-btn" data-ui="primary">← 返回</a>
+    <h1 data-ui="title">FileUpload - Saber UI</h1>
+    <a href="https://github.com/ecomfe/saber-widget" class="ui-btn" data-ui="primary">主页</a>
+</nav>
+<section>
+    <div id="test"></div>
+    <div id="log"></div>
+</section>
+<script>
+   require(
         [
-            'saber-tap',
-            'saber-dom',
             'saber-widget',
-            'saber-widget/ImageView',
-            'saber-widget/plugin/Masker',
-            'saber-widget/plugin/ImageViewFlex'
+            'saber-widget/FileUpload'
         ],
-        function( Tap, dom, widget ) {
-            Tap.mixin( document.body );
-
-            var images = [
-                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-12/1/2002131509443154443.jpg',
-                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-30/1/10.jpg',
-                'http://img.gaitu.com//eimg/200907160943575506.gif',
-                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-12/1/2002131509443154443.jpg',
-                'http://ygimg1.mnsfz.com/pic/yangguang/2014-5-13/1/5483238720140323173013082.jpg'
-            ];
-
-            iv = widget.imageView( { datasource: images, flex: true } );
-
-            dom.g( 'showBtn' ).addEventListener( 'click', function ( ev ) {
-                iv.enable();
-            }, false );
+        function(widget) {
+            var logElement = document.getElementById('log');
+            function log(content) {
+                logElement.innerHTML += content + '<br>';
+            }
+            function clearLog() {
+                logElement.innerHTML = '';
+            }
+            var fileupload = widget.fileUpload(
+                document.getElementById('test'),
+                {
+                    action: '/fileupload/upload.php'
+                }
+            );
+            fileupload.on('start', function(e, data) {
+                clearLog();
+                log('start');
+            });
+            fileupload.on('progress', function(e, data) {
+                log('progress: ' + data);
+            });
+            fileupload.on('end', function(e, data) {
+                log('end');
+            });
+            fileupload.on('done', function(e, data) {
+                log('done: ' + JSON.stringify(data));
+            });
+            fileupload.on('fail', function(e, data) {
+                log('fail: ' + JSON.stringify(data));
+            });
         }
     );
-    document.addEventListener( 'touchstart', function(){}, false );
-    </script>
+</script>
 </body>
 </html>

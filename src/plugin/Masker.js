@@ -113,7 +113,7 @@ define(function (require) {
         enable: function () {
             dom.show(this.main);
 
-            Plugin.prototype.disable.call(this);
+            Plugin.prototype.enable.call(this);
 
             return this;
         },

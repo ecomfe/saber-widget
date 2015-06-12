@@ -168,14 +168,14 @@ define(function (require, exports, module) {
          * @override
          */
         initEvent: function () {
-            var events = 'release touch dragleft dragright swipeleft swiperight';
+            var events = 'panstart panleft panright panend';
             var runtime = this.runtime;
 
             runtime.hammer = new Hammer(runtime.wrapper, {dragLockToAxis: true})
                 .on(
-                events,
-                runtime.handler = lang.bind(this._handleHammer, this)
-            );
+                    events,
+                    runtime.handler = lang.bind(this._handleHammer, this)
+                );
 
             this.on('beforedispose', function () {
                 runtime.hammer.off(events, runtime.handler);
@@ -229,7 +229,7 @@ define(function (require, exports, module) {
                 // 禁用hammer
                 var hammer = this.runtime.hammer;
                 if (hammer) {
-                    hammer.enable(true);
+                    hammer.set({ enable: true });
                 }
 
                 // 屏幕旋转自适应插件
@@ -259,7 +259,7 @@ define(function (require, exports, module) {
                 // 禁用hammer
                 var hammer = this.runtime.hammer;
                 if (hammer) {
-                    hammer.enable(false);
+                    hammer.set({ enable: false });
                 }
 
                 // 屏幕旋转自适应插件
@@ -282,12 +282,11 @@ define(function (require, exports, module) {
          * @param {Object} ev `hammer`的`event`对象
          */
         _handleHammer: function (ev) {
-            var gesture = ev.gesture;
             var type = ev.type;
 
             // 禁用滚动(因`Slider`仅横向移动,这里需排除垂直方向从而提高体验)
-            if ('touch' !== type) {
-                gesture.preventDefault();
+            if ('panstart' !== type) {
+                ev.preventDefault();
             }
 
 
@@ -297,7 +296,7 @@ define(function (require, exports, module) {
             var length = this.get('length');
 
             switch (type) {
-                case 'touch':
+                case 'panstart':
                     // 每次点击开始时，需先`临时`保存当前轮播状态并暂停, 以备结束后的恢复
                     runtime.needResume = !this.is('pause') && !this.is('stop');
                     if (runtime.needResume) {
@@ -306,15 +305,15 @@ define(function (require, exports, module) {
 
                     break;
 
-                case 'dragright':
-                case 'dragleft':
+                case 'panright':
+                case 'panleft':
                     // stick to the finger
                     var paneOffset = this._percent(index);
-                    var dragOffset = ((100 / width) * gesture.deltaX) / length;
+                    var dragOffset = ((100 / width) * ev.deltaX) / length;
 
                     // slow down at the first and last pane
-                    if ((index === 0 && gesture.direction === 'right') ||
-                        (index === length - 1 && gesture.direction === 'left')) {
+                    if ((index === 0 && ev.direction === Hammer.DIRECTION_RIGHT) ||
+                        (index === length - 1 && ev.direction === Hammer.DIRECTION_LEFT)) {
                         dragOffset *= 0.4;
                     }
 
@@ -322,32 +321,10 @@ define(function (require, exports, module) {
                     this._move(dragOffset + paneOffset);
                     break;
 
-                case 'swipeleft':
-                    gesture.stopDetect();
-
-                    this.next();
-
-                    if (runtime.needResume) {
-                        this.resume();
-                    }
-
-                    break;
-
-                case 'swiperight':
-                    gesture.stopDetect();
-
-                    this.prev();
-
-                    if (runtime.needResume) {
-                        this.resume();
-                    }
-
-                    break;
-
-                case 'release':
+                case 'panend':
                     // 达到切换阀值，则根据滑动方向切换
-                    if (Math.abs(gesture.deltaX) > width * this.get('switchAt')) {
-                        this[ gesture.direction === 'right' ? 'prev' : 'next' ]();
+                    if (Math.abs(ev.deltaX) > width * this.get('switchAt')) {
+                        this[ ev.direction === Hammer.DIRECTION_RIGHT ? 'prev' : 'next' ]();
                     }
                     // 未达到, 则回弹
                     else {
