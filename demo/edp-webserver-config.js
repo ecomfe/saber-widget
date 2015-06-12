@@ -1,5 +1,6 @@
 var epr = require( 'edp-provider-rider' );
 var riderUI = require( 'rider-ui' );
+var phpcgi = require('node-phpcgi/edp');
 
 exports.stylus = epr.stylus;
 
@@ -69,9 +70,6 @@ exports.getLocations = function () {
         }
     ];
 };
-
-// 自定义一个resource
-global.phpcgi = require('node-phpcgi').phpHandlerForEdp;
 
 exports.injectResource = function ( res ) {
     for ( var key in res ) {
