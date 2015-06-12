@@ -225,10 +225,18 @@ define(function (require) {
 
             runtime.scale = 1;
 
+            runtime.hammer = new Hammer(
+                runtime.wrapper,
+                {dragLockToAxis: true}
+            );
+
             // hammer
-            var events = 'release pinchin pinchout drag swipeleft swiperight tap doubletap';
-            runtime.hammer = new Hammer(runtime.wrapper, {dragLockToAxis: true})
-                .on(
+            var events = 'swipeleft swiperight panmove panend pinchin pinchout tap doubletap';
+
+            // Tap recognizer with minimal 2 taps
+            runtime.hammer.add( new Hammer.Pinch() );
+
+            runtime.hammer.on(
                 events,
                 runtime.handler = lang.bind(this._handleHammer, this)
             );
@@ -252,7 +260,7 @@ define(function (require) {
             // 工具栏
             if (this.get('toolbar')) {
                 // 点击交互
-                this.addEvent(runtime.toolbar, 'touchstart', function (ev) {
+                this.addEvent(runtime.toolbar, 'click', function (ev) {
                     ev.preventDefault();
 
                     if (dom.matches(ev.target, '[data-role=close]')) {
@@ -297,7 +305,7 @@ define(function (require) {
 
                 this.runtime.wrapper.innerHTML = '';
 
-                changes.datasource[ 1 ].forEach(this._append, this);
+                changes.datasource[1].forEach(this._append, this);
 
                 if (isEnabled) {
                     this.enable().to(0);
@@ -306,7 +314,7 @@ define(function (require) {
 
             // `ImageViewFlex` 插件更新
             if (changes.hasOwnProperty('flex')) {
-                this[ changes.flex[ 1 ] ? 'enablePlugin' : 'disablePlugin' ]('ImageViewFlex', 'flex');
+                this[changes.flex[1] ? 'enablePlugin' : 'disablePlugin']('ImageViewFlex', 'flex');
             }
         },
 
@@ -370,10 +378,8 @@ define(function (require) {
          * @param {Object} ev `hammer`的`event`对象
          */
         _handleHammer: function (ev) {
-            var gesture = ev.gesture;
-
             // disable browser scrolling
-            gesture.preventDefault();
+            ev.preventDefault();
 
 
             var isZoom = this.is('zoom');
@@ -382,17 +388,17 @@ define(function (require) {
             var index = this.get('index');
 
             switch (ev.type) {
-                case 'drag':
-                    var direction = gesture.direction;
+                case 'panmove':
+                    var direction = ev.direction;
 
                     if (isZoom) {
-                        this._drag(gesture.deltaX, gesture.deltaY);
+                        this._drag(ev.deltaX, ev.deltaY);
                     }
-                    else if ('left' === direction || 'right' === direction) {
+                    else if (Hammer.DIRECTION_LEFT === direction || Hammer.DIRECTION_RIGHT === direction) {
                         var length = this.get('length');
 
                         // stick to the finger
-                        var dragOffset = ((100 / viewportWidth) * gesture.deltaX) / length;
+                        var dragOffset = ((100 / viewportWidth) * ev.deltaX) / length;
 
                         // slow down at the first and last pane
                         if ((index === 0 && direction === 'right') ||
@@ -406,63 +412,53 @@ define(function (require) {
 
                     break;
 
-                case 'swipeleft':
-                    gesture.stopDetect();
+                // case 'swipeleft':
+                // case 'swiperight':
+                //     if (!isZoom) {
+                //         this[ ev.direction === Hammer.DIRECTION_RIGHT ? 'prev' : 'next' ]();
+                //     }
 
-                    if (!isZoom) {
-                        this.next();
-                    }
-
-                    break;
-
-                case 'swiperight':
-                    gesture.stopDetect();
-
-                    if (!isZoom) {
-                        this.prev();
-                    }
-
-                    break;
+                //     break;
 
                 case 'tap':
                     this.set('full', !this.is('full'));
                     break;
 
                 case 'doubletap':
-                    gesture.preventDefault();
+                    ev.preventDefault();
                     this[ isZoom ? 'reset' : 'zoom' ]();
                     break;
 
                 case 'pinchin':
-                    this.zoom(runtime.scale - gesture.scale * 0.2);
-                    // gesture.stopDetect();
-                    gesture.stopPropagation();
+                    this.zoom(runtime.scale - ev.scale * 0.2);
+                    // ev.stopDetect();
+                    ev.stopPropagation();
                     break;
 
                 case 'pinchout':
-                    this.zoom(runtime.scale + gesture.scale * 0.2);
-                    // gesture.stopDetect();
-                    gesture.stopPropagation();
+                    this.zoom(runtime.scale + ev.scale * 0.2);
+                    // ev.stopDetect();
+                    ev.stopPropagation();
                     break;
 
-                case 'release':
+                case 'panend':
                     if (isZoom) {
                         // 只关注单点触摸
-                        if (gesture.touches.length > 1) {
+                        if (ev.pointers.length > 1) {
                             // 如果刚才是多点，这里需要停止继续检测
                             // 以免因还有触摸点未释放而触发 `drag`
-                            gesture.stopDetect();
+                            ev.stopDetect();
                         }
                         else {
                             // TODO 处理图片回弹
-                            runtime.dragX += gesture.deltaX;
-                            runtime.dragY += gesture.deltaY;
+                            runtime.dragX += ev.deltaX;
+                            runtime.dragY += ev.deltaY;
                         }
                     }
                     else {
                         // 达到切换阀值，则根据滑动方向切换
-                        if (Math.abs(gesture.deltaX) > viewportWidth * this.get('switchAt')) {
-                            this[ gesture.direction === 'right' ? 'prev' : 'next' ]();
+                        if (Math.abs(ev.deltaX) > viewportWidth * this.get('switchAt')) {
+                            this[ ev.direction === Hammer.DIRECTION_RIGHT ? 'prev' : 'next' ]();
                         }
                         // 未达到, 则回弹
                         else {
@@ -561,7 +557,11 @@ define(function (require) {
         _load: function (index) {
             var node = dom.queryAll('[data-role=item]', this.runtime.wrapper)[ index ];
 
-            if (!node || !dom.query('img', node)) {
+            if (!node) {
+                return;
+            }
+
+            if (!dom.query('img', node)) {
                 var self = this;
 
                 /**
