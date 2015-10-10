@@ -4,6 +4,7 @@
  *
  * @file 图片预览控件
  * @author zfkun(zfkun@msn.com)
+ *         junmer(junmer@foxmail.com)
  */
 
 define(function (require) {
@@ -456,9 +457,19 @@ define(function (require) {
                         }
                     }
                     else {
+
+                        var isRight = (ev.direction === Hammer.DIRECTION_RIGHT);
+                        var isLeft = (ev.direction === Hammer.DIRECTION_LEFT);
+
+                        // 非横向，弹回
+                        if (!isRight && !isLeft) {
+                            this.to(index);
+                            return;
+                        }
+
                         // 达到切换阀值，则根据滑动方向切换
                         if (Math.abs(ev.deltaX) > viewportWidth * this.get('switchAt')) {
-                            this[ ev.direction === Hammer.DIRECTION_RIGHT ? 'prev' : 'next' ]();
+                            this[ isRight ? 'prev' : 'next' ]();
                         }
                         // 未达到, 则回弹
                         else {
