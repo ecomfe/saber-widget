@@ -30,7 +30,7 @@ define(function (require) {
      * @return {*} 返回目标属性的值
      */
     exports.get = function (name) {
-        var attr = this.attrs[ name ] || {};
+        var attr = this.attrs[ name ] !== undefined ? this.attrs[ name ] : {};
         return attr.getter ? attr.getter.call(this, attr.value, name) : attr.value;
     };
 
